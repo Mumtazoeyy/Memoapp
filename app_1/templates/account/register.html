@@ -1,0 +1,42 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container d-flex justify-content-center">
+    <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 animate-fade-up" style="max-width: 450px;">
+        <h2 class="fw-bold mb-4" style="letter-spacing: -1px;">REGISTRASI</h2>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group-mono">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mt-3">DAFTAR AKUN</button>
+        </form>
+        
+        <p class="small text-center text-muted mt-3">Sudah punya akun? <a href="{% url 'login' %}" class="text-dark fw-bold">Login di sini</a></p>
+    </div>
+</div>
+
+<style>
+    /* Styling agar form bawaan Django sinkron */
+    .form-group-mono p label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+    .form-group-mono p input {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #000;
+        margin-bottom: 1rem;
+    }
+    .helptext {
+        font-size: 0.7rem;
+        color: #6c757d;
+        display: block;
+        margin-top: -0.5rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}

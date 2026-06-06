@@ -1,0 +1,145 @@
+<style>
+    /* Transisi Halus untuk Card Utama */
+    .dashboard-card {
+        background-color: #fafafa;
+        /* Hapus shadow dari transition */
+        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.3s ease;
+    }
+    
+    /* Hover tanpa shadow, border berubah jadi lebih tebal/gelap */
+    .dashboard-card:hover {
+        transform: translate(-2px, -2px);
+        border-color: #000 !important; /* Border dipertegas saat hover */
+        box-shadow: none !important;    /* Pastikan shadow mati */
+    }
+
+    /* Animasi Masuk (Fade Up) */
+    .animate-fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Efek Tombol Premium (Tanpa shadow) */
+    .btn-pro {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .btn-pro::after {
+        content: "";
+        position: absolute;
+        background: rgba(0, 0, 0, 0.05);
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: -100%;
+        transform: skewX(-15deg);
+        transition: all 0.4s ease;
+    }
+    .btn-pro:hover::after {
+        left: 100%;
+    }
+    
+    /* Hover Khusus Tombol (Tanpa shadow) */
+    .btn-outline-pro:hover {
+        background-color: #000;
+        color: #fff !important;
+        transform: translateY(-1px);
+    }
+    .btn-dark-pro:hover {
+        background-color: #333;
+        transform: translateY(-1px);
+    }
+
+    /* Interaksi pada Item Status Bawah */
+    .stat-item {
+        transition: color 0.3s ease, transform 0.3s ease;
+        cursor: default;
+    }
+    .stat-item:hover {
+        transform: scale(1.02);
+    }
+</style>
+
+<div class="dashboard-card py-4 py-md-5 my-4 border border-dark rounded-0 position-relative animate-fade-up">
+    <div class="position-absolute top-0 start-0 w-100 border-top border-dark" style="border-width: 1px !important;"></div>
+
+    <div class="text-center px-3 px-md-4 mt-3">
+        <span class="d-inline-block border border-dark bg-white text-dark rounded-0 px-3 py-1 mb-3 mb-md-4 text-uppercase fw-bold animate-fade-up delay-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+            Library Dashboard
+        </span>
+
+        <h1 class="fw-bold text-dark mb-3 fs-2 fs-md-1 display-6 animate-fade-up delay-1" style="letter-spacing: -1px;">
+            <span id="dynamic-greeting">Halo</span>, Mari Lanjutkan Membaca.
+        </h1>
+        
+        <p class="text-muted fs-6 fs-md-5 mb-4 mb-md-5 mx-auto animate-fade-up delay-2" style="max-width: 600px; line-height: 1.6;">
+            Pusat kendali bacaanmu. Catat progres chapter, atur status seri favorit, dan kelola daftar koleksi komik atau mangamu dengan rapi.
+        </p>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-5 mx-auto animate-fade-up delay-2" style="max-width: 500px;">
+            <a href="{% url 'reading_add' %}" class="btn btn-dark btn-pro btn-dark-pro rounded-0 px-4 py-3 fw-bold w-100" style="letter-spacing: 1px;">
+                + TAMBAH LIST
+            </a>
+            <a href="{% url 'reading_list' %}" class="btn btn-outline-dark btn-pro btn-outline-pro rounded-0 px-4 py-3 fw-bold w-100" style="letter-spacing: 1px;">
+                LIHAT KOLEKSI
+            </a>
+        </div>
+
+        <div class="row text-center mx-auto gy-4 animate-fade-up delay-3" style="max-width: 650px;">
+            <div class="col-12 col-md-4 position-relative stat-item">
+                <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Status</span>
+                <span class="fw-bold fs-5">Track Progress</span>
+                <hr class="d-md-none border-dark opacity-25 w-25 mx-auto mt-4 mb-0">
+                <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y border-end border-dark opacity-50" style="height: 50%;"></div>
+            </div>
+            
+            <div class="col-12 col-md-4 position-relative stat-item">
+                <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Organize</span>
+                <span class="fw-bold fs-5">Manage Library</span>
+                <hr class="d-md-none border-dark opacity-25 w-25 mx-auto mt-4 mb-0">
+                <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y border-end border-dark opacity-50" style="height: 50%;"></div>
+            </div>
+            
+            <div class="col-12 col-md-4 stat-item">
+                <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Rating</span>
+                <span class="fw-bold fs-5">Review Series</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="text-muted opacity-25 my-5">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const hour = new Date().getHours();
+        let greetingText = "Halo";
+        
+        if (hour >= 4 && hour < 11) {
+            greetingText = "Selamat Pagi";
+        } else if (hour >= 11 && hour < 15) {
+            greetingText = "Selamat Siang";
+        } else if (hour >= 15 && hour < 18) {
+            greetingText = "Selamat Sore";
+        } else {
+            greetingText = "Selamat Malam";
+        }
+        
+        const greetingElement = document.getElementById("dynamic-greeting");
+        if (greetingElement) {
+            greetingElement.innerText = greetingText;
+        }
+    });
+</script>

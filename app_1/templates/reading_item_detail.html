@@ -1,0 +1,86 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Library</a></li>
+            <li class="breadcrumb-item active fw-bold" aria-current="page">{{ item.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="text-center">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" 
+                        class="img-fluid w-75 border border-1 border-secondary shadow-sm" 
+                        style="aspect-ratio: 3/4; object-fit: cover;" 
+                        alt="{{ item.title }}">
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center w-75 border border-1 border-secondary shadow-sm mx-auto" 
+                        style="aspect-ratio: 3/4;">
+                        <span class="text-muted">No Cover Image</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-8 ps-md-5">
+            <div class="mb-4">
+                <h1 class="fw-bold display-5 mb-2">{{ item.title }}</h1>
+                
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                    <span class="badge bg-dark rounded-0 px-3 py-2 text-uppercase">{{ item.category.name|default:"No Category" }}</span>
+                    <span class="badge bg-secondary rounded-0 px-3 py-2 text-uppercase">{{ item.status|default:"No Status" }}</span>
+                    
+                    <span class="badge bg-light text-dark border rounded-0 px-3 py-2">ID: #{{ item.id }}</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="fw-bold text-uppercase border-bottom pb-2 mb-3">Synopsis</h5>
+                <p class="text-secondary fs-6" style="line-height: 1.8;">
+                    {% if item.synopsis and item.synopsis != '-' %}
+                        {{ item.synopsis|linebreaks }}
+                    {% else %}
+                        <em class="text-muted">No synopsis available for this item.</em>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr><th colspan="2" class="text-uppercase small">Full Item Specifications</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><th class="bg-light" style="width: 30%;">Rating</th><td>{{ item.rating|default:"-" }}</td></tr>
+                        <tr><th class="bg-light">Chapters</th><td>{{ item.chapters|default:"0" }}</td></tr>
+                        <tr><th class="bg-light">Season/Volume</th><td>{{ item.season|default:"-" }}</td></tr>
+                        <tr><th class="bg-light">Date Added</th><td>{{ item.created_at|date:"d F Y, H:i" }}</td></tr>
+                        <tr><th class="bg-light">Last Edited</th><td>{{ item.last_edited_at|date:"d F Y, H:i" }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mb-5 p-3 bg-light border">
+                <h6 class="fw-bold text-uppercase mb-2">Notes</h6>
+                <p class="text-secondary mb-0">
+                    {{ item.notes|default:"<em class='text-muted'>No additional notes available.</em>"|safe }}
+                </p>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 py-2">Back to List</a>
+                
+                {% if item and item.id %}
+                    <a href="{% url 'reading_edit' item.id %}?next={{ request.get_full_path }}" class="btn btn-dark rounded-0 px-4 py-2">Edit Details</a>
+                {% else %}
+                    <button class="btn btn-secondary rounded-0 px-4 py-2" disabled>Edit Unavailable</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

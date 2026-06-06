@@ -1,0 +1,58 @@
+<nav class="navbar navbar-expand-lg navbar-mono mb-5">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <span class="fs-4 me-2 brand-icon">📝</span> MemoApp
+        </a>
+        
+        <button class="btn-hamburger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+            <span class="toggler-icon"></span>
+            <span class="toggler-icon"></span>
+            <span class="toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse d-none d-lg-block">
+            <ul class="navbar-nav ms-auto gap-3">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-danger" href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="offcanvas offcanvas-end offcanvas-mono" tabindex="-1" id="sidebarMenu">
+    <div class="offcanvas-header justify-content-between align-items-center">
+        <h5 class="offcanvas-title fw-bold text-uppercase small tracking-wider text-muted mb-0">Menu</h5>
+        <button type="button" class="btn-close-mono" data-bs-dismiss="offcanvas">&times;</button>
+    </div>
+    <div class="offcanvas-body pt-4">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    const myOffcanvas = document.getElementById('sidebarMenu');
+    const bodyWrapper = document.body;
+    
+    myOffcanvas.addEventListener('show.bs.offcanvas', function () {
+        bodyWrapper.classList.add('offcanvas-aktif');
+    });
+    myOffcanvas.addEventListener('hide.bs.offcanvas', function () {
+        bodyWrapper.classList.remove('offcanvas-aktif');
+    });
+</script>

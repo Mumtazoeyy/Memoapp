@@ -1,0 +1,234 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="py-4 px-3">
+    <h3 class="fw-bold mb-4">Bulk Edit Reading</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered border-dark align-middle">
+                <thead class="table-light">
+                    <tr class="align-middle">
+                        <th class="bg-dark text-white p-2 text-center" style="width: 100px;">ID ITEM</th>
+                        <th class="p-1">
+                            <div class="d-flex align-items-center gap-1" style="min-width: 180px;">
+                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('title', this)">X</button>
+                                <input type="text" id="mass-title" class="form-control form-control-sm flex-grow-1" placeholder="Title" disabled oninput="applyMass('title', this.value)">
+                            </div>
+                        </th>
+                        <th class="p-1">
+                            <div class="d-flex align-items-center gap-1" style="min-width: 120px;">
+                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('chapters', this)">X</button>
+                                <input type="number" id="mass-chapters" class="form-control form-control-sm flex-grow-1" placeholder="Chapters" disabled oninput="applyMass('chapters', this.value)">
+                            </div>
+                        </th>
+                        <th class="p-1">
+                            <div class="d-flex align-items-center gap-1" style="min-width: 130px;">
+                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('season', this)">X</button>
+                                <input type="text" id="mass-season" class="form-control form-control-sm flex-grow-1" placeholder="Season" disabled oninput="applyMass('season', this.value)">
+                            </div>
+                        </th>
+                        <th class="p-1">
+                            <div class="d-flex align-items-center gap-1" style="min-width: 160px;">
+                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('status', this)">X</button>
+                                <select id="mass-status" class="form-select form-select-sm flex-grow-1" disabled onchange="applyMass('status', this.value)">
+                                    <option value="1">Status</option>
+                                    {% for s in statuses %}
+                                        {% if s.id != 1 %}
+                                            <option value="{{ s.id }}">{{ s.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </th>
+                        <th class="p-1">
+                            <div class="d-flex align-items-center gap-1" style="min-width: 250px;">
+                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('rating', this)">X</button>
+                                <input type="hidden" id="mass-rating" value="-" disabled onchange="applyMass('rating', this.value)">
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold mass-arrow" disabled data-arrow="↑" onclick="setMassRatingArrow('↑', this)" style="width: 30px; height: 30px; padding: 0;">↑</button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold mass-arrow" disabled data-arrow="↓" onclick="setMassRatingArrow('↓', this)" style="width: 30px; height: 30px; padding: 0;">↓</button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold mass-arrow" disabled data-arrow="→" onclick="setMassRatingArrow('→', this)" style="width: 30px; height: 30px; padding: 0;">→</button>
+                                    <div class="vr mx-1"></div>
+                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" disabled onclick="changeMassRating(-1)" style="width: 30px; height: 30px; padding: 0;">-</button>
+                                    <div id="mass-rating-display" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 50px; height: 30px; background: #f8f9fa;">-</div>
+                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" disabled onclick="changeMassRating(1)" style="width: 30px; height: 30px; padding: 0;">+</button>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="p-1">
+                            <div class="d-flex align-items-center gap-1" style="min-width: 160px;">
+                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('category', this)">X</button>
+                                <select id="mass-category" class="form-select form-select-sm flex-grow-1" disabled onchange="applyMass('category', this.value)">
+                                    <option value="1">Category</option>
+                                    {% for c in categories %}
+                                        {% if c.id != 1 %}
+                                            <option value="{{ c.id }}">{{ c.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </th>
+                        <th class="p-1">
+                            <div class="d-flex align-items-center gap-1" style="min-width: 180px;">
+                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('notes', this)">X</button>
+                                <input type="text" id="mass-notes" class="form-control form-control-sm flex-grow-1" placeholder="Notes" disabled oninput="applyMass('notes', this.value)">
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td class="text-center text-muted small">ID: {{item.id}}</td>
+                        <td><input type="text" name="title_{{item.id}}" value="{{ item.title }}" class="form-control rounded-0 border-dark title-input"></td>
+                        <td><input type="number" name="chapters_{{item.id}}" value="{{ item.chapters }}" class="form-control rounded-0 border-dark chapters-input"></td>
+                        <td><input type="text" name="season_{{item.id}}" value="{{ item.season|default:'' }}" class="form-control rounded-0 border-dark season-input"></td>
+                        <td>
+                            <select name="status_{{item.id}}" class="form-select rounded-0 border-dark status-input">
+                                {% for s in statuses %}
+                                    <option value="{{ s.id }}" {% if item.status.id == s.id %}selected{% endif %}>{% if s.id == 1 %}-{% else %}{{ s.name }}{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td style="min-width: 250px;">
+    <input type="hidden" name="rating_{{item.id}}" id="rating-val-{{item.id}}" value="{{ item.rating|default:'-' }}" class="rating-input">
+    
+    <div class="d-flex align-items-center justify-content-center gap-1">
+        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↑" style="width: 30px; height: 30px; padding: 0;">↑</button>
+        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↓" style="width: 30px; height: 30px; padding: 0;">↓</button>
+        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="→" style="width: 30px; height: 30px; padding: 0;">→</button>
+        
+        <div class="vr mx-1"></div>
+        
+        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', -1)" style="width: 30px; height: 30px; padding: 0;">-</button>
+        <div id="rating-display-{{item.id}}" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 50px; height: 30px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
+        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', 1)" style="width: 30px; height: 30px; padding: 0;">+</button>
+    </div>
+</td>
+                        <td>
+                            <select name="category_{{item.id}}" class="form-select rounded-0 border-dark category-input">
+                                {% for c in categories %}
+                                    <option value="{{ c.id }}" {% if item.category.id == c.id %}selected{% endif %}>{% if c.id == 1 %}-{% else %}{{ c.name }}{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="text" name="notes_{{item.id}}" value="{{ item.notes|default:'' }}" class="form-control rounded-0 border-dark notes-input"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-dark rounded-0 px-4 mt-3">Update All Items</button>
+        <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 mt-3">Cancel</a>
+    </form>
+</div>
+
+<script>
+    // 1. Fungsi Toggle Kolom (Untuk tombol X/✓)
+    function toggleColumn(colName, btn) {
+        const input = document.getElementById('mass-' + colName);
+        const isEnabled = input.disabled;
+
+        // Toggle state input/select/hidden
+        input.disabled = !isEnabled;
+        
+        // Update visual tombol X ke ✓
+        btn.style.backgroundColor = isEnabled ? 'black' : 'white';
+        btn.style.color = isEnabled ? 'white' : 'black';
+        btn.textContent = isEnabled ? '✓' : 'X';
+
+        // Jika kolom rating, aktifkan/nonaktifkan tombol-tombol rating header
+        if (colName === 'rating') {
+            const ratingControls = btn.parentElement.querySelectorAll('button');
+            ratingControls.forEach(b => {
+                if (b !== btn) b.disabled = !isEnabled;
+            });
+        }
+    }
+
+    // 2. Fungsi Apply Massal ke Semua Baris
+    function applyMass(type, value) {
+        const input = document.getElementById('mass-' + type);
+        if (input.disabled) return;
+        
+        document.querySelectorAll('.' + type + '-input').forEach(el => {
+            el.value = value;
+            // Update display khusus untuk kolom rating
+            if (type === 'rating') {
+                const id = el.id.replace('rating-val-', '');
+                const display = document.getElementById('rating-display-' + id);
+                if (display) display.textContent = value;
+            }
+        });
+    }
+
+    // 3. Logika Rating Meter (Baris & Header)
+    document.addEventListener("DOMContentLoaded", function() {
+        // Event Listener untuk tombol panah per baris
+        document.querySelectorAll('[class*="arrow-btn-"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const arrow = this.getAttribute('data-arrow');
+                const input = document.getElementById('rating-val-' + id);
+                
+                let count = (input.value.includes(arrow)) ? input.value.length : 1;
+                if(input.value === "-") count = 1;
+                
+                let newValue = (arrow === "→") ? "→" : arrow.repeat(Math.max(1, count));
+                
+                input.value = newValue;
+                document.getElementById('rating-display-' + id).textContent = newValue;
+                
+                // Highlight tombol panah yang aktif
+                document.querySelectorAll('.arrow-btn-' + id).forEach(b => {
+                    b.classList.toggle('btn-dark', b.getAttribute('data-arrow') === arrow);
+                    b.classList.toggle('btn-outline-dark', b.getAttribute('data-arrow') !== arrow);
+                });
+            });
+        });
+    });
+
+    // Helper: Update nilai rating (Bisa dipakai baris dan header)
+    function updateRatingValue(input, display, delta) {
+        let val = input.value;
+        if (val === "-" || val === "→") {
+            if(delta > 0) input.value = "↑";
+        } else {
+            let char = val[0];
+            let count = Math.max(0, val.length + delta);
+            input.value = (count <= 0) ? "-" : char.repeat(count);
+        }
+        display.textContent = input.value;
+    }
+
+    // Fungsi klik Plus/Minus di Baris
+    function changeRating(id, delta) {
+        updateRatingValue(
+            document.getElementById('rating-val-' + id), 
+            document.getElementById('rating-display-' + id), 
+            delta
+        );
+    }
+
+    // Fungsi klik Plus/Minus di Header (Mass Apply)
+    function changeMassRating(delta) {
+        const input = document.getElementById('mass-rating');
+        updateRatingValue(input, document.getElementById('mass-rating-display'), delta);
+        applyMass('rating', input.value); // Sync ke semua baris
+    }
+
+    // Fungsi klik Panah di Header (Mass Apply)
+    function setMassRatingArrow(arrow, btn) {
+        const input = document.getElementById('mass-rating');
+        const display = document.getElementById('mass-rating-display');
+        let currentVal = input.value;
+        
+        let count = (currentVal.includes(arrow)) ? currentVal.length : 1;
+        input.value = (arrow === "→") ? "→" : arrow.repeat(Math.max(1, count));
+        display.textContent = input.value;
+        
+        applyMass('rating', input.value);
+    }
+</script>
+{% endblock %}

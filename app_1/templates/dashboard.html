@@ -1,0 +1,173 @@
+{% extends 'base/base.html' %}
+{% block title %}Collection Analytics{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Tooltip Minimalis */
+    .tech-tooltip-fixed {
+        position: fixed;
+        pointer-events: none;
+        display: none;
+        background: #fff;
+        padding: 6px 10px;
+        border-left: 3px solid #000;
+        font-family: monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        z-index: 9999;
+        box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        color: #000;
+    }
+    .slash-line { color: #ccc; margin: 0 5px; }
+</style>
+
+<div class="row g-2 mb-3">
+    <!-- 1. Total Titles -->
+    <div class="col-6 col-lg-3">
+        <div class="p-2 border border-1 border-dark bg-white h-100">
+            <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Total Titles</small>
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
+                <span class="fs-4 fw-black text-dark">{{ total_titles }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 2. Total Chapters -->
+    <div class="col-6 col-lg-3">
+        <div class="p-2 border border-1 border-dark bg-white h-100">
+            <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Total Chapters</small>
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
+                <span class="fs-4 fw-black text-dark">{{ total_chapters }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 3. Categories -->
+    <div class="col-6 col-lg-3">
+        <div class="p-2 border border-1 border-dark bg-white h-100">
+            <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Categories</small>
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
+                <span class="fs-4 fw-black text-dark">{{ total_categories }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 4. Top Performer -->
+    <div class="col-6 col-lg-3">
+        <div class="p-2 border border-1 border-dark bg-dark text-white h-100">
+            <small class="text-secondary fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Top Performer</small>
+            <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 40px;">
+                <div class="fw-bold fs-6 text-truncate" style="max-width: 90%;">{{ mvp.title|default:"-" }}</div>
+                <div class="text-secondary" style="font-size: 0.6rem;">{{ mvp.chapters|default:"0" }} Ch | {{ mvp.status_relation.name|default:"-" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 my-4 pt-2 pb-4 border-top border-bottom border-dark border-1">
+    <div class="col-12 col-lg-6">
+        <div class="d-flex align-items-start h-100">
+            <svg width="150" height="150" style="transform: rotate(-90deg);">
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#e9ecef" stroke-width="25"/>
+                {% for cat in all_categories %}
+                <circle cx="75" cy="75" r="60" fill="none" 
+                        stroke="{{ cat.color }}" stroke-width="25" 
+                        stroke-dasharray="{{ cat.length }} 377" 
+                        stroke-dashoffset="-{{ cat.offset }}"
+                        style="cursor: pointer; transition: opacity 0.2s;"
+                        onmousemove="showTooltip(event, '{{ cat.name }}', '{{ cat.item_count }}')"
+                        onmouseout="hideTooltip(); this.style.opacity='1';"
+                        onmouseover="this.style.opacity='0.6'" />
+                {% endfor %}
+            </svg>
+            <div class="ms-5 flex-grow-1 d-flex flex-column h-100">
+                <h6 class="fw-black text-uppercase mb-3">Categories</h6>
+                <table class="table table-sm mb-0">
+                    {% for cat in all_categories %}
+                    <tr>
+                        <td class="text-muted ps-0">
+                            <span style="display:inline-block; width:10px; height:10px; background-color:{{ cat.color }}; margin-right:5px;"></span>
+                            {{ cat.name }}
+                        </td>
+                        <td class="text-end fw-black">{{ cat.item_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="d-flex align-items-start h-100">
+            <svg width="150" height="150" style="transform: rotate(-90deg);">
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#e9ecef" stroke-width="25"/>
+                {% for stat in all_statuses %}
+                <circle cx="75" cy="75" r="60" fill="none" 
+                        stroke="{{ stat.color }}" stroke-width="25" 
+                        stroke-dasharray="{{ stat.length }} 377" 
+                        stroke-dashoffset="-{{ stat.offset }}"
+                        style="cursor: pointer; transition: opacity 0.2s;"
+                        onmousemove="showTooltip(event, '{{ stat.name }}', '{{ stat.item_count }}')"
+                        onmouseout="hideTooltip(); this.style.opacity='1';"
+                        onmouseover="this.style.opacity='0.6'" />
+                {% endfor %}
+            </svg>
+            <div class="ms-5 flex-grow-1 d-flex flex-column h-100">
+                <h6 class="fw-black text-uppercase mb-3">Statuses</h6>
+                <table class="table table-sm mb-0">
+                    {% for stat in all_statuses %}
+                    <tr>
+                        <td class="text-muted ps-0">
+                            <span style="display:inline-block; width:10px; height:10px; background-color:{{ stat.color }}; margin-right:5px;"></span>
+                            {{ stat.name }}
+                        </td>
+                        <td class="text-end fw-black">{{ stat.item_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-12 col-lg-6"><div class="p-3 border border-dark">
+        <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Daftar Seri "Ended"</h5>
+        <div class="list-group list-group-flush">
+            {% for item in ended_series %}<div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div><div class="fw-bold">{{ item.title }}</div><small class="text-muted">{{ item.chapters }} Chapters</small></div>
+                <span class="badge bg-dark rounded-0">COMPLETED</span>
+            </div>{% endfor %}
+        </div>
+    </div></div>
+    <div class="col-12 col-lg-6"><div class="p-3 border border-dark">
+        <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Top Rated / Trending</h5>
+        <div class="list-group list-group-flush">
+            {% for item in top_rated %}<div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div><div class="fw-bold">{{ item.title }}</div><small class="text-muted">Chapter count: {{ item.chapters }}</small></div>
+                <span class="fs-5 fw-black">{{ item.hype }}</span>
+            </div>{% endfor %}
+        </div>
+    </div></div>
+</div>
+
+<div id="cursor-tooltip" class="tech-tooltip-fixed"></div>
+
+<script>
+function showTooltip(event, name, count) {
+    const tooltip = document.getElementById('cursor-tooltip');
+    tooltip.style.display = 'block';
+    tooltip.style.left = (event.clientX + 15) + 'px';
+    tooltip.style.top = (event.clientY + 15) + 'px';
+    
+    // Warna hijau (#0f0) sudah diganti jadi hitam (#000)
+    tooltip.innerHTML = `<span>${name} <span class="slash-line">/</span></span>
+                         <span style="font-weight:bold; color:#000;">RESULT: ${count}</span>`;
+}
+
+function hideTooltip() {
+    document.getElementById('cursor-tooltip').style.display = 'none';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Add New Reading - MemoApp{% endblock %}
+
+{% block content %}
+<div class="py-2" style="max-width: 1000px; margin: 0 auto;">
+    <div class="mb-4 text-center text-md-start">
+        <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Add New Reading</h3>
+        <p class="text-muted small mb-0">Track your new comic or manga entry or import from a file.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            <form method="POST" class="border border-dark p-4 bg-white shadow-sm" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-bold text-dark small text-uppercase">Title</label>
+                    <input type="text" class="form-control rounded-0 border-dark" id="title" name="title" placeholder="Enter title here..." required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label fw-bold text-dark small text-uppercase">Cover Image</label>
+                    <input type="file" class="form-control rounded-0 border-dark" id="image" name="image" accept="image/*">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="chapters" class="form-label fw-bold text-dark small text-uppercase">Chapters</label>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <button type="button" id="btn-chapter-minus" class="btn btn-outline-dark rounded-0 fw-bold" 
+                                    style="width: 40px; height: 40px; padding: 0; line-height: 40px; flex-shrink: 0;">-</button>
+                            
+                            <div class="form-control rounded-0 border-dark d-flex align-items-center" 
+                                style="height: 40px; flex-grow: 1; padding: 0 10px; overflow: hidden;">
+                                <span class="fw-bold text-dark" style="margin-right: 5px;">Ch.</span>
+                                <input type="number" id="chapters" name="chapters" value="0" min="0" required 
+                                    style="border: none; outline: none; width: 100%; background: transparent; font-weight: bold;">
+                            </div>
+                            
+                            <button type="button" id="btn-chapter-plus" class="btn btn-outline-dark rounded-0 fw-bold" 
+                                    style="width: 40px; height: 40px; padding: 0; line-height: 40px; flex-shrink: 0;">+</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="season" class="form-label fw-bold text-dark small text-uppercase">Season</label>
+                        <input type="text" class="form-control rounded-0 border-dark" id="season" name="season" placeholder="- None" style="height: 40px;">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="status" class="form-label fw-bold text-dark small text-uppercase">Status</label>
+                    <select class="form-select rounded-0 border-dark" id="status" name="status">
+                        <option value="">- No Status -</option>
+                        {% for stat in statuses %}
+                            <option value="{{ stat.id }}">{{ stat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Rating</label>
+                    <input type="hidden" id="rating" name="rating" value="-">
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="↑" style="width: 40px; height: 40px; padding: 0;">↑</button>
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="↓" style="width: 40px; height: 40px; padding: 0;">↓</button>
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="→" style="width: 40px; height: 40px; padding: 0;">→</button>
+                        </div>
+
+                        <div class="ms-auto d-flex align-items-center gap-1">
+                            <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 40px; height: 40px; padding: 0;">-</button>
+                            <div id="rating-display" class="d-flex align-items-center justify-content-center border border-dark fw-bold" style="width: 60px; height: 40px; background: #f8f9fa;">-</div>
+                            <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 40px; height: 40px; padding: 0;">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="category" class="form-label fw-bold text-dark small text-uppercase">Category</label>
+                    <select class="form-select rounded-0 border-dark" id="category" name="category">
+                        <option value="">- No Category -</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="notes" class="form-label fw-bold text-dark small text-uppercase">Notes</label>
+                    <input type="text" class="form-control rounded-0 border-dark" id="notes" name="notes" placeholder="Short notes...">
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-dark rounded-0 px-4 w-100">Add Comic</button>
+                    <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 w-100">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <form method="POST" action="{% url 'import_data' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm">
+                {% csrf_token %}
+                <h5 class="fw-bold mb-3">Import Data (TXT)</h5>
+                <div class="mb-3">
+                    <label for="import_file" class="form-label small text-uppercase fw-bold">Upload Text File</label>
+                    <input type="file" class="form-control rounded-0 border-dark" id="import_file" name="import_file" accept=".txt" required>
+                </div>
+                <button type="submit" class="btn btn-dark rounded-0 w-100">Process Import</button>
+                <p class="text-muted small mt-3">Format file TXT: <br><code>» Title | Chapters | Season | Status | Rating</code></p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Penyesuaian variabel script agar cocok dengan nama ID baru
+    document.addEventListener("DOMContentLoaded", function() {
+        const hiddenInput = document.getElementById("rating");
+        const displayBox = document.getElementById("rating-display");
+        const arrowButtons = document.querySelectorAll(".type-arrow-btn");
+        const btnMinus = document.getElementById("btn-rating-minus");
+        const btnPlus = document.getElementById("btn-rating-plus");
+
+        let currentArrow = "-";
+        let count = 0;
+
+        function updateRating() {
+            let displayValue = (currentArrow === "-") ? "-" : currentArrow.repeat(count);
+            displayBox.textContent = displayValue;
+            hiddenInput.value = displayValue;
+            arrowButtons.forEach(btn => {
+                btn.classList.toggle("btn-dark", btn.getAttribute("data-arrow") === currentArrow);
+                btn.classList.toggle("btn-outline-dark", btn.getAttribute("data-arrow") !== currentArrow);
+            });
+        }
+
+        arrowButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                currentArrow = btn.getAttribute("data-arrow");
+                count = (currentArrow === "→") ? 1 : (count || 1);
+                updateRating();
+            });
+        });
+
+        btnPlus.addEventListener("click", () => {
+            if (currentArrow === "→") return;
+            if (currentArrow === "-") { currentArrow = "↑"; count = 1; }
+            else if (count < 5) count++;
+            updateRating();
+        });
+
+        btnMinus.addEventListener("click", () => {
+            if (count > 1) count--;
+            else { currentArrow = "-"; count = 0; }
+            updateRating();
+        });
+    });
+    
+    const chapterInput = document.getElementById('chapters');
+    document.getElementById('btn-chapter-minus').addEventListener('click', function() {
+        let val = parseInt(chapterInput.value);
+        if (val > 0) chapterInput.value = val - 1;
+    });
+
+    document.getElementById('btn-chapter-plus').addEventListener('click', function() {
+        chapterInput.value = parseInt(chapterInput.value) + 1;
+    });
+</script>
+{% endblock %}
