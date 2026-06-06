@@ -1,18 +1,38 @@
 {% extends 'base/base.html' %}
+
 {% block content %}
 <div class="container d-flex justify-content-center">
     <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 animate-fade-up" style="max-width: 450px;">
         <h2 class="fw-bold mb-4" style="letter-spacing: -1px;">REGISTRASI</h2>
         
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} p-2 mb-3 border border-dark small">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
         <form method="POST">
             {% csrf_token %}
             <div class="form-group-mono">
                 {{ form.as_p }}
+                
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small mb-2" style="color: #721c24; margin-top: -15px; margin-bottom: 10px;">
+                            • {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
             </div>
+            
             <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mt-3">DAFTAR AKUN</button>
         </form>
         
-        <p class="small text-center text-muted mt-3">Sudah punya akun? <a href="{% url 'login' %}" class="text-dark fw-bold">Login di sini</a></p>
+        <p class="small text-center text-muted mt-3">
+            Sudah punya akun? <a href="{% url 'login' %}" class="text-dark fw-bold">Login di sini</a>
+        </p>
     </div>
 </div>
 
@@ -38,5 +58,8 @@
         margin-top: -0.5rem;
         margin-bottom: 1rem;
     }
+    /* Styling tambahan untuk alert pesan */
+    .alert-success { background-color: #d4edda; color: #155724; }
+    .alert-danger { background-color: #f8d7da; color: #721c24; }
 </style>
 {% endblock %}

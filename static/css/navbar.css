@@ -1,0 +1,166 @@
+/* --- STYLE UTAMA NAVBAR (AWAL) --- */
+.navbar-mono {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb;
+    /* Padding vertikal navbar utama */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.navbar-mono .navbar-brand {
+    color: #000000 !important;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.5; /* Menjaga konsistensi tinggi baris */
+}
+
+/* Menu Standar (Tampilan Desktop) */
+.navbar-mono .nav-link {
+    color: #4b5563 !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.navbar-mono .nav-link:hover {
+    color: #000000 !important;
+    background-color: #f3f4f6;
+}
+
+/* --- ANIMASI IKON MEMO --- */
+.brand-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+.navbar-brand:hover .brand-icon {
+    animation: bounceIcon 0.5s ease-in-out infinite alternate;
+}
+@keyframes bounceIcon {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-4px) scale(1.1); }
+}
+
+/* --- TOMBOL HAMBURGER MINIMALIS --- */
+.btn-hamburger {
+    border: none !important;
+    padding: 0;
+    width: 24px;
+    height: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: transparent;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.btn-hamburger:focus {
+    box-shadow: none !important;
+}
+.toggler-icon {
+    width: 100%;
+    height: 2px;
+    background-color: #000000;
+    display: block;
+    border-radius: 2px;
+}
+
+/* Sembunyikan tombol hamburger luar saat offcanvas aktif */
+.offcanvas-aktif .btn-hamburger {
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
+}
+
+/* --- SIDEBAR KANAN KUSTOM (OFFCANVAS) --- */
+.offcanvas-mono {
+    width: 280px !important;
+    background-color: #ffffff !important;
+    border-left: 1px solid #e5e7eb !important;
+}
+
+/* SINKRONISASI HEADER SIKANAN AGAR PAS DENGAN NAVBAR AWAL */
+.offcanvas-mono .offcanvas-header {
+    /* Disamakan persis dengan padding dan border navbar-mono */
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    min-height: 73px; /* Mengunci tinggi total agar presisi */
+}
+
+.offcanvas-mono .offcanvas-title {
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.offcanvas-mono .nav-link {
+    color: #4b5563 !important;
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 0.75rem 1.2rem !important;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+.offcanvas-mono .nav-link:hover {
+    color: #000000 !important;
+    background-color: #f3f4f6;
+}
+
+/* Tombol Silang Minimalis di dalam Menu */
+.btn-close-mono {
+    background: none;
+    border: none;
+    color: #000000;
+    font-size: 1.75rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+.btn-close-mono:hover {
+    transform: scale(1.1);
+}
+
+/* Styling untuk form pencarian dan tombol */
+.search-box-group {
+    display: flex;
+    align-items: center;
+    gap: 0; /* Menempelkan input dan tombol */
+}
+
+.search-input {
+    border: 1px solid #000;
+    height: 42px;
+    padding: 0 15px;
+    width: 200px;
+    color: #000;
+    border-right: none; /* Menghilangkan border kanan agar menyatu dengan tombol */
+}
+
+.search-btn {
+    border: 1px solid #000;
+    height: 42px;
+    width: 42px;
+    background-color: #fff;
+    color: #000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.search-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* --- STYLE FOOTER MINIMALIS MONOKROM --- */
+.footer-mono {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb; /* Garis tipis abu-abu di atas footer */
+    width: 100%;
+}
+
+.footer-mono p {
+    letter-spacing: 0.5px;
+}

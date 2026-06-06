@@ -5,10 +5,17 @@ from django.contrib.messages import constants as messages
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security settings
+# --- EDIT BAGIAN INI ---
+# 1. Pastikan SECRET_KEY aman (jangan pernah share di GitHub publik jika memungkinkan)
 SECRET_KEY = 'django-insecure-(bb@92zfquvn7j*510%cqnsj5nsx4=cmb3+waz%zbq+fsfpp&b'
-DEBUG = True
-ALLOWED_HOSTS = []
+
+# 2. Ubah DEBUG menjadi False untuk produksi
+DEBUG = False
+
+# 3. Masukkan domain PythonAnywhere Anda di sini (wajib!)
+# Ganti 'MintChocolatte.pythonanywhere.com' dengan domain Anda
+ALLOWED_HOSTS = ['MintChocolatte.pythonanywhere.com', '127.0.0.1']
+# -----------------------
 
 # Application definition
 INSTALLED_APPS = [
@@ -36,7 +43,6 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Menambahkan path khusus agar Django membaca folder templates di dalam app_1
         'DIRS': [BASE_DIR / 'app_1' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -60,12 +66,7 @@ DATABASES = {
 }
 
 # Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
+AUTH_PASSWORD_VALIDATORS = []
 
 # Internationalization
 LANGUAGE_CODE = 'id-ID'
@@ -75,6 +76,9 @@ USE_TZ = True
 
 # Static & Media files
 STATIC_URL = 'static/'
+# --- TAMBAHKAN INI ---
+STATIC_ROOT = BASE_DIR / 'static'
+# ---------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 

@@ -10,10 +10,15 @@ urlpatterns = [
     # 1. Halaman utama (home)
     path('', views.home_master, name='home'), 
     
-    # 2. Rute fitur Reading List
+    # 2. Rute Login & Register langsung di root (domain.com/login/)
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
+    
+    # 3. Rute fitur Reading List
     path('reading/', include('app_1.urls')), 
 ]
 
-# Konfigurasi media hanya untuk mode DEBUG
+# Konfigurasi media
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

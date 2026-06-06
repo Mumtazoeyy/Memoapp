@@ -16,6 +16,11 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                    
+                    {% if user.is_staff %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
+                    {% endif %}
+                    
                     <li class="nav-item"><a class="nav-link fw-bold text-danger" href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
@@ -36,6 +41,11 @@
             {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                
+                {% if user.is_staff %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
+                {% endif %}
+                
                 <li class="nav-item"><a class="nav-link text-danger" href="{% url 'logout' %}">Logout</a></li>
             {% else %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
@@ -44,15 +54,3 @@
         </ul>
     </div>
 </div>
-
-<script>
-    const myOffcanvas = document.getElementById('sidebarMenu');
-    const bodyWrapper = document.body;
-    
-    myOffcanvas.addEventListener('show.bs.offcanvas', function () {
-        bodyWrapper.classList.add('offcanvas-aktif');
-    });
-    myOffcanvas.addEventListener('hide.bs.offcanvas', function () {
-        bodyWrapper.classList.remove('offcanvas-aktif');
-    });
-</script>

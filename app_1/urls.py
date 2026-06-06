@@ -4,13 +4,7 @@ from . import views
 urlpatterns = [
     # Main Reading List
     path('', views.reading_list, name='reading_list'),
-    
-    # Login
-    path('', views.reading_list, name='reading_list'),
-    path('login/', views.login_view, name='login'),
-    path('register/', views.register_view, name='register'),
-    path('logout/', views.logout_view, name='logout'),
-    
+
     # Management
     path('add/', views.reading_add, name='reading_add'),
     path('edit/<int:pk>/', views.reading_edit, name='reading_edit'),
