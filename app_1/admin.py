@@ -1,45 +1,41 @@
 from django.contrib import admin
-from .models import Memo, Category, Status, ReadingItem
+from .models import Category, Status, ReadingItem, ImportHistory
 
-@admin.register(Memo)
-class MemoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'judul', 'tanggal_dibuat')
-    list_display_links = ('id', 'judul') # Klik ID atau Judul untuk buka item
-    search_fields = ('judul',)
-    list_filter = ('tanggal_dibuat',)
-    list_per_page = 20
+# (Fungsi get_app_list tetap sama...)
+def get_app_list(self, request, app_label=None):
+    app_dict = self._build_app_dict(request, app_label)
+    ordering = {'ReadingItem': 1, 'Category': 2, 'Status': 3, 'ImportHistory': 4}
+    for app in app_dict.values():
+        app['models'] = [m for m in app['models'] if m['object_name'] != 'Memo']
+        app['models'].sort(key=lambda x: ordering.get(x['object_name'], 99))
+    return list(app_dict.values())
+
+admin.AdminSite.get_app_list = get_app_list
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
-    list_display_links = ('id', 'name')
     search_fields = ('name',)
 
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
-    list_display_links = ('id', 'name')
     search_fields = ('name',)
 
 @admin.register(ReadingItem)
 class ReadingItemAdmin(admin.ModelAdmin):
-    # Mengelompokkan list_display agar lebih mudah dibaca
-    list_display = ('id', 'title', 'category', 'status', 'chapters', 'rating', 'created_at')
-    list_display_links = ('id', 'title') # Klik link hanya di ID atau Title
-    
-    # Mempermudah edit cepat di halaman daftar
+    # 1. Menambahkan 'user' ke list_display agar admin tahu siapa pemilik datanya
+    list_display = ('id', 'title', 'user', 'category', 'status', 'chapters', 'rating', 'created_at')
+    list_display_links = ('id', 'title')
     list_editable = ('status', 'category', 'rating')
-    
-    list_filter = ('status', 'category', 'created_at')
-    search_fields = ('id', 'title', 'notes')
-    
-    # Menjaga performa tetap ringan
+    list_filter = ('user', 'status', 'category', 'created_at') # 2. Filter berdasarkan user
+    search_fields = ('id', 'title', 'notes', 'user__username')
     list_per_page = 50
     autocomplete_fields = ['category', 'status'] 
     
     fieldsets = (
         ('Informasi Utama', {
-            'fields': ('title', 'image', 'category', 'chapters', 'season', 'rating'),
+            'fields': ('user', 'title', 'image', 'category', 'chapters', 'season', 'rating'), # 3. Tambahkan user di fieldsets
             'description': "Data dasar untuk item bacaan."
         }),
         ('Status & Catatan', {
@@ -47,9 +43,23 @@ class ReadingItemAdmin(admin.ModelAdmin):
         }),
         ('Waktu', {
             'fields': ('created_at', 'last_edited_at'),
-            'classes': ('collapse',) # Sembunyikan agar form utama tidak terlalu panjang
+            'classes': ('collapse',)
         }),
     )
     
+    # 4. Fungsi agar admin hanya melihat data miliknya sendiri (opsional: matikan jika superuser ingin melihat semuanya)
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
     readonly_fields = ('created_at', 'last_edited_at')
     ordering = ('-created_at',)
+
+@admin.register(ImportHistory)
+class ImportHistoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'filename', 'imported_at', 'total_items', 'status')
+    list_filter = ('user', 'imported_at')
+    readonly_fields = ('imported_at',)
+    ordering = ('-imported_at',)

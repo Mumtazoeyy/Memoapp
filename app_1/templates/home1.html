@@ -1,76 +1,9 @@
-<style>
-    /* Transisi Halus untuk Card Utama */
-    .dashboard-card {
-        background-color: #fafafa;
-        /* Hapus shadow dari transition */
-        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.3s ease;
-    }
+{% load static %}
+<head>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     
-    /* Hover tanpa shadow, border berubah jadi lebih tebal/gelap */
-    .dashboard-card:hover {
-        transform: translate(-2px, -2px);
-        border-color: #000 !important; /* Border dipertegas saat hover */
-        box-shadow: none !important;    /* Pastikan shadow mati */
-    }
-
-    /* Animasi Masuk (Fade Up) */
-    .animate-fade-up {
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeUp 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    
-    @keyframes fadeUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Efek Tombol Premium (Tanpa shadow) */
-    .btn-pro {
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    .btn-pro::after {
-        content: "";
-        position: absolute;
-        background: rgba(0, 0, 0, 0.05);
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: -100%;
-        transform: skewX(-15deg);
-        transition: all 0.4s ease;
-    }
-    .btn-pro:hover::after {
-        left: 100%;
-    }
-    
-    /* Hover Khusus Tombol (Tanpa shadow) */
-    .btn-outline-pro:hover {
-        background-color: #000;
-        color: #fff !important;
-        transform: translateY(-1px);
-    }
-    .btn-dark-pro:hover {
-        background-color: #333;
-        transform: translateY(-1px);
-    }
-
-    /* Interaksi pada Item Status Bawah */
-    .stat-item {
-        transition: color 0.3s ease, transform 0.3s ease;
-        cursor: default;
-    }
-    .stat-item:hover {
-        transform: scale(1.02);
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'css/style_home.css' %}">
+</head>
 
 <div class="dashboard-card py-4 py-md-5 my-4 border border-dark rounded-0 position-relative animate-fade-up">
     <div class="position-absolute top-0 start-0 w-100 border-top border-dark" style="border-width: 1px !important;"></div>

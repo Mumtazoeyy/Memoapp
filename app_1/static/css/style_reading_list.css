@@ -1,0 +1,65 @@
+/* Tabel Custom */
+.custom-table-mono {
+    width: auto !important; 
+    min-width: 100%;        
+    table-layout: auto; 
+}
+
+/* Mengatur semua kolom agar rata kiri dan mepet */
+.custom-table-mono th, 
+.custom-table-mono td {
+    text-align: left !important;
+    padding-left: 0 !important;
+    padding-right: 25px !important; 
+    white-space: nowrap;            
+    width: 1px;                     
+}
+
+/* Khusus kolom Title, biarkan dia yang fleksibel */
+.custom-table-mono th:nth-child(2), 
+.custom-table-mono td:nth-child(2) {
+    width: auto !important;         
+    white-space: normal !important; 
+}
+
+/* Khusus checkbox agar tetap di tengah */
+.custom-table-mono th:last-child, 
+.custom-table-mono td:last-child {
+    text-align: center !important;
+    padding-right: 0 !important;
+    width: 40px !important;
+}
+
+/* --- TAMBAHAN RESPONSIVE UNTUK HP --- */
+@media (max-width: 768px) {
+    .custom-table-mono {
+        font-size: 0.85rem; 
+    }
+    
+    .custom-table-mono th, 
+    .custom-table-mono td {
+        padding-right: 15px !important; 
+    }
+
+    /* EDIT: Memaksa baris grup (ABCD) untuk menggunakan lebar penuh dan tidak menyusut */
+    .custom-table-mono td[colspan="9"] {
+        white-space: nowrap !important;
+        width: 100% !important;
+    }
+
+    .custom-table-mono td[colspan="9"] > div {
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+    }
+
+    .group-total-text {
+        font-size: 0.7rem !important; 
+        margin-right: 5px !important;
+        display: inline !important; /* Memastikan teks total tidak hilang */
+    }
+
+    /* Memastikan checkbox header grup tetap lurus */
+    .custom-table-mono td[colspan="9"] .group-checkbox {
+        margin: 0 !important;
+    }
+}

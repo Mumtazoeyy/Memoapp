@@ -1,9 +1,13 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block title %}Add New Reading - MemoApp{% endblock %}
 
 {% block content %}
-<div class="py-2" style="max-width: 1000px; margin: 0 auto;">
+<link rel="stylesheet" href="{% static 'css/style_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
+
+<div class="py-2 animate-fade-up" style="max-width: 1000px; margin: 0 auto; animation-delay: 0.1s;">
     <div class="mb-4 text-center text-md-start">
         <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Add New Reading</h3>
         <p class="text-muted small mb-0">Track your new comic or manga entry or import from a file.</p>
@@ -39,7 +43,7 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="season" class="form-label fw-bold text-dark small text-uppercase">Season</label>
-                        <input type="text" class="form-control rounded-0 border-dark" id="season" name="season" placeholder="- None" style="height: 40px;">
+                        <input type="text" class="form-control rounded-0 border-dark" id="season" name="season" placeholder="None" style="height: 40px;">
                     </div>
                 </div>
 
@@ -73,9 +77,14 @@
                     <label for="category" class="form-label fw-bold text-dark small text-uppercase">Category</label>
                     <select class="form-select rounded-0 border-dark" id="category" name="category">
                         {% for cat in categories %}
-                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            <option value="{{ cat.id }}" {% if cat.id == 1 %}selected{% endif %}>{{ cat.name }}</option>
                         {% endfor %}
                     </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="synopsis" class="form-label fw-bold text-dark small text-uppercase">Synopsis</label>
+                    <textarea class="form-control rounded-0 border-dark" id="synopsis" name="synopsis" rows="4" placeholder="Enter synopsis..."></textarea>
                 </div>
 
                 <div class="mb-4">
@@ -106,7 +115,6 @@
 </div>
 
 <script>
-    // Script JS rating dan counter tetap sama seperti sebelumnya...
     document.addEventListener("DOMContentLoaded", function() {
         const hiddenInput = document.getElementById("rating");
         const displayBox = document.getElementById("rating-display");

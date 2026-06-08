@@ -1,84 +1,101 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-4">
+
+<link rel="stylesheet" href="{% static 'css/style_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
+
+<div class="container py-4 animate-fade-up">
+    
+    <nav aria-label="breadcrumb" class="mb-4 animate-fade-up delay-1">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Library</a></li>
             <li class="breadcrumb-item active fw-bold" aria-current="page">{{ item.title }}</li>
         </ol>
     </nav>
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="text-center">
+    <div class="row g-5">
+        <div class="col-md-3 animate-fade-up delay-2">
+            <div class="sticky-top" style="top: 20px;">
                 {% if item.image %}
-                    <img src="{{ item.image.url }}" 
-                        class="img-fluid w-75 border border-1 border-secondary shadow-sm" 
-                        style="aspect-ratio: 3/4; object-fit: cover;" 
-                        alt="{{ item.title }}">
+                    <img src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm" style="aspect-ratio: 3/4; object-fit: cover; width: 100%;" alt="{{ item.title }}">
                 {% else %}
-                    <div class="bg-light d-flex align-items-center justify-content-center w-75 border border-1 border-secondary shadow-sm mx-auto" 
-                        style="aspect-ratio: 3/4;">
-                        <span class="text-muted">No Cover Image</span>
+                    <div class="bg-light d-flex align-items-center justify-content-center border border-dark shadow-sm" style="aspect-ratio: 3/4; width: 100%;">
+                        <span class="text-muted small">No Cover</span>
                     </div>
                 {% endif %}
             </div>
+
+            <form action="{% url 'toggle_favorite' item.id %}" method="POST" class="mt-3">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-dark rounded-0 w-100 d-flex align-items-center justify-content-center gap-2" 
+                        style="border-width: 1px; transition: all 0.2s ease;">
+                    {% if item.favorit %}
+                        <span style="color: #ffc107; font-size: 1.2rem;">★</span> 
+                        <span class="fw-bold">Favorited</span>
+                    {% else %}
+                        <span style="font-size: 1.2rem;">☆</span> 
+                        <span>Add to Favorites</span>
+                    {% endif %}
+                </button>
+            </form>
         </div>
 
-        <div class="col-md-8 ps-md-5">
-            <div class="mb-4">
-                <h1 class="fw-bold display-5 mb-2">{{ item.title }}</h1>
-                
-                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-                    <span class="badge bg-dark rounded-0 px-3 py-2 text-uppercase">{{ item.category.name|default:"No Category" }}</span>
-                    <span class="badge bg-secondary rounded-0 px-3 py-2 text-uppercase">{{ item.status|default:"No Status" }}</span>
-                    
-                    <span class="badge bg-light text-dark border rounded-0 px-3 py-2">ID: #{{ item.id }}</span>
+        <div class="col-md-9 animate-fade-up delay-3">
+            <div class="mb-4 pb-3 border-bottom border-dark">
+                <h1 class="fw-bold mb-2" style="letter-spacing: -1px;">{{ item.title }}</h1>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="badge bg-dark rounded-0 px-3 py-1 text-uppercase">{{ item.category.name|default:"No Category" }}</span>
+                    <span class="badge border border-dark text-dark rounded-0 px-3 py-1 text-uppercase">{{ item.status|default:"No Status" }}</span>
+                    <span class="badge bg-light text-dark border border-dark rounded-0 px-3 py-1">ID: #{{ item.id }}</span>
                 </div>
             </div>
 
             <div class="mb-4">
-                <h5 class="fw-bold text-uppercase border-bottom pb-2 mb-3">Synopsis</h5>
-                <p class="text-secondary fs-6" style="line-height: 1.8;">
-                    {% if item.synopsis and item.synopsis != '-' %}
-                        {{ item.synopsis|linebreaks }}
-                    {% else %}
-                        <em class="text-muted">No synopsis available for this item.</em>
-                    {% endif %}
-                </p>
+                <h6 class="fw-bold text-uppercase mb-2">Synopsis</h6>
+                {% if item.synopsis and item.synopsis != '-' %}
+                    <p class="text-secondary" style="line-height: 1.6;">{{ item.synopsis|linebreaks }}</p>
+                {% else %}
+                    <p class="text-muted fst-italic">Synopsis not yet added.</p>
+                {% endif %}
             </div>
 
-            <div class="table-responsive mb-4">
-                <table class="table table-bordered align-middle">
-                    <thead class="table-dark">
-                        <tr><th colspan="2" class="text-uppercase small">Full Item Specifications</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><th class="bg-light" style="width: 30%;">Rating</th><td>{{ item.rating|default:"-" }}</td></tr>
-                        <tr><th class="bg-light">Chapters</th><td>{{ item.chapters|default:"0" }}</td></tr>
-                        <tr><th class="bg-light">Season/Volume</th><td>{{ item.season|default:"-" }}</td></tr>
-                        <tr><th class="bg-light">Date Added</th><td>{{ item.created_at|date:"d F Y, H:i" }}</td></tr>
-                        <tr><th class="bg-light">Last Edited</th><td>{{ item.last_edited_at|date:"d F Y, H:i" }}</td></tr>
-                    </tbody>
-                </table>
+            <div class="row mb-5">
+                <div class="col-12">
+                    <table class="table border-dark">
+                        <tbody>
+                            <tr><th class="bg-light" style="width: 200px;">Chapters</th><td>{{ item.chapters|default:"Not specified" }}</td></tr>
+                            <tr><th class="bg-light">Season</th><td>{{ item.season|default:"Not specified" }}</td></tr>
+                            <tr><th class="bg-light">Rating</th><td class="fw-bold">{{ item.rating|default:"-" }}</td></tr>
+                            <tr><th class="bg-light">Added</th><td>{{ item.created_at|date:"d M Y" }}</td></tr>
+                            <tr>
+                                <th class="bg-light">Last Edited</th>
+                                <td>
+                                    {% if item.last_edited_at %}
+                                        {{ item.last_edited_at|date:"d M Y, H:i" }}
+                                    {% else %}
+                                        Never edited
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="mb-5 p-3 bg-light border">
+            <div class="mb-5 p-3 border border-dark bg-light">
                 <h6 class="fw-bold text-uppercase mb-2">Notes</h6>
-                <p class="text-secondary mb-0">
-                    {{ item.notes|default:"<em class='text-muted'>No additional notes available.</em>"|safe }}
-                </p>
+                {% if item.notes %}
+                    <p class="mb-0 text-dark">{{ item.notes|safe }}</p>
+                {% else %}
+                    <p class="mb-0 text-muted fst-italic">No additional notes.</p>
+                {% endif %}
             </div>
 
             <div class="d-flex gap-2">
-                <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 py-2">Back to List</a>
-                
-                {% if item and item.id %}
-                    <a href="{% url 'reading_edit' item.id %}?next={{ request.get_full_path }}" class="btn btn-dark rounded-0 px-4 py-2">Edit Details</a>
-                {% else %}
-                    <button class="btn btn-secondary rounded-0 px-4 py-2" disabled>Edit Unavailable</button>
-                {% endif %}
+                <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 btn-pro btn-outline-pro">Back</a>
+                <a href="{% url 'reading_edit' item.id %}" class="btn btn-dark rounded-0 px-4 btn-pro btn-dark-pro">Edit Entry</a>
             </div>
         </div>
     </div>

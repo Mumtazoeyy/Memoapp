@@ -1,39 +1,61 @@
-{% for item in reading_items %}
-<tr>
-    <!-- No. (40px) -->
-    <td class="text-start" style="width: 40px;">{{ forloop.counter }}</td>
-    
-    <!-- Title -->
-    <td class="text-start fw-bold text-dark">{{ item.title }}</td>
-    
-    <!-- Chapters (px-2) -->
-    <td class="text-start px-2 text-nowrap">Ch. {{ item.chapters }}</td>
-    
-    <!-- Season (px-2) -->
-    <td class="text-start px-2 text-nowrap">{{ item.season|default:"-" }}</td>
-    
-    <!-- Status (px-2) -->
-    <td class="text-start px-2 text-nowrap">{{ item.status_relation.name|default:"-" }}</td>
-    
-    <!-- Rating (px-2) -->
-    <td class="text-start fw-bold px-2 text-nowrap">{{ item.hype }}</td>
-    
-    <!-- Category (px-2) -->
-    <td class="text-start px-2 text-nowrap">{{ item.category.name|default:"-" }}</td>
-    
-    <!-- Notes (px-2, min-width 150px) -->
-    <td class="text-start px-2" style="min-width: 150px;">{{ item.notes|default:"-" }}</td>
-    
-    <!-- Actions (100px) -->
-    <td class="text-end" style="width: 100px;">
-        <a href="{% url 'reading_edit' item.id %}" class="btn btn-dark btn-sm rounded-0">Edit</a>
-    </td>
-    
-    <!-- Checkbox (40px) -->
-    <td class="text-center" style="width: 40px;">
-        <input type="checkbox" class="item-checkbox" value="{{ item.id }}">
-    </td>
-</tr>
-{% empty %}
-    <tr><td colspan="10" class="text-center py-5">No results found.</td></tr>
-{% endfor %}
+{% if search_type == 'history' %}
+    {% for log in histories %}
+    <tr class="animate-fade-up" style="animation-delay: {{ forloop.counter0|add:2 }}00ms;">
+        <td class="text-center" style="width: 40px;">{{ forloop.counter }}</td>
+        <td class="fw-bold">{{ log.filename }}</td>
+        <td>{{ log.imported_at|date:"d M Y, H:i" }}</td>
+        <td>{{ log.total_items }}</td>
+        <td class="text-center">
+            <a href="{% url 'history_detail' log.id %}" class="btn btn-sm btn-outline-dark rounded-0 px-2">View</a>
+            <a href="{% url 'download_history' log.id %}" class="btn btn-sm btn-dark rounded-0 px-2">Download</a>
+        </td>
+        <td class="text-center" style="width: 40px;">
+            <input type="checkbox" class="item-checkbox" value="{{ log.id }}">
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" class="text-center py-5 text-muted small">No results found.</td>
+    </tr>
+    {% endfor %}
+
+{% else %}
+    {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
+    {% for group in grouped_list %}
+        <tr>
+            <td colspan="9" style="background-color: #f8f9fa; font-weight: bold; padding: 10px; border-bottom: 2px solid #000;">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <span class="ps-2">{{ group.grouper }} | ••••</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small group-total-text">Total: {{ group.list|length }} titles</span>
+                        <div style="width: 40px; display: flex; justify-content: center;">
+                            <input type="checkbox" class="group-checkbox" data-group="{{ group.grouper }}">
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        {% for item in group.list %}
+        <tr class="animate-fade-up" style="animation-delay: {{ forloop.counter0|add:2 }}00ms;">
+            <td class="text-center" style="width: 40px;">{{ forloop.counter }}</td>
+            <td class="text-start fw-bold text-dark">
+                <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none">{{ item.title }}</a>
+            </td>
+            <td class="text-end px-2 text-nowrap">Ch. {{ item.chapters }}</td>
+            <td class="text-end px-2 text-nowrap">{{ item.season|default:"-" }}</td>
+            <td class="text-end px-2 text-nowrap">{{ item.status_relation.name|default:"-" }}</td>
+            <td class="text-end fw-bold px-2 text-nowrap">{{ item.hype|default:"-" }}</td>
+            <td class="text-end px-2 text-nowrap">{{ item.category.name|default:"-" }}</td>
+            <td class="text-start px-2" style="min-width: 150px;">{{ item.notes|default:"-" }}</td>
+            <td class="text-center" style="width: 40px;">
+                <input type="checkbox" class="item-checkbox" value="{{ item.id }}">
+            </td>
+        </tr>
+        {% endfor %}
+    {% empty %}
+        <tr>
+            <td colspan="9" class="text-center py-5 text-muted small">No results found.</td>
+        </tr>
+    {% endfor %}
+{% endif %}

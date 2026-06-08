@@ -16,8 +16,7 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                    
-                    {% if user.is_staff %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'history_list' %}">History</a></li> {% if user.is_staff %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
                     {% endif %}
                     
@@ -41,8 +40,7 @@
             {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                
-                {% if user.is_staff %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'history_list' %}">History</a></li> {% if user.is_staff %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
                 {% endif %}
                 
