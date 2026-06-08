@@ -1,94 +1,100 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container py-5">
+
+<link rel="stylesheet" href="{% static 'css/style_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
+
+<div class="container py-4 animate-fade-up">
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <nav aria-label="breadcrumb" class="mb-4">
+        
+        <nav aria-label="breadcrumb" class="mb-4 animate-fade-up delay-1">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Library</a></li>
                 <li class="breadcrumb-item active fw-bold" aria-current="page">Editing: {{ item.title }}</li>
             </ol>
         </nav>
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="text-center"> {% if item.image %}
-                        <img id="img-preview" src="{{ item.image.url }}" class="img-fluid w-75 border border-secondary shadow-sm mx-auto d-block" alt="{{ item.title }}">
+        <div class="row g-5">
+            <div class="col-md-3 animate-fade-up delay-2">
+                <div class="text-center">
+                    {% if item.image %}
+                        <img id="img-preview" src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm" style="aspect-ratio: 3/4; object-fit: cover; width: 100%;" alt="{{ item.title }}">
                     {% else %}
-                        <img id="img-preview" src="#" class="img-fluid w-75 border border-secondary shadow-sm d-none mx-auto d-block" alt="Preview">
-                        
-                        <div id="no-img-placeholder" class="bg-light d-flex align-items-center justify-content-center w-75 border border-secondary mx-auto" style="height: 375px;">
-                            <span class="text-muted">No Cover Image</span>
+                        <img id="img-preview" src="#" class="img-fluid border border-dark shadow-sm d-none" alt="Preview" style="aspect-ratio: 3/4; width: 100%;">
+                        <div id="no-img-placeholder" class="bg-light d-flex align-items-center justify-content-center border border-dark" style="aspect-ratio: 3/4; width: 100%;">
+                            <span class="text-muted small">No Cover</span>
                         </div>
                     {% endif %}
                 </div>
-                
                 <div class="mt-3">
-                    <input type="file" id="image-input" name="image" class="form-control rounded-0 w-75 mx-auto" accept="image/*">
+                    <input type="file" id="image-input" name="image" class="form-control rounded-0 border-dark" accept="image/*">
                 </div>
             </div>
 
-            <div class="col-md-8 ps-md-5">
-                <div class="mb-4">
-                    <input type="text" name="title" value="{{ item.title }}" class="form-control form-control-lg fw-bold mb-2 rounded-0" required>
-                    
+            <div class="col-md-9 animate-fade-up delay-3">
+                <div class="mb-4 pb-3 border-bottom border-dark">
+                    <input type="text" name="title" value="{{ item.title|default_if_none:'' }}" class="form-control form-control-lg fw-bold mb-2 rounded-0 border-dark" placeholder="Title cannot be empty" required>                    
                     <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-                        <select name="category" class="form-select w-auto rounded-0">
+                        <select name="category" class="form-select w-auto rounded-0 border-dark">
                             {% for cat in categories %}
                                 <option value="{{ cat.id }}" {% if item.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
                             {% endfor %}
                         </select>
-                        <select name="status" class="form-select w-auto rounded-0">
+                        <select name="status" class="form-select w-auto rounded-0 border-dark">
                             {% for s in statuses %}
-                                <option value="{{ s.id }}" {% if item.status_relation.id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                                <option value="{{ s.id }}" {% if item.status.id == s.id %}selected{% endif %}>{{ s.name }}</option>
                             {% endfor %}
                         </select>
-
-                        <span class="badge bg-light text-dark border rounded-0 px-3 py-2">ID: #{{ item.id }}</span>
+                        <span class="badge bg-light text-dark border border-dark rounded-0 px-3 py-2">ID: #{{ item.id }}</span>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <h5 class="fw-bold text-uppercase border-bottom pb-2 mb-3">Synopsis</h5>
-                    <textarea name="synopsis" class="form-control rounded-0" rows="6">{{ item.synopsis }}</textarea>
+                    <h6 class="fw-bold text-uppercase mb-2">Synopsis</h6>
+                    <textarea name="synopsis" class="form-control rounded-0 border-dark" rows="5" placeholder="Set your synopsis here...">{{ item.synopsis|default_if_none:"" }}</textarea>
                 </div>
 
                 <div class="table-responsive mb-4">
-                    <table class="table table-bordered align-middle">
-                        <thead class="table-dark">
-                            <tr><th colspan="2" class="text-uppercase small">Full Item Specifications</th></tr>
-                        </thead>
+                    <table class="table table-bordered border-dark align-middle">
                         <tbody>
                             <tr>
-                                <th class="bg-light" style="width: 30%;">Rating</th>
+                                <th class="bg-light" style="width: 200px;">Rating</th>
                                 <td>
                                     <input type="hidden" id="rating" name="rating" value="{{ item.rating|default:'-' }}">
                                     <div class="d-flex align-items-center gap-2">
-                                        <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="↑" style="width: 35px; height: 35px; padding: 0;">↑</button>
-                                        <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="↓" style="width: 35px; height: 35px; padding: 0;">↓</button>
-                                        <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="→" style="width: 35px; height: 35px; padding: 0;">→</button>
+                                        <button type="button" class="btn btn-outline-dark rounded-0 type-arrow-btn" data-arrow="↑" style="width: 40px; height: 40px; padding: 0;">↑</button>
+                                        <button type="button" class="btn btn-outline-dark rounded-0 type-arrow-btn" data-arrow="↓" style="width: 40px; height: 40px; padding: 0;">↓</button>
+                                        <button type="button" class="btn btn-outline-dark rounded-0 type-arrow-btn" data-arrow="→" style="width: 40px; height: 40px; padding: 0;">→</button>
                                         <div class="vr mx-1"></div>
-                                        <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 35px; height: 35px; padding: 0;">-</button>
-                                        <div id="rating-display" class="d-flex align-items-center justify-content-center border border-dark fw-bold text-dark" style="width: 50px; height: 35px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
-                                        <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 35px; height: 35px; padding: 0;">+</button>
+                                        <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0" style="width: 40px; height: 40px; padding: 0;">-</button>
+                                        <div id="rating-display" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 80px; height: 40px;">{{ item.rating|default:"-" }}</div>
+                                        <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0" style="width: 40px; height: 40px; padding: 0;">+</button>
                                     </div>
                                 </td>
                             </tr>
-                            <tr><th class="bg-light">Chapters</th><td><input type="number" name="chapters" value="{{ item.chapters }}" class="form-control rounded-0"></td></tr>
-                            <tr><th class="bg-light">Season/Volume</th><td><input type="text" name="season" value="{{ item.season }}" class="form-control rounded-0"></td></tr>
+                            <tr>
+                                <th class="bg-light">Chapters</th>
+                                <td><input type="number" name="chapters" value="{{ item.chapters|default:'0' }}" class="form-control rounded-0 border-dark" placeholder="Set your chapters"></td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Season/Volume</th>
+                                <td><input type="text" name="season" value="{{ item.season|default:'' }}" class="form-control rounded-0 border-dark" placeholder="Set your season/volume"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="mb-5 p-3 bg-light border">
+                <div class="mb-5 p-3 border border-dark bg-light">
                     <h6 class="fw-bold text-uppercase mb-2">Notes</h6>
-                    <textarea name="notes" class="form-control rounded-0" rows="3">{{ item.notes }}</textarea>
+                    <textarea name="notes" class="form-control rounded-0 border-dark" rows="2" placeholder="Set your additional notes here...">{{ item.notes|default_if_none:"" }}</textarea>
                 </div>
 
                 <div class="d-flex gap-2">
-                    <a href="{% url 'reading_item_detail' item.id %}" class="btn btn-outline-dark rounded-0 px-4 py-2">Cancel</a>
-                    <button type="submit" class="btn btn-dark rounded-0 px-4 py-2">Save Changes</button>
+                    <a href="{% url 'reading_item_detail' item.id %}" class="btn btn-outline-dark rounded-0 px-4 btn-pro btn-outline-pro">Cancel</a>
+                    <button type="submit" class="btn btn-dark rounded-0 px-4 btn-pro btn-dark-pro">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -97,7 +103,6 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Preview Gambar Instan
     const imageInput = document.getElementById('image-input');
     const imgPreview = document.getElementById('img-preview');
     const noImgPlaceholder = document.getElementById('no-img-placeholder');
@@ -115,7 +120,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Rating Meter Logic
     const hiddenInput = document.getElementById("rating");
     const displayBox = document.getElementById("rating-display");
     const arrowButtons = document.querySelectorAll(".type-arrow-btn");

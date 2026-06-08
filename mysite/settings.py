@@ -10,11 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(bb@92zfquvn7j*510%cqnsj5nsx4=cmb3+waz%zbq+fsfpp&b'
 
 # 2. Ubah DEBUG menjadi False untuk produksi
-DEBUG = False
-
-# 3. Masukkan domain PythonAnywhere Anda di sini (wajib!)
-# Ganti 'MintChocolatte.pythonanywhere.com' dengan domain Anda
-ALLOWED_HOSTS = ['MintChocolatte.pythonanywhere.com', '127.0.0.1']
+DEBUG = True
+ALLOWED_HOSTS = ['*']  # Ini lebih mudah untuk development
+##ALLOWED_HOSTS = ['MintChocolatte.pythonanywhere.com', '127.0.0.1']
 # -----------------------
 
 # Application definition

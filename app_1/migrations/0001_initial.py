@@ -3,6 +3,20 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
+# --- FUNGSI TAMBAHAN ---
+def create_initial_data(apps, schema_editor):
+    Category = apps.get_model('app_1', 'Category')
+    Status = apps.get_model('app_1', 'Status')
+    
+    Category.objects.create(id=1, name="No Category")
+    Category.objects.create(name="Manga")
+    Category.objects.create(name="Manhua")
+    Category.objects.create(name="Manhwa")
+    
+    Status.objects.create(id=1, name="No Status")
+    Status.objects.create(name="On Going")
+    Status.objects.create(name="Completed")
+# -----------------------
 
 class Migration(migrations.Migration):
 
@@ -60,4 +74,7 @@ class Migration(migrations.Migration):
                 ('status', models.ForeignKey(default=1, on_delete=django.db.models.deletion.SET_DEFAULT, related_name='items', to='app_1.status')),
             ],
         ),
+        # --- TAMBAHKAN INI ---
+        migrations.RunPython(create_initial_data),
+        # ---------------------
     ]

@@ -9,7 +9,7 @@
             <table class="table table-bordered border-dark align-middle">
                 <thead class="table-light">
                     <tr class="align-middle">
-                        <th class="bg-dark text-white p-2 text-center" style="width: 100px;">ID ITEM</th>
+                        <th class="bg-dark text-white p-2 text-center" style="width: 100px;">ID</th>
                         <th class="p-1">
                             <div class="d-flex align-items-center gap-1" style="min-width: 180px;">
                                 <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('title', this)">X</button>
@@ -130,15 +130,11 @@
         const input = document.getElementById('mass-' + colName);
         const isEnabled = input.disabled;
 
-        // Toggle state input/select/hidden
         input.disabled = !isEnabled;
-        
-        // Update visual tombol X ke ✓
         btn.style.backgroundColor = isEnabled ? 'black' : 'white';
         btn.style.color = isEnabled ? 'white' : 'black';
         btn.textContent = isEnabled ? '✓' : 'X';
 
-        // Jika kolom rating, aktifkan/nonaktifkan tombol-tombol rating header
         if (colName === 'rating') {
             const ratingControls = btn.parentElement.querySelectorAll('button');
             ratingControls.forEach(b => {
@@ -147,14 +143,13 @@
         }
     }
 
-    // 2. Fungsi Apply Massal ke Semua Baris
+    // 2. Fungsi Apply Massal
     function applyMass(type, value) {
         const input = document.getElementById('mass-' + type);
         if (input.disabled) return;
         
         document.querySelectorAll('.' + type + '-input').forEach(el => {
             el.value = value;
-            // Update display khusus untuk kolom rating
             if (type === 'rating') {
                 const id = el.id.replace('rating-val-', '');
                 const display = document.getElementById('rating-display-' + id);
@@ -163,16 +158,15 @@
         });
     }
 
-    // 3. Logika Rating Meter (Baris & Header)
+    // 3. Logika Rating Meter
     document.addEventListener("DOMContentLoaded", function() {
-        // Event Listener untuk tombol panah per baris
         document.querySelectorAll('[class*="arrow-btn-"]').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
                 const arrow = this.getAttribute('data-arrow');
                 const input = document.getElementById('rating-val-' + id);
                 
-                let count = (input.value.includes(arrow)) ? input.value.length : 1;
+                let count = (input.value.includes(arrow)) ? Math.min(input.value.length, 5) : 1;
                 if(input.value === "-") count = 1;
                 
                 let newValue = (arrow === "→") ? "→" : arrow.repeat(Math.max(1, count));
@@ -180,7 +174,6 @@
                 input.value = newValue;
                 document.getElementById('rating-display-' + id).textContent = newValue;
                 
-                // Highlight tombol panah yang aktif
                 document.querySelectorAll('.arrow-btn-' + id).forEach(b => {
                     b.classList.toggle('btn-dark', b.getAttribute('data-arrow') === arrow);
                     b.classList.toggle('btn-outline-dark', b.getAttribute('data-arrow') !== arrow);
@@ -189,20 +182,20 @@
         });
     });
 
-    // Helper: Update nilai rating (Bisa dipakai baris dan header)
+    // Helper: Update nilai rating dengan limit 5
     function updateRatingValue(input, display, delta) {
         let val = input.value;
         if (val === "-" || val === "→") {
             if(delta > 0) input.value = "↑";
         } else {
             let char = val[0];
-            let count = Math.max(0, val.length + delta);
+            // BATASAN 5 DITAMBAHKAN DI SINI
+            let count = Math.max(0, Math.min(val.length + delta, 5));
             input.value = (count <= 0) ? "-" : char.repeat(count);
         }
         display.textContent = input.value;
     }
 
-    // Fungsi klik Plus/Minus di Baris
     function changeRating(id, delta) {
         updateRatingValue(
             document.getElementById('rating-val-' + id), 
@@ -211,20 +204,18 @@
         );
     }
 
-    // Fungsi klik Plus/Minus di Header (Mass Apply)
     function changeMassRating(delta) {
         const input = document.getElementById('mass-rating');
         updateRatingValue(input, document.getElementById('mass-rating-display'), delta);
-        applyMass('rating', input.value); // Sync ke semua baris
+        applyMass('rating', input.value);
     }
 
-    // Fungsi klik Panah di Header (Mass Apply)
     function setMassRatingArrow(arrow, btn) {
         const input = document.getElementById('mass-rating');
         const display = document.getElementById('mass-rating-display');
         let currentVal = input.value;
         
-        let count = (currentVal.includes(arrow)) ? currentVal.length : 1;
+        let count = (currentVal.includes(arrow)) ? Math.min(currentVal.length, 5) : 1;
         input.value = (arrow === "→") ? "→" : arrow.repeat(Math.max(1, count));
         display.textContent = input.value;
         

@@ -11,6 +11,7 @@ urlpatterns = [
     path('edit-bulk/', views.reading_edit_bulk, name='reading_edit_bulk'),
     path('delete/<int:pk>/', views.reading_delete, name='reading_delete'),
     path('delete-selected/', views.delete_selected, name='delete_selected'),
+    path('item/<int:pk>/toggle-favorite/', views.toggle_favorite, name='toggle_favorite'),
 
     # Utility & Data
     path('search/', views.search_view, name='search'),
@@ -18,4 +19,7 @@ urlpatterns = [
     path('export/', views.export_data, name='export_data'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('detail/<int:item_id>/', views.reading_item_detail, name='reading_item_detail'),
+    path('history/', views.history_view, name='history_list'),
+    path('history/detail/<int:history_id>/', views.history_detail_view, name='history_detail'),
+    path('history/download/<int:history_id>/', views.download_history, name='download_history'),
 ]

@@ -1,259 +1,202 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block title %}Reading List - MemoApp{% endblock %}
 
 {% block content %}
 
-<style>
-    .btn-add-comic {
-        background-color: #000;
-        color: #fff;
-        border: 1px solid #000;
-        text-decoration: none;
-        height: 42px;
-        padding: 0 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-    }
-    .btn-add-comic:hover {
-        background-color: #fff;
-        color: #000;
-        border: 1px solid #000;
-    }
-    /* Kita paksa header rata kiri */
-    .custom-table-mono thead th { 
-        border-bottom: 2px solid #000000 !important; 
-        color: #000; 
-        text-transform: uppercase; 
-        font-size: 0.8rem; 
-        text-align: left !important; /* Tambahkan ini */
-    }
+<link rel="stylesheet" href="{% static 'css/style_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
-    /* Kita paksa isi body rata kiri */
-    .custom-table-mono tbody td {
-        text-align: left !important; /* Tambahkan ini */
-    }
-    /* Paksa tabel dan isinya rata kiri, abaikan aturan JavaScript atau CSS lain */
-    .custom-table-mono, 
-    .custom-table-mono tr, 
-    .custom-table-mono th, 
-    .custom-table-mono td {
-        text-align: left !important;
-    }
-
-    /* Pengecualian wajib untuk kolom yang memang harus tengah atau kanan */
-    .custom-table-mono th:last-child, 
-    .custom-table-mono td:last-child {
-        text-align: center !important;
-    }
-
-    .custom-table-mono th:nth-last-child(2), 
-    .custom-table-mono td:nth-last-child(2) {
-        text-align: right !important;
-    }
-</style>
-
-<div class="py-2">
+<div class="py-2 animate-fade-up">
     <div class="mb-5">
-        <div class="row align-items-center mb-4 gap-3 gap-md-0">
+        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
             
-            <div class="col-12 col-md">
-                <div class="text-center text-md-start">
-                    <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">My Reading List</h3>
-                    <p class="text-muted small mb-0">Personal tracking center for manga, manhwa, and manhua.</p>
-                </div>
+            <div>
+                <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">My Reading List</h3>
+                <p class="text-muted small mb-0">Personal tracking center for manga, manhwa, and manhua.</p>
             </div>
 
-            <div class="col-12 col-md-4">
-                <form class="search-box-group d-flex w-100" onsubmit="return false;">
-                    <input type="text" name="q" class="search-input rounded-0 flex-grow-1" placeholder="Search..." hx-get="{% url 'search' %}" hx-target="#tabel-body" hx-include="closest .search-box-group" hx-trigger="keyup[keyCode==13]">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <form class="search-box-group d-flex" onsubmit="return false;">
+                    <input type="text" name="q" class="search-input rounded-0" placeholder="Search..." style="width: 200px;" 
+                        hx-get="{% url 'search' %}?type={{ search_type }}" 
+                        hx-target="#tabel-body" 
+                        hx-include="closest .search-box-group" 
+                        hx-trigger="keyup[keyCode==13]">
                     
-                    <select name="category" class="search-input rounded-0" style="width: 100px; border-left: none; text-align-last: right; padding-right: 5px;">
-                        <option value="">All</option>
-                        {% for cat in categories %}
-                            <option value="{{ cat.id }}">{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
+                    {% if search_type == 'reading' %}
+                        <select name="category" class="search-input rounded-0" style="width: 80px; border-left: none;">
+                            <option value="">All</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
                     
-                    <button type="button" class="search-btn rounded-0" style="border-left: none;" hx-get="{% url 'search' %}" hx-target="#tabel-body" hx-include="closest .search-box-group" hx-trigger="click">⌕</button>
+                    <button type="button" class="search-btn rounded-0" style="border-left: none;" 
+                            hx-get="{% url 'search' %}?type={{ search_type }}" 
+                            hx-target="#tabel-body" 
+                            hx-include="closest .search-box-group" 
+                            hx-trigger="click">⌕</button>
                 </form>
+
+                <form action="{% url 'delete_selected' %}" method="POST" id="bulk-delete-form" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="selected_ids" id="selected_ids">
+                </form>
+                
+                <button type="button" id="btn-edit-bulk" class="btn btn-outline-dark rounded-0 px-3 fw-semibold btn-pro" style="height: 42px; display: none;" onclick="prepareBulkEdit()">
+                    Edit selected
+                </button>
+                <button type="button" id="btn-delete-bulk" class="btn btn-danger rounded-0 px-3 fw-semibold btn-pro" style="height: 42px; display: none;" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="prepareBulkDelete()">
+                    Delete selected
+                </button>
+
+                <a href="{% url 'reading_add' %}" class="btn btn-outline-dark rounded-0 px-3 py-2 small fw-semibold text-decoration-none btn-pro" style="height: 42px;">+ Add New</a>
+                <a href="{% url 'export_data' %}" class="btn btn-outline-dark rounded-0 px-3 py-2 small fw-semibold text-decoration-none btn-pro" style="height: 42px;">Download List</a>
             </div>
-        </div>
-
-        <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
-            <form action="{% url 'delete_selected' %}" method="POST" id="bulk-delete-form" style="display: none;">
-                {% csrf_token %}
-                <input type="hidden" name="selected_ids" id="selected_ids">
-            </form>
-            
-            <button type="button" 
-                    id="btn-delete-bulk"
-                    class="btn btn-danger rounded-0 px-3 fw-semibold" 
-                    style="height: 42px; display: none;" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#deleteModal" 
-                    onclick="prepareBulkDelete()">
-                Delete selected
-            </button>
-
-            <button type="button" 
-                    id="btn-edit-bulk"
-                    class="btn btn-dark rounded-0 px-3 fw-semibold" 
-                    style="height: 42px; display: none;" 
-                    onclick="prepareBulkEdit()">
-                Edit selected
-            </button>
-
-            <a href="{% url 'reading_add' %}" class="btn-add-comic rounded-0 px-3 py-2 small fw-semibold text-decoration-none" style="height: 42px;">+ Add New</a>
-            <a href="{% url 'export_data' %}" class="btn-add-comic rounded-0 px-3 py-2 small fw-semibold text-decoration-none" style="height: 42px;">Download List</a>
         </div>
     </div>
     
-    <div class="table-responsive">
-        <table class="table align-middle custom-table-mono" style="white-space: nowrap; width: 100%;">
-            <thead>
-                <tr>
-                    <th scope="col" style="width: 40px;">No.</th>
-                    <th scope="col" class="text-start">Title</th>
-                    <th scope="col" class="text-start px-2">Chapters</th>
-                    <th scope="col" class="text-start px-2">Season</th>
-                    <th scope="col" class="text-start px-2">Status</th>
-                    <th scope="col" class="text-start px-2">Rating</th>
-                    <th scope="col" class="text-start px-2">Category</th>
-                    <th scope="col" class="text-start px-2">Notes</th>
-                    <th scope="col" class="text-end px-2">Actions</th>
-                    <th scope="col" class="text-center" style="width: 40px;"><input type="checkbox" id="select-all"></th>
-                </tr>
-            </thead>
-            <tbody id="tabel-body">
+    <div class="table-responsive animate-fade-up delay-1">
+    <table class="table align-middle custom-table-mono" style="white-space: nowrap; width: 100%;">
+        <thead>
+            <tr>
+                <th scope="col" style="width: 60px;">No.</th> 
+                <th scope="col" class="text-start">Title</th>
+                <th scope="col" class="text-end">Chapters</th>
+                <th scope="col" class="text-end">Season</th>
+                <th scope="col" class="text-end">Status</th>
+                <th scope="col" class="text-end">Rating</th>
+                <th scope="col" class="text-end">Category</th>
+                <th scope="col" class="text-end">Notes</th>
+                <th scope="col" class="text-center" style="width: 40px;"><input type="checkbox" id="select-all"></th>
+            </tr>
+        </thead>
+       <tbody id="tabel-body">
+            {% if reading_items %}
                 {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
-                {% for group in grouped_list %}
-                    <tr>
-                        <td colspan="10" style="background-color: #f8f9fa; font-weight: bold; padding: 10px; border-bottom: 2px solid #000;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="ps-2">{{ group.grouper }} | ••••</span>
-                                
-                                <div class="d-flex align-items-center">
-                                    <span class="text-muted small me-3">Total: {{ group.list|length }} titles</span>
-                                    <input type="checkbox" class="group-checkbox" data-group="{{ group.grouper }}">
+                
+                {% with global_counter=0 %}
+                    {% for group in grouped_list %}
+                        <tr>
+                            <td colspan="9" style="background-color: #f8f9fa; font-weight: bold; padding: 10px; border-bottom: 2px solid #000;">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <span class="ps-2">{{ group.grouper }} | ••••</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted small group-total-text">Total: {{ group.list|length }}</span>
+                                        <div style="width: 40px; display: flex; justify-content: center;">
+                                            <input type="checkbox" class="group-checkbox" data-group="{{ group.grouper }}">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% for item in group.list %}
-                    <tr>
-                        <td class="fw-medium text-muted text-start" style="width: 40px;">{{ forloop.counter }}</td>
-                        <td class="fw-bold text-dark text-start">
-                            <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none">
-                                {{ item.title }}
-                            </a>
-                        </td>
-                        <td class="text-start px-2">Ch. {{ item.chapters }}</td>
-                        <td class="text-start px-2">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
+                            </td>
+                        </tr>
                         
-                        {# Karena status sudah jadi ForeignKey, akses .name #}
-                        <td class="text-start px-2">
-                            {% if item.status and item.status.id != 1 %}
-                                {{ item.status.name }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        
-                        <td class="text-dark fw-bold text-start px-2">{{ item.rating }}</td>
-                        
-                        {# Karena category sudah jadi ForeignKey, akses .name #}
-                        <td class="text-start px-2">
-                            {% if item.category and item.category.id != 1 %}
-                                {{ item.category.name }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        
-                        <td class="text-start px-2">{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}</td>
-                        <td class="text-end px-2">
-                            <a href="{% url 'reading_edit' item.id %}?next={{ request.get_full_path }}" class="btn btn-dark btn-sm rounded-0 px-3 fw-semibold">Edit</a>
-                        </td>
-                        <td class="text-center"><input type="checkbox" class="item-checkbox" value="{{ item.id }}"></td>
-                    </tr>
+                        {% for item in group.list %}
+                        <tr>
+                            <td style="width: 60px;">
+                                <div class="d-flex" style="width: 100%; align-items: center;">
+                                    <div class="fw-medium text-muted" style="flex: 1; text-align: center;">
+                                        {{ forloop.counter }}
+                                    </div>
+                                    <div style="width: 20px; text-align: right; color: #ffc107; font-size: 0.8rem;">
+                                        {% if item.favorit %}★{% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-bold text-dark text-start">
+                                <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none">{{ item.title }}</a>
+                            </td>
+                            <td class="text-end px-2">Ch. {{ item.chapters }}</td>
+                            <td class="text-end px-2">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
+                            <td class="text-end px-2">{% if item.status and item.status.id != 1 %}{{ item.status.name }}{% else %}-{% endif %}</td>
+                            <td class="text-dark fw-bold text-end px-2">{{ item.rating }}</td>
+                            <td class="text-end px-2">{% if item.category and item.category.id != 1 %}{{ item.category.name }}{% else %}-{% endif %}</td>
+                            <td class="text-end px-2">{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}</td>
+                            <td class="text-center"><input type="checkbox" class="item-checkbox" value="{{ item.id }}"></td>
+                        </tr>
+                        {% endfor %}
                     {% endfor %}
-                {% empty %}
-                    <tr><td colspan="10" class="text-center py-5 text-muted small">No reading list found.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                {% endwith %}
+            {% else %}
+                <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <p class="mb-0">Your reading list is empty.</p>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
 </div>
 
 <script>
-    // Fungsi untuk memperbarui visibilitas tombol
-    function updateBulkButtons() {
-        const anyChecked = document.querySelectorAll('.item-checkbox:checked').length > 0;
+    document.addEventListener('DOMContentLoaded', function() {
         const btnDelete = document.getElementById('btn-delete-bulk');
         const btnEdit = document.getElementById('btn-edit-bulk');
-        
-        btnDelete.style.display = anyChecked ? 'inline-block' : 'none';
-        btnEdit.style.display = anyChecked ? 'inline-block' : 'none';
-    }
+        const selectAll = document.getElementById('select-all');
 
-    // Listener untuk "Select All" di header
-    document.getElementById('select-all').addEventListener('click', function(e) {
-        document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
-        document.querySelectorAll('.group-checkbox').forEach(cb => cb.checked = e.target.checked);
-        updateBulkButtons();
-    });
-
-    // Listener untuk setiap item checkbox
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('item-checkbox')) {
-            updateBulkButtons();
+        function updateBulkButtons() {
+            const anyChecked = document.querySelectorAll('.item-checkbox:checked').length > 0;
+            if (btnDelete) btnDelete.style.display = anyChecked ? 'inline-block' : 'none';
+            if (btnEdit) btnEdit.style.display = anyChecked ? 'inline-block' : 'none';
         }
-    });
 
-    // Listener untuk checkbox per grup
-    document.querySelectorAll('.group-checkbox').forEach(groupCb => {
-        groupCb.addEventListener('change', function() {
-            const row = this.closest('tr');
-            let nextRow = row.nextElementSibling;
-            
-            // Pilih semua checkbox dalam grup tersebut
-            while (nextRow && !nextRow.querySelector('td[colspan="10"]')) {
-                const itemCb = nextRow.querySelector('.item-checkbox');
-                if (itemCb) {
-                    itemCb.checked = this.checked;
-                }
-                nextRow = nextRow.nextElementSibling;
+        if (selectAll) {
+            selectAll.addEventListener('click', function(e) {
+                document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
+                document.querySelectorAll('.group-checkbox').forEach(cb => cb.checked = e.target.checked);
+                updateBulkButtons();
+            });
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('item-checkbox') || e.target.classList.contains('group-checkbox')) {
+                updateBulkButtons();
             }
-            updateBulkButtons();
+        });
+
+        document.querySelectorAll('.group-checkbox').forEach(groupCb => {
+            groupCb.addEventListener('change', function() {
+                const row = this.closest('tr');
+                let nextRow = row.nextElementSibling;
+                while (nextRow && !nextRow.querySelector('td[colspan="9"]')) {
+                    const itemCb = nextRow.querySelector('.item-checkbox');
+                    if (itemCb) itemCb.checked = this.checked;
+                    nextRow = nextRow.nextElementSibling;
+                }
+                updateBulkButtons();
+            });
         });
     });
+
+    // Fungsi ini disesuaikan dengan 'reading_edit_bulk' di urls.py
+    function prepareBulkEdit() {
+        const selected = document.querySelectorAll('.item-checkbox:checked');
+        const ids = Array.from(selected).map(cb => cb.value).join(',');
+        
+        // Menggunakan name url 'reading_edit_bulk' dari urls.py Anda
+        window.location.href = "{% url 'reading_edit_bulk' %}?ids=" + ids;
+    }
 
     function prepareBulkDelete() {
         const selected = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(selected).map(cb => cb.value).join(',');
-        document.getElementById('selected_ids').value = ids;
-
+        
+        const hiddenInput = document.getElementById('selected_ids');
+        if (hiddenInput) hiddenInput.value = ids;
+        
         const modalBody = document.getElementById('modal-body-text');
-        if (selected.length === 1) {
-            const title = selected[0].closest('tr').cells[1].innerText.trim();
-            modalBody.innerHTML = `Are you sure you want to delete?<br><br><b>"${title}"</b>`;
-        } else {
-            modalBody.innerHTML = `Are you sure you want to delete these ${selected.length} items?`;
-        }
-    }
-
-    function prepareBulkEdit() {
-        let selectedIds = [];
-        document.querySelectorAll('.item-checkbox:checked').forEach(cb => {
-            selectedIds.push(cb.value);
-        });
-
-        if (selectedIds.length > 0) {
-            window.location.href = "{% url 'reading_edit_bulk' %}?ids=" + selectedIds.join(',');
+        if (modalBody) {
+            if (selected.length === 1) {
+                const row = selected[0].closest('tr');
+                const title = row ? row.cells[1].innerText.trim() : "Item";
+                modalBody.innerHTML = `Are you sure you want to delete?<br><br><b>"${title}"</b>`;
+            } else {
+                modalBody.innerHTML = `Are you sure you want to delete these ${selected.length} items?`;
+            }
         }
     }
 </script>
