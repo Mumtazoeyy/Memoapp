@@ -1,26 +1,128 @@
-<nav class="navbar navbar-expand-lg navbar-mono mb-5">
+{% load static %}
+
+<style>
+    /* --- STYLE UTAMA NAVBAR (TERANG & BLUR) --- */
+    .navbar-mono {
+        background-color: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .navbar-mono .navbar-brand {
+        color: #000000 !important;
+        font-weight: 800;
+    }
+
+    .navbar-mono .nav-link {
+        color: #374151 !important;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .navbar-mono .nav-link:hover {
+        color: #000000 !important;
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- SIDEBAR KANAN KUSTOM (TERANG & BLUR) --- */
+    .offcanvas-mono {
+        width: 280px !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(15px);
+        border-left: 1px solid rgba(0, 0, 0, 0.1) !important;
+        color: #000000 !important;
+    }
+
+    .offcanvas-mono .offcanvas-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .offcanvas-mono .offcanvas-title {
+        color: #000000 !important;
+    }
+
+    .offcanvas-mono .nav-link {
+        color: #374151 !important;
+    }
+
+    .offcanvas-mono .nav-link:hover {
+        color: #000000 !important;
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-close-mono {
+        color: #000000 !important;
+    }
+
+    .offcanvas-mono .text-dark {
+        color: #000000 !important;
+    }
+    .offcanvas-mono .text-muted {
+        color: #6b7280 !important;
+    }
+    .offcanvas-mono .bg-light {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* --- LOGIKA DARK THEME (KHUSUS HALAMAN ABOUT) --- */
+    .navbar-mono.dark-theme {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+    }
+    .offcanvas-mono.dark-theme {
+        background-color: rgba(0, 0, 0, 0.85) !important;
+        color: #ffffff !important;
+    }
+    .dark-theme .navbar-brand,
+    .dark-theme .nav-link,
+    .dark-theme .offcanvas-title,
+    .dark-theme .btn-close-mono,
+    .dark-theme .text-dark {
+        color: #ffffff !important;
+    }
+    .dark-theme .text-muted {
+        color: #cccccc !important;
+    }
+    .dark-theme .bg-light {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .dark-theme .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-mono mb-5 {% if request.resolver_match.url_name == 'about' %}dark-theme{% endif %}">
     <div class="container">
+        <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="/">
-            <span class="fs-4 me-2 brand-icon">📝</span> kagataudah
+            <img src="{% static 'images/logo_1.png' %}" alt="Logo" style="width: 30px; height: 30px;" class="me-2">
+            kagataudah
         </a>
         
-        <button class="btn-hamburger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-            <span class="toggler-icon"></span>
-            <span class="toggler-icon"></span>
-            <span class="toggler-icon"></span>
+        <!-- Ikon Menu Baru untuk Mobile -->
+        <button class="btn btn-link d-lg-none p-0 border-0 text-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+            </svg>
         </button>
         
+        <!-- Menu Desktop -->
         <div class="collapse navbar-collapse d-none d-lg-block">
-            <ul class="navbar-nav ms-auto gap-3">
+            <ul class="navbar-nav ms-auto gap-3 align-items-center">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+                
                 {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'history_list' %}">History</a></li> {% if user.is_staff %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
-                    {% endif %}
-                    
-                    <li class="nav-item"><a class="nav-link fw-bold text-danger" href="{% url 'logout' %}">Logout</a></li>
+                    <li class="nav-item ms-2">
+                        <button class="btn d-flex align-items-center p-0 border-0" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                            <span class="me-2 fw-semibold text-dark">{{ user.profile.display_name|default:user.username }}</span>
+                            <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/profile_placeholder.png' %}{% endif %}" 
+                                alt="Profile" 
+                                style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #6c757d;">
+                        </button>
+                    </li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
                 {% endif %}
@@ -29,26 +131,52 @@
     </div>
 </nav>
 
-<div class="offcanvas offcanvas-end offcanvas-mono" tabindex="-1" id="sidebarMenu">
+<!-- Menu Sidebar (Offcanvas) -->
+<div class="offcanvas offcanvas-end offcanvas-mono {% if request.resolver_match.url_name == 'about' %}dark-theme{% endif %}" tabindex="-1" id="sidebarMenu">
     <div class="offcanvas-header justify-content-between align-items-center">
         <h5 class="offcanvas-title fw-bold text-uppercase small tracking-wider text-muted mb-0">Menu</h5>
         <button type="button" class="btn-close-mono" data-bs-dismiss="offcanvas">&times;</button>
     </div>
-    <div class="offcanvas-body pt-4">
+    
+    <div class="offcanvas-body pt-2 d-flex flex-column">
+        {% if user.is_authenticated %}
+            <div class="d-flex align-items-center mb-4 p-2 bg-light rounded">
+                <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/profile_placeholder.png' %}{% endif %}" 
+                    alt="Profile" 
+                    style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                <div class="ms-3">
+                    <div class="fw-bold text-dark">{{ user.profile.display_name|default:user.username }}</div>
+                    <small class="text-muted">User Panel</small>
+                </div>
+            </div>
+        {% endif %}
+
         <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
             {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                <li class="nav-item"><hr class="my-2 border-muted"></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'history_list' %}">History</a></li> {% if user.is_staff %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'history_list' %}">History</a></li>
+                {% if user.is_staff %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
                 {% endif %}
-                
-                <li class="nav-item"><a class="nav-link text-danger" href="{% url 'logout' %}">Logout</a></li>
             {% else %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
             {% endif %}
         </ul>
+
+        {% if user.is_authenticated %}
+            <div class="mt-auto">
+                <hr class="my-3 border-muted">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-danger fw-bold" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
     </div>
 </div>

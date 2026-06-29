@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* 1. Reset Margin & Kunci Scroll */
+    body {
+        margin: 0;
+        overflow: hidden;
+    }
+
+    /* 2. Background Video */
+    .hero-video-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .hero-video-container video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(5px);
+    }
+
+    /* 3. Container Teks (Dibuat fixed) */
+    .about-content-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: #ffffff;
+        z-index: 1;
+        
+        /* SOLUSI: Membuat container ini tembus klik */
+        pointer-events: none; 
+    }
+
+    /* 4. Efek Shadow & Mengembalikan klik pada Teks */
+    .text-pop-effect {
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+        
+        /* Mengembalikan fungsi klik agar teks tetap bisa di-interaksi jika perlu */
+        pointer-events: auto;
+    }
+</style>
+
+<!-- Background Video -->
+<div class="hero-video-container">
+    <video autoplay muted loop playsinline>
+        <source src="{% static 'images/bg_1.mp4' %}" type="video/mp4">
+    </video>
+</div>
+
+<!-- Container Konten -->
+<div class="about-content-wrapper">
+    <h1 class="display-1 fw-black text-pop-effect mb-0">ABOUT US</h1>
+    <p class="lead w-50 text-pop-effect mt-0">
+        This is a simple application designed to help you track your reading progress efficiently and effortlessly.
+    </p>
+</div>
+
+{% endblock %}

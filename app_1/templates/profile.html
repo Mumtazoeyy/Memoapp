@@ -1,0 +1,165 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<style>
+    /* Animasi Dasar */
+    @keyframes fadeUp {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Class untuk setiap item yang akan fade up */
+    .fade-up-item {
+        opacity: 0;
+        animation: fadeUp 0.6s ease-out forwards;
+    }
+
+    /* Penjadwalan Delay */
+    .delay-0 { animation-delay: 0.0s; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    .delay-6 { animation-delay: 0.6s; }
+
+    /* Styling Dasar */
+    .profile-card {
+        border: 1px solid #000;
+        padding: 2.5rem;
+        background: #fff;
+    }
+
+    .profile-img-container {
+        width: 150px;
+        height: 150px;
+        overflow: hidden;
+        border-radius: 50%;
+        border: 4px solid #000;
+        background: #f8f9fa;
+        margin-bottom: 1rem;
+    }
+
+    .read-only-box {
+        padding: 12px;
+        border: 1px solid #ddd;
+        background: #fdfdfd;
+        color: #6c757d;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    .form-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .custom-input {
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 12px;
+        width: 100%;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .custom-input:focus {
+        outline: none;
+        border-color: #000;
+        background-color: #fffaf0;
+    }
+
+    .btn-action {
+        border-radius: 0 !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 10px 25px;
+        border: 1px solid #000;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Kotak Luar (Card) juga ikut animasi -->
+            <div class="profile-card fade-up-item delay-0">
+                
+                <!-- Elemen 1 -->
+                <h4 class="fw-black text-uppercase border-bottom border-dark pb-3 mb-4 fade-up-item delay-1">Edit Account</h4>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Elemen 2 -->
+                    <div class="row align-items-center mb-5 fade-up-item delay-2">
+                        <div class="col-md-4 text-center">
+                            <div class="profile-img-container mx-auto">
+                                <img id="profile-preview" 
+                                     src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/profile_placeholder.png' %}{% endif %}" 
+                                     alt="Profile" 
+                                     style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <label class="btn btn-outline-dark btn-sm btn-action mt-2" style="font-size: 0.7rem;">
+                                Change Photo 
+                                <input type="file" id="avatar-input" name="avatar" class="d-none" accept="image/*">
+                            </label>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <div class="read-only-box">{{ user.username }}</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Email Address</label>
+                                <div class="read-only-box">{{ user.email }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Elemen 3 -->
+                    <h6 class="fw-black text-uppercase mb-3 pt-3 border-top border-dark fade-up-item delay-3">Personal Details</h6>
+                    
+                    <!-- Elemen 4 -->
+                    <div class="mb-4 fade-up-item delay-4">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" name="display_name" class="custom-input" value="{{ user.profile.display_name|default:user.username }}">
+                    </div>
+
+                    <!-- Elemen 5 -->
+                    <div class="mb-4 fade-up-item delay-5">
+                        <label class="form-label">Bio / About</label>
+                        <textarea name="bio" class="custom-input" rows="3" placeholder="Tell us something about yourself...">{{ user.profile.bio|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Elemen 6 -->
+                    <div class="d-flex align-items-center gap-2 fade-up-item delay-6">
+                        <button type="submit" class="btn btn-dark btn-action">Save Changes</button>
+                        <a href="{% url 'password_change' %}" class="btn btn-link text-dark" style="font-size: 0.8rem;">Change Password</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const avatarInput = document.getElementById('avatar-input');
+    const profilePreview = document.getElementById('profile-preview');
+
+    avatarInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePreview.src = e.target.result;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+{% endblock %}

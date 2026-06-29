@@ -1,4 +1,21 @@
-<footer class="footer-mono py-4 mt-auto">
+<style>
+    /* --- STYLE FOOTER DARK GLASS --- */
+    .footer-mono.dark-theme {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    .footer-mono.dark-theme .text-muted {
+        color: #9ca3af !important; /* Abu-abu terang agar terbaca di background gelap */
+    }
+    
+    .footer-mono.dark-theme .text-dark {
+        color: #ffffff !important; /* Putih agar MemoApp terlihat jelas */
+    }
+</style>
+
+<footer class="footer-mono py-4 mt-auto {% if request.resolver_match.url_name == 'about' %}dark-theme{% endif %}">
     <div class="container text-center">
         <p class="mb-0 text-muted small">
             &copy; {% now "Y" %} <span class="fw-bold text-dark">MemoApp</span>. All rights reserved.

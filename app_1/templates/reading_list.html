@@ -8,6 +8,48 @@
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
+<style>
+    @media (max-width: 767px) {
+        /* 1. Container tetap sebagai scroll area */
+        .table-responsive {
+            display: block !important;
+            width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* 2. KUNCI: Ubah ke auto agar kolom tidak saling tumpuk */
+        .custom-table-mono {
+            width: auto !important;      /* Tabel akan melebar sesuai isi, bukan dipaksa layar */
+            min-width: 100% !important;  /* Minimal selebar layar */
+            table-layout: auto !important; /* PENTING: Biarkan browser mengatur lebar kolom */
+            border-collapse: collapse !important;
+        }
+
+        /* 3. Paksa agar teks di dalam sel tidak turun baris */
+        .custom-table-mono th, 
+        .custom-table-mono td {
+            white-space: nowrap !important;
+            padding-right: 25px !important; /* Beri jarak antar kolom agar tidak menempel */
+            width: auto !important;
+        }
+
+        /* 4. Khusus Title: Beri batasan lebar agar tidak terlalu panjang */
+        .custom-table-mono tr td:nth-child(2) {
+            max-width: 200px !important; 
+            overflow: hidden !important;
+        }
+
+        /* 5. Potong teks Title jika kepanjangan */
+        .custom-table-mono tr td:nth-child(2) a {
+            display: block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+    }
+</style>
+
 <div class="py-2 animate-fade-up">
     <div class="mb-5">
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
@@ -63,8 +105,9 @@
             </div>
         </div>
     </div>
+
     <div class="table-responsive w-100 d-block animate-fade-up delay-1">
-        <table class="table align-middle custom-table-mono" style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0;">
+        <table class="table align-middle custom-table-mono" style="width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0;">
             <thead>
                 <tr>
                     <th scope="col" style="width: 60px;">No.</th>

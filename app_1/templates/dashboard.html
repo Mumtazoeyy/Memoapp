@@ -100,41 +100,88 @@
     </div>
         
     <div class="row g-4 mt-2 animate-fade-up delay-3">
+        <!-- KOLOM KIRI: Favorites & Recently Added -->
         <div class="col-12 col-lg-6">
-            <div class="p-3 border border-dark">
-                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">List Completed</h5>
+            <!-- My Favorites -->
+            <div class="p-3 border border-dark mb-4" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#favoritesModal">
+                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">My Favorites</h5>
                 <div class="list-group list-group-flush">
-                    {% for item in ended_series %}
+                    {% for item in favorites %}
                     <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                        <div>
-                            <div class="fw-bold">{{ item.title }}</div>
-                            <small class="text-muted">{{ item.chapters }} Chapters</small>
+                        <!-- Title di kiri -->
+                        <span class="fw-bold text-truncate" style="max-width: 70%;">{{ item.title }}</span>
+                        
+                        <!-- Rating dan Bintang Emas di kanan -->
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">{{ item.rating }}</span>
+                            <div style="width: 20px; text-align: right; color: #ffc107; font-size: 0.8rem;">
+                                {% if item.favorit %}★{% endif %}
+                            </div>
                         </div>
-                        <span class="badge bg-dark rounded-0">{{ item.status.name|upper }}</span>
                     </div>
                     {% empty %}
-                    <div class="text-muted small py-2">No completed series found.</div>
+                    <div class="text-muted small py-2">No favorites yet.</div>
                     {% endfor %}
                 </div>
+                {% if favorites %}
+                <div class="text-muted small mt-2 fst-italic">Click to see all favorites</div>
+                {% endif %}
+            </div>
+
+            <!-- Recently Added -->
+            <div class="p-3 border border-dark" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#recentlyAddedModal">
+                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Recently Added</h5>
+                <div class="list-group list-group-flush">
+                    {% for item in recently_added %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="fw-bold">{{ item.title }}</span>
+                        <small class="text-muted">Added recently</small>
+                    </div>
+                    {% empty %}
+                    <div class="text-muted small py-2">No items added.</div>
+                    {% endfor %}
+                </div>
+                {% if recently_added %}
+                <div class="text-muted small mt-2 fst-italic">Click to see all recently added</div>
+                {% endif %}
             </div>
         </div>
 
+        <!-- KOLOM KANAN: Stats & Recently Updated -->
         <div class="col-12 col-lg-6">
-            <div class="p-3 border border-dark">
-                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Top Rated / Trending</h5>
+            <!-- Quick Stats -->
+            <div class="p-3 border border-dark mb-4">
+                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Quick Stats</h5>
+                <div class="row text-center">
+                    <div class="col-6 border-end border-dark">
+                        <div class="h2 fw-black">{{ total_titles }}</div> <!-- Ganti ke total_titles -->
+                        <div class="text-muted small">Total Series</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h2 fw-black">{{ percentage_completed }}%</div> <!-- Ganti ke percentage_completed -->
+                        <div class="text-muted small">Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recently Updated -->
+            <div class="p-3 border border-dark mb-4" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#recentlyUpdatedModal">
+                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Recently Updated</h5>
                 <div class="list-group list-group-flush">
-                    {% for item in top_rated %}
+                    {% for item in recently_updated %}
                     <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <div>
                             <div class="fw-bold">{{ item.title }}</div>
-                            <small class="text-muted">Chapter count: {{ item.chapters }}</small>
+                            <small class="text-muted">Ch. {{ item.chapters }}</small>
                         </div>
-                        <span class="fs-5 fw-black">{{ item.rating }}</span>
                     </div>
                     {% empty %}
-                    <div class="text-muted small py-2">No rated series available yet.</div>
+                    <div class="text-muted small py-2">No updates recently.</div>
                     {% endfor %}
                 </div>
+                {% if recently_updated %}
+                <div class="text-muted small mt-2 fst-italic">Click to see all recently updated</div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -145,6 +192,91 @@
         <a href="{% url 'reading_add' %}" class="btn btn-outline-dark rounded-0 mt-3 px-4 py-2">Add Your First Item</a>
     </div>
 {% endif %}
+
+<!-- Modal untuk Menampilkan Semua Favorit -->
+<div class="modal fade" id="favoritesModal" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="favoritesModalLabel">My Full Favorites List</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="list-group list-group-flush">
+            {% for item in favorites_list %}
+            <div class="list-group-item d-flex align-items-center">
+                <!-- Bintang di kiri -->
+                <div style="width: 20px; text-align: left; color: #ffc107; font-size: 0.8rem; margin-right: 10px;">
+                    {% if item.favorit %}★{% endif %}
+                </div>
+                
+                <!-- Title (flex-grow agar judul mengambil sisa ruang) -->
+                <span class="fw-bold flex-grow-1 text-truncate">{{ item.title }}</span>
+                
+                <!-- Rating di kanan -->
+                <span class="ms-2">{{ item.rating }}</span>
+            </div>
+            {% empty %}
+            <div class="text-muted text-center py-3">No favorites found.</div>
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal untuk Menampilkan Semua Item Terbaru -->
+<div class="modal fade" id="recentlyAddedModal" tabindex="-1" aria-labelledby="recentlyAddedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="recentlyAddedModalLabel">All Recently Added</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="list-group list-group-flush">
+            {% for item in all_recently_added %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span class="fw-bold">{{ item.title }}</span>
+                <!-- Menggunakan field created_at dari model ReadingItem -->
+                <small class="text-muted">{{ item.created_at|date:"d M Y" }}</small>
+            </div>
+            {% empty %}
+            <div class="text-muted text-center py-3">No items found.</div>
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal untuk Menampilkan Semua Update Terbaru -->
+<div class="modal fade" id="recentlyUpdatedModal" tabindex="-1" aria-labelledby="recentlyUpdatedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="recentlyUpdatedModalLabel">Recently Updated</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="list-group list-group-flush">
+            {% for item in all_recently_updated %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-bold">{{ item.title }}</div>
+                    <small class="text-muted">Ch. {{ item.chapters }}</small>
+                </div>
+                <!-- Menggunakan field last_edited_at dari models.py -->
+                <small class="text-muted">{{ item.last_edited_at|date:"d M Y" }}</small>
+            </div>
+            {% empty %}
+            <div class="text-muted text-center py-3">No updates found.</div>
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="cursor-tooltip" class="tech-tooltip-fixed"></div>
 

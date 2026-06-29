@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -83,6 +85,9 @@ def search_view(request):
             'reading_items': items,
             'search_type': 'reading'
         })
+
+def about_view(request):
+    return render(request, 'about.html')
 
 import re
 from django.shortcuts import redirect
@@ -321,7 +326,7 @@ from .models import ReadingItem
 @login_required
 def export_full(request):
     # 1. Ambil data
-    items = ReadingItem.objects.filter(user=request.user)
+    items = ReadingItem.objects.filter(user=request.user).order_by('title')
     
     # 2. Buat folder sementara untuk proses backup
     temp_dir = tempfile.mkdtemp()
@@ -558,18 +563,26 @@ def toggle_favorite(request, pk):
         item.favorit = not item.favorit
         item.save()
     return redirect('reading_item_detail', item_id=pk)
+
+from django.utils import timezone
+from datetime import timedelta
     
 @login_required
 def dashboard(request):
+
+    # Contoh query untuk item yang ditambahkan dalam 7 hari terakhir
+    limit_date = timezone.now() - timedelta(days=7)
+    # Kita ambil 5 saja untuk dashboard
+    recently_added = ReadingItem.objects.filter(user=request.user, created_at__gte=limit_date).order_by('-created_at')[:5]
+
     # 1. Filter semua item berdasarkan user yang sedang login
-    items = ReadingItem.objects.filter(user=request.user)
+    items = ReadingItem.objects.filter(user=request.user).order_by('title')
     
     total_titles = items.count()
     total_chapters = items.aggregate(Sum('chapters'))['chapters__sum'] or 0
     total_favorites = items.filter(favorit=True).count()
     
     # 2. Filter kategori dan status agar hanya menghitung milik user tersebut
-    # Kita gunakan filter(items__user=request.user) untuk memastikan data yang dihitung adalah milik user
     categories = Category.objects.filter(items__user=request.user).annotate(item_count=Count('items'))
     statuses = Status.objects.filter(items__user=request.user).annotate(item_count=Count('items'))
 
@@ -611,10 +624,18 @@ def dashboard(request):
         stat['offset'] = safe_calc(stat['offset'])
         stat['length'] = safe_calc(stat['length'])
 
-    # 3. Filter list series dan rating tetap dibatasi oleh 'items' (yang sudah di-filter user)
-    ended_series = items.filter(status__name__iexact='Completed')[:5]
-    top_rated = items.order_by('-rating')[:5]
+    # 3. Stats & Lists
+    completed_count = items.filter(status__name__iexact='Completed').count()
+    percentage_completed = round((completed_count / total_titles * 100), 1) if total_titles > 0 else 0    
+    
+    # Kita buat query untuk modal (semua item yang baru ditambahkan)
+    all_recently_added = ReadingItem.objects.filter(user=request.user).order_by('-created_at')
+    
+    recently_updated = items.order_by('-last_edited_at')[:5]
+    all_recently_updated = ReadingItem.objects.filter(user=request.user).order_by('-last_edited_at')
     favorites = items.filter(favorit=True)[:5]
+    favorites_list = items.filter(favorit=True)
+    top_rated = items.order_by('-rating')[:5]
 
     context = {
         'total_titles': total_titles,
@@ -623,9 +644,16 @@ def dashboard(request):
         'mvp': mvp,
         'all_categories': all_categories,
         'all_statuses': all_statuses,
-        'ended_series': ended_series,
+        'ended_series': items.filter(status__name__iexact='Completed')[:5],
         'top_rated': top_rated,
         'favorites': favorites,
+        'favorites_list': favorites_list,
+        # Data tambahan
+        'recently_added': recently_added, # Sudah terfilter 7 hari dari atas
+        'all_recently_added': all_recently_added, # Untuk modal
+        'recently_updated': recently_updated,
+        'all_recently_updated': all_recently_updated,
+        'percentage_completed': percentage_completed,
     }
     return render(request, 'dashboard.html', context)
 
@@ -643,110 +671,120 @@ def history_view(request):
         'search_type': 'history'  # Penting untuk sinkronisasi dengan form dan template partial
     })
 
-from django.db.models import Sum
-import datetime
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
-
-import os
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.db.models import Sum
-from .models import ImportHistory, ReadingItem
+from django.contrib.auth.decorators import login_required
+from .models import ImportHistory
 
 @login_required
 def download_history(request, history_id):
     # 1. Ambil histori yang diminta
     history = get_object_or_404(ImportHistory, id=history_id, user=request.user)
     
-    # Ambil ekstensi dari nama file asli
-    # os.path.splitext akan memisahkan nama file dan ekstensinya
-    file_base, file_ext = os.path.splitext(history.filename)
-    if not file_ext:
-        file_ext = '.txt'  # Default jika file asli tidak memiliki ekstensi
-
-    # 2. Ambil item untuk report
-    items = ReadingItem.objects.filter(user=request.user).order_by('title')
-
-    # Header Dokumen
-    response_content = f"HISTORY EXPORT: {history.filename}\n"
-    response_content += f"Imported: {history.imported_at.strftime('%d %B %Y, %H:%M')}\n"
-    response_content += "="*40 + "\n"
-
-    last_char = None
-    total_titles = items.count()
-    total_chapters = items.aggregate(Sum('chapters'))['chapters__sum'] or 0
-
-    for item in items:
-        # Header huruf
-        current_char = item.title[0].upper() if item.title else "#"
-        if current_char != last_char:
-            response_content += f"\n{current_char} | ••••\n"
-            last_char = current_char
-
-        data_parts = []
-        if item.title: data_parts.append(item.title)
-        if item.chapters and item.chapters > 0: data_parts.append(f"Ch. {item.chapters}")
-        if item.season and item.season != "-": data_parts.append(item.season)
-        if item.status: data_parts.append(item.status.name)
-        if item.notes and item.notes != "-": data_parts.append(item.notes)
-
-        response_content += " » " + " | ".join(data_parts) + "\n"
-
-    # Footer
-    response_content += "\n" + "="*30 + "\n"
-    response_content += f"Total Judul Terdata: {total_titles}\n"
-    response_content += f"Total Seluruh Chapter: {total_chapters}\n"
-    response_content += "="*30 + "\n"
-
-    # 3. Response dengan nama file dinamis
-    response = HttpResponse(response_content, content_type='text/plain; charset=utf-8')
+    # 2. Pastikan file benar-benar ada di database
+    if not history.file:
+        raise Http404("File tidak ditemukan.")
     
-    # Gunakan nama file asli + ekstensi yang sudah dideteksi
-    filename = f"history_{file_base}{file_ext}"
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-    
-    return response
+    # 3. Kembalikan file fisik sebagai download
+    # FileResponse otomatis melakukan streaming file dengan efisien
+    try:
+        response = FileResponse(history.file.open('rb'), as_attachment=True)
+        # Menggunakan nama file asli yang tersimpan di field filename
+        response['Content-Disposition'] = f'attachment; filename="{history.filename}"'
+        return response
+    except FileNotFoundError:
+        return HttpResponse("File fisik tidak ditemukan di server.", status=404)
 
+import sqlite3
+import os
+import zipfile
+import tempfile
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
-from .models import ImportHistory, ReadingItem
+from django.contrib.auth.decorators import login_required
+from .models import ImportHistory
 
 @login_required
 def history_detail_view(request, history_id):
     log = get_object_or_404(ImportHistory, id=history_id, user=request.user)
     
-    # 1. Menyiapkan bagian tampilan file
-    file_display = "<p>File tidak tersedia.</p>"
-    if log.file:
-        file_display = f"""
-        <div style="background: #e9ecef; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
-            <p><strong>File Terlampir:</strong> {log.filename}</p>
-            <a href="{log.file.url}" download class="btn btn-dark" style="padding: 8px 16px; background: #333; color: #fff; text-decoration: none;">
-                Download File
-            </a>
-        </div>
-        """
+    # 1. Menyiapkan tampilan file
+    file_display = f"""
+    <div style="background: #e9ecef; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+        <p><strong>File Terlampir:</strong> {log.filename}</p>
+        <a href="{log.file.url}" download class="btn btn-dark" style="padding: 8px 16px; background: #333; color: #fff; text-decoration: none;">
+            Download File
+        </a>
+    </div>
+    """
 
-    # 2. Mengambil data item terkait (opsional, jika ingin tetap ditampilkan)
-    items = ReadingItem.objects.filter(user=request.user)
-    content = ""
-    for item in items:
-        content += f"{item.title} | {item.chapters}\n"
+    preview_html = "<p>Data tidak tersedia.</p>"
     
-    # 3. Mengembalikan HTML
+    if log.file and os.path.exists(log.file.path):
+        try:
+            # Menggunakan tempfile untuk mengekstrak sementara
+            with tempfile.TemporaryDirectory() as temp_dir:
+                with zipfile.ZipFile(log.file.path, 'r') as z:
+                    if 'data.sqlite' in z.namelist():
+                        z.extract('data.sqlite', path=temp_dir)
+                        db_path = os.path.join(temp_dir, 'data.sqlite')
+                        
+                        # Koneksi ke database
+                        conn = sqlite3.connect(db_path)
+                        cursor = conn.cursor()
+                        
+                        # Ambil daftar tabel
+                        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                        tables = cursor.fetchall()
+                        
+                        if tables:
+                            # Ambil data dari tabel pertama yang ditemukan (LIMIT dihapus agar semua data muncul)
+                            first_table = tables[0][0]
+                            cursor.execute(f"SELECT * FROM {first_table}")
+                            rows = cursor.fetchall()
+                            columns = [description[0] for description in cursor.description]
+                            
+                            # Buat tabel HTML manual
+                            table_rows = "".join([f"<tr>{''.join([f'<td>{cell}</td>' for cell in row])}</tr>" for row in rows])
+                            table_headers = "".join([f"<th>{col}</th>" for col in columns])
+                            
+                            # Menambahkan container dengan scroll
+                            preview_html = f"<h5>Preview Tabel: {first_table}</h5>"
+                            preview_html += f"""
+                            <div style="max-height: 600px; overflow-y: auto; overflow-x: auto; border: 1px solid #ddd;">
+                                <table class='table'>
+                                    <thead><tr>{table_headers}</tr></thead>
+                                    <tbody>{table_rows}</tbody>
+                                </table>
+                            </div>
+                            """
+                        else:
+                            preview_html = "<p>Database kosong (tidak ada tabel).</p>"
+                        
+                        conn.close()
+                    else:
+                        preview_html = "<p>File data.sqlite tidak ditemukan di dalam ZIP.</p>"
+                        
+        except Exception as e:
+            preview_html = f"<p>Gagal membaca database: {e}</p>"
+    
+    # 3. HTML Output
     html = f"""
     <html>
-    <head><title>Detail {log.filename}</title></head>
-    <body style="margin: 0; padding: 20px; font-family: sans-serif;">
+    <head><style>
+        .table {{ width: 100%; border-collapse: collapse; }}
+        .table td, .table th {{ border: 1px solid #ddd; padding: 8px; }}
+        .table th {{ background: #f2f2f2; }}
+    </style></head>
+    <body style="font-family: sans-serif; padding: 20px;">
         <button onclick="window.history.back()">Kembali</button>
         <hr>
         <h3>Detail Riwayat: {log.filename}</h3>
-        <p>Imported at: {log.imported_at.strftime('%Y-%m-%d %H:%M')}</p>
-        
         {file_display}
-
-        <h4>Data Preview:</h4>
-        <pre style="background: #f4f4f4; padding: 15px; border: 1px solid #ccc;">{content}</pre>
+        <h4>Data Preview (SQLite):</h4>
+        <div style="overflow-x: auto; border: 1px solid #ccc; padding: 10px;">
+            {preview_html}
+        </div>
     </body>
     </html>
     """
@@ -778,3 +816,52 @@ def delete_history(request):
                 histories.delete()
                 
     return redirect('history_list')
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from .forms import MinimalPasswordChangeForm # Impor form baru kita
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+def password_change(request):
+    if request.method == 'POST':
+        # Gunakan form kustom kita
+        form = MinimalPasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user) # Biar user tidak logout otomatis
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('profile')
+    else:
+        form = MinimalPasswordChangeForm(request.user)
+    
+    return render(request, 'password_change.html', {'form': form})
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Profile
+
+@login_required
+def profile(request):
+    # Mengambil profil atau membuatnya jika belum ada
+    user_profile, created = Profile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        # 1. Menangani Display Name
+        # Mengambil input, jika kosong/spasi maka fallback ke username
+        display_name_input = request.POST.get('display_name', '').strip()
+        user_profile.display_name = display_name_input if display_name_input else request.user.username
+
+        # 2. Menangani Bio
+        user_profile.bio = request.POST.get('bio', user_profile.bio)
+
+        # 3. Menangani Update Foto Profil
+        if request.FILES.get('avatar'):
+            user_profile.avatar = request.FILES.get('avatar')
+
+        user_profile.save()
+        messages.success(request, "Profil berhasil diperbarui!")
+        return redirect('profile')
+
+    return render(request, 'profile.html')
