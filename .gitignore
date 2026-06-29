@@ -4,9 +4,5 @@ __pycache__/
 *.pyc
 db.sqlite3
 .env
-<<<<<<< HEAD
 .vscode/
 media/
-=======
-.vscode/    media/
->>>>>>> 26f2be40ca8c942866a26c0e5f252d16f2613618
