@@ -155,6 +155,7 @@
             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
             {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'reading_list' %}">Reading List</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
                 <li class="nav-item"><hr class="my-2 border-muted"></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
