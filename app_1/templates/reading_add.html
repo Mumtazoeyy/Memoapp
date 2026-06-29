@@ -100,7 +100,8 @@
         </div>
 
         <div class="col-md-4">
-            <form method="POST" action="{% url 'import_data' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm">
+            <!-- TXT Import Form -->
+            <form method="POST" action="{% url 'import_data' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm mb-4">
                 {% csrf_token %}
                 <h5 class="fw-bold mb-3">Import Data (TXT)</h5>
                 <div class="mb-3">
@@ -109,6 +110,18 @@
                 </div>
                 <button type="submit" class="btn btn-dark rounded-0 w-100">Process Import</button>
                 <p class="text-muted small mt-3">Format file TXT: <br><code>» Title | Chapters | Season | Status | Rating</code></p>
+            </form>
+
+            <!-- SQLite Import Form -->
+            <form method="POST" action="{% url 'import_full' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm">
+                {% csrf_token %}
+                <h5 class="fw-bold mb-3">Import Full Backup (ZIP)</h5>
+                <div class="mb-3">
+                    <label for="import_file" class="form-label small text-uppercase fw-bold">Upload ZIP File</label>
+                    <input type="file" class="form-control rounded-0 border-dark" id="import_file" name="import_file" accept=".zip" required>
+                </div>
+                <button type="submit" class="btn btn-dark rounded-0 w-100">Process Full Import</button>
+                <p class="text-muted small mt-3">Select the <code>.zip</code> file you previously downloaded from the Export menu in this app.</p>
             </form>
         </div>
     </div>

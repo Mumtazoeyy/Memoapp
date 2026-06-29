@@ -45,6 +45,7 @@ def register_view(request):
 
 def logout_view(request):
     logout(request)
+    messages.success(request, 'Anda telah berhasil logout.')
     return redirect('login')
 
 def home_master(request):
@@ -83,11 +84,13 @@ def search_view(request):
             'search_type': 'reading'
         })
 
-import re # Tambahkan import re di atas file
-
-from .models import ReadingItem, Status, Category, ImportHistory # Pastikan ImportHistory diimpor
 import re
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import ReadingItem, Status, Category, ImportHistory
 
+@login_required
 def import_data(request):
     if request.method == 'POST' and request.FILES.get('import_file'):
         file = request.FILES['import_file']
@@ -145,12 +148,13 @@ def import_data(request):
                 print(f"Error pada baris '{line}': {e}")
                 continue
 
-        # --- TAMBAHAN: Simpan ke Histori Per User ---
+        # --- TAMBAHAN: Simpan ke Histori Per User dengan filenya ---
         if count > 0:
             ImportHistory.objects.create(
                 user=request.user,
                 filename=file.name,
-                total_items=count
+                total_items=count,
+                file=file  # Menyimpan file ke model[cite: 3]
             )
         # --------------------------------------------
 
@@ -159,8 +163,96 @@ def import_data(request):
 
     return redirect('reading_list')
 
+import sqlite3
+import zipfile
+import os
+import shutil
+from django.shortcuts import redirect
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import ReadingItem, Status, Category, ImportHistory
+
+@login_required
+def import_full(request):
+    if request.method == 'POST' and request.FILES.get('import_file'):
+        zip_file = request.FILES['import_file']
+        temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp_import')
+        
+        # 1. Ekstrak ZIP
+        with zipfile.ZipFile(zip_file, 'r') as zf:
+            zf.extractall(temp_dir)
+        
+        # 2. Proses Database SQLite
+        db_path = os.path.join(temp_dir, 'data.sqlite')
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM reading_items")
+        rows = cursor.fetchall()
+        
+        imported_count = 0 # Inisialisasi counter
+        
+        for row in rows:
+            # Sesuaikan urutan dengan kolom saat export
+            # (title, chapters, season, status, rating, category, notes, image_filename, is_favorite)
+            title, chaps, seas, stat_name, rat, cat_name, note, img_name, fav = row
+            
+            # Cari/Buat Object Status & Category (agar relasi tidak error)
+            status_obj, _ = Status.objects.get_or_create(name=stat_name)
+            category_obj, _ = Category.objects.get_or_create(name=cat_name)
+            
+            # Buat item baru
+            item = ReadingItem.objects.create(
+                user=request.user,
+                title=title,
+                chapters=chaps,
+                season=seas,
+                status=status_obj,
+                rating=rat,
+                category=category_obj,
+                notes=note,
+                favorit=bool(fav)
+            )
+            
+            imported_count += 1 # Menghitung item yang berhasil dibuat
+            
+            # 3. Pindahkan Gambar
+            if img_name:
+                source_img = os.path.join(temp_dir, 'images', img_name)
+                if os.path.exists(source_img):
+                    # Catatan: Sesuaikan folder tujuan dengan upload_to='reading_covers/'
+                    dest_path = os.path.join(settings.MEDIA_ROOT, 'uploads', img_name)
+                    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                    shutil.copy(source_img, dest_path)
+                    item.image = f'uploads/{img_name}'
+                    item.save()
+        
+        conn.close()
+        
+        # Simpan ke ImportHistory dengan menyertakan file ZIP-nya
+        ImportHistory.objects.create(
+            user=request.user,
+            filename=zip_file.name,
+            total_items=imported_count,
+            status="Success",
+            file=zip_file # Menyimpan file fisik ke database
+        )
+        
+        # Bersihkan folder temp
+        shutil.rmtree(temp_dir)
+        
+        messages.success(request, "Import successful!")
+        return redirect('reading_list')
+        
+    return redirect('reading_list')
+
+import sqlite3
+import io
+import datetime
 from django.db.models import Sum
-import datetime # Pastikan import ini ada
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from .models import ReadingItem
 
 @login_required # Menjaga agar hanya user yang login yang bisa export
 def export_data(request):
@@ -216,6 +308,74 @@ def export_data(request):
 
     response = HttpResponse(response_content, content_type='text/plain; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="reading_list_export.txt"'
+    return response
+
+import sqlite3
+import tempfile
+import os
+import zipfile
+from django.http import FileResponse
+from django.contrib.auth.decorators import login_required
+from .models import ReadingItem
+
+@login_required
+def export_full(request):
+    # 1. Ambil data
+    items = ReadingItem.objects.filter(user=request.user)
+    
+    # 2. Buat folder sementara untuk proses backup
+    temp_dir = tempfile.mkdtemp()
+    db_path = os.path.join(temp_dir, 'data.sqlite')
+    
+    # 3. Buat database SQLite
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE reading_items (
+            title TEXT, 
+            chapters INTEGER, 
+            season TEXT, 
+            status TEXT, 
+            rating TEXT, 
+            category TEXT, 
+            notes TEXT, 
+            image_filename TEXT, 
+            favorit INTEGER
+        )
+    ''')
+    
+    for item in items:
+        # Mengambil nama file foto saja
+        img_name = os.path.basename(item.image.name) if item.image else ""
+        # 1 untuk favorit (True), 0 untuk tidak (False)
+        # Menggunakan field 'favorit' sesuai dengan models_2.py
+        fav_val = 1 if item.favorit else 0 
+        
+        cursor.execute('''
+            INSERT INTO reading_items VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (item.title, item.chapters or 0, item.season or "-", 
+              item.status.name if item.status else "-", item.rating or "-", 
+              item.category.name if item.category else "-", item.notes or "-", 
+              img_name, fav_val))
+    
+    conn.commit()
+    conn.close()
+    
+    # 4. Bungkus ke dalam file ZIP
+    zip_path = os.path.join(temp_dir, 'backup_full.zip')
+    with zipfile.ZipFile(zip_path, 'w') as zf:
+        # Masukkan file database
+        zf.write(db_path, arcname='data.sqlite')
+        
+        # Masukkan file foto
+        for item in items:
+            if item.image and os.path.exists(item.image.path):
+                # Memasukkan foto ke folder 'images' di dalam zip
+                zf.write(item.image.path, arcname=os.path.join('images', os.path.basename(item.image.name)))
+
+    # 5. Return response
+    response = FileResponse(open(zip_path, 'rb'), content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename="backup_{request.user.username}.zip"'
     return response
 
 @login_required
@@ -487,15 +647,24 @@ from django.db.models import Sum
 import datetime
 from django.shortcuts import get_object_or_404
 
+import os
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.db.models import Sum
+from .models import ImportHistory, ReadingItem
+
 @login_required
 def download_history(request, history_id):
     # 1. Ambil histori yang diminta
     history = get_object_or_404(ImportHistory, id=history_id, user=request.user)
     
-    # 2. Karena tidak ada relasi langsung di model, 
-    # kita ambil semua ReadingItem milik user tersebut.
-    # CATATAN: Jika Anda ingin memfilter berdasarkan waktu import, 
-    # Anda perlu menyesuaikan logic ini (misal: filter berdasarkan created_at).
+    # Ambil ekstensi dari nama file asli
+    # os.path.splitext akan memisahkan nama file dan ekstensinya
+    file_base, file_ext = os.path.splitext(history.filename)
+    if not file_ext:
+        file_ext = '.txt'  # Default jika file asli tidak memiliki ekstensi
+
+    # 2. Ambil item untuk report
     items = ReadingItem.objects.filter(user=request.user).order_by('title')
 
     # Header Dokumen
@@ -518,7 +687,6 @@ def download_history(request, history_id):
         if item.title: data_parts.append(item.title)
         if item.chapters and item.chapters > 0: data_parts.append(f"Ch. {item.chapters}")
         if item.season and item.season != "-": data_parts.append(item.season)
-        # Menggunakan item.status.name karena di model sudah ada relasi ke Status
         if item.status: data_parts.append(item.status.name)
         if item.notes and item.notes != "-": data_parts.append(item.notes)
 
@@ -530,32 +698,83 @@ def download_history(request, history_id):
     response_content += f"Total Seluruh Chapter: {total_chapters}\n"
     response_content += "="*30 + "\n"
 
+    # 3. Response dengan nama file dinamis
     response = HttpResponse(response_content, content_type='text/plain; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="history_{history.filename}.txt"'
+    
+    # Gunakan nama file asli + ekstensi yang sudah dideteksi
+    filename = f"history_{file_base}{file_ext}"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
     return response
+
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from .models import ImportHistory, ReadingItem
 
 @login_required
 def history_detail_view(request, history_id):
     log = get_object_or_404(ImportHistory, id=history_id, user=request.user)
     
-    # Ambil isi dari database atau file sesuai kebutuhan
-    # Contoh: kita ambil data dari field di ReadingItem
-    items = ReadingItem.objects.filter(user=request.user) # Sesuaikan query Anda
-    
-    # Membuat string untuk preview
-    content = f"File: {log.filename}\nImported: {log.imported_at}\n\n"
+    # 1. Menyiapkan bagian tampilan file
+    file_display = "<p>File tidak tersedia.</p>"
+    if log.file:
+        file_display = f"""
+        <div style="background: #e9ecef; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+            <p><strong>File Terlampir:</strong> {log.filename}</p>
+            <a href="{log.file.url}" download class="btn btn-dark" style="padding: 8px 16px; background: #333; color: #fff; text-decoration: none;">
+                Download File
+            </a>
+        </div>
+        """
+
+    # 2. Mengambil data item terkait (opsional, jika ingin tetap ditampilkan)
+    items = ReadingItem.objects.filter(user=request.user)
+    content = ""
     for item in items:
         content += f"{item.title} | {item.chapters}\n"
     
-    # Mengembalikan HTML minimalis tanpa template
+    # 3. Mengembalikan HTML
     html = f"""
     <html>
-    <head><title>Preview {log.filename}</title></head>
-    <body style="margin: 0; padding: 20px; font-family: monospace;">
-        <button onclick="window.history.back()">Back</button>
+    <head><title>Detail {log.filename}</title></head>
+    <body style="margin: 0; padding: 20px; font-family: sans-serif;">
+        <button onclick="window.history.back()">Kembali</button>
         <hr>
+        <h3>Detail Riwayat: {log.filename}</h3>
+        <p>Imported at: {log.imported_at.strftime('%Y-%m-%d %H:%M')}</p>
+        
+        {file_display}
+
+        <h4>Data Preview:</h4>
         <pre style="background: #f4f4f4; padding: 15px; border: 1px solid #ccc;">{content}</pre>
     </body>
     </html>
     """
     return HttpResponse(html)
+
+import os
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from .models import ImportHistory
+
+@login_required
+def delete_history(request):
+    if request.method == 'POST':
+        selected_ids = request.POST.get('selected_ids', '')
+        if selected_ids:
+            # Mengubah string ID menjadi list
+            id_list = [i.strip() for i in selected_ids.split(',') if i.strip().isdigit()]
+            
+            if id_list:
+                # Mengambil data berdasarkan ID dan User agar aman
+                histories = ImportHistory.objects.filter(id__in=id_list, user=request.user)
+                
+                for history in histories:
+                    # Hapus file fisik jika ada
+                    if history.file and os.path.exists(history.file.path):
+                        os.remove(history.file.path)
+                
+                # Hapus record dari database
+                histories.delete()
+                
+    return redirect('history_list')

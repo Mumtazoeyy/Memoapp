@@ -12,7 +12,14 @@
     
     <div class="mb-4">
         <h3 class="fw-bold text-dark text-uppercase" style="letter-spacing: -0.5px;">Data Detail: {{ log.filename }}</h3>
-        <p class="text-muted small">Imported on: {{ log.imported_at|date:"d M Y, H:i" }}</p>
+        <p class="text-muted small mb-2">Imported on: {{ log.imported_at|date:"d M Y, H:i" }}</p>
+        
+        <!-- Tambahan: Tombol Download File -->
+        {% if log.file %}
+        <a href="{{ log.file.url }}" download class="btn btn-sm btn-dark rounded-0 px-3">
+            Download Original File
+        </a>
+        {% endif %}
     </div>
 
     <div class="table-responsive animate-fade-up delay-1">

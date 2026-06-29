@@ -15,11 +15,11 @@
     width: 1px;                     
 }
 
-/* Khusus kolom Title, biarkan dia yang fleksibel */
+/* Khusus kolom Title: Paksa satu baris (nowrap) dan biarkan fleksibel */
 .custom-table-mono th:nth-child(2), 
 .custom-table-mono td:nth-child(2) {
     width: auto !important;         
-    white-space: normal !important; 
+    white-space: nowrap !important; /* DIBUAT NOWRAP AGAR TIDAK TURUN BARIS */
 }
 
 /* Khusus checkbox agar tetap di tengah */
@@ -30,8 +30,13 @@
     width: 40px !important;
 }
 
-/* --- TAMBAHAN RESPONSIVE UNTUK HP --- */
-@media (max-width: 768px) {
+/* --- RESPONSIVE UNTUK HP --- */
+@media (max-width: 767px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .custom-table-mono {
         font-size: 0.85rem; 
     }
@@ -39,9 +44,10 @@
     .custom-table-mono th, 
     .custom-table-mono td {
         padding-right: 15px !important; 
+        white-space: nowrap !important; /* PASTIKAN SEMUA NOWRAP */
     }
 
-    /* EDIT: Memaksa baris grup (ABCD) untuk menggunakan lebar penuh dan tidak menyusut */
+    /* Memastikan baris grup (ABCD) tetap rapi */
     .custom-table-mono td[colspan="9"] {
         white-space: nowrap !important;
         width: 100% !important;
@@ -52,14 +58,15 @@
         width: 100% !important;
     }
 
+    /* Hapus paksaan lebar 300px agar tidak menumpuk di layar kecil */
+    .custom-table-mono td:nth-child(2) {
+        width: auto !important; 
+        max-width: none !important;
+    }
+
     .group-total-text {
         font-size: 0.7rem !important; 
         margin-right: 5px !important;
-        display: inline !important; /* Memastikan teks total tidak hilang */
-    }
-
-    /* Memastikan checkbox header grup tetap lurus */
-    .custom-table-mono td[colspan="9"] .group-checkbox {
-        margin: 0 !important;
+        display: inline !important;
     }
 }

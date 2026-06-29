@@ -28,6 +28,8 @@ class ImportHistory(models.Model):
     # Menambahkan db_index=True agar query histori per user lebih cepat
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
     filename = models.CharField(max_length=255)
+    # Field baru untuk menyimpan file ZIP
+    file = models.FileField(upload_to='import_backups/', null=True, blank=True)
     imported_at = models.DateTimeField(auto_now_add=True)
     total_items = models.IntegerField()
     status = models.CharField(max_length=50, default="Success")

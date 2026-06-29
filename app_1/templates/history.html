@@ -30,7 +30,7 @@
                             hx-trigger="click">⌕</button>
                 </form>
 
-                <form action="{% url 'delete_selected' %}" method="POST" id="bulk-delete-form" style="display: none;">
+                <form action="{% url 'delete_history' %}" method="POST" id="bulk-delete-form" style="display: none;">
                     {% csrf_token %}
                     <input type="hidden" name="selected_ids" id="selected_ids">
                 </form>
