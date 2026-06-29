@@ -15,11 +15,14 @@ urlpatterns = [
 
     # Utility & Data
     path('search/', views.search_view, name='search'),
-    path('import/', views.import_data, name='import_data'),
-    path('export/', views.export_data, name='export_data'),
+    path('import/data/', views.import_data, name='import_data'),
+    path('import/full/', views.import_full, name='import_full'),
+    path('export/data/', views.export_data, name='export_data'),
+    path('export/full/', views.export_full, name='export_full'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('detail/<int:item_id>/', views.reading_item_detail, name='reading_item_detail'),
     path('history/', views.history_view, name='history_list'),
     path('history/detail/<int:history_id>/', views.history_detail_view, name='history_detail'),
     path('history/download/<int:history_id>/', views.download_history, name='download_history'),
+    path('history/delete/', views.delete_history, name='delete_history'),
 ]

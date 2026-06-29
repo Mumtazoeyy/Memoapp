@@ -3,12 +3,6 @@
 <div class="container d-flex justify-content-center">
     <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 animate-fade-up" style="max-width: 450px;">
         <h2 class="fw-bold mb-4" style="letter-spacing: -1px;">LOGIN</h2>
-        
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-danger rounded-0 border-dark mb-4">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
 
         <form method="POST">
             {% csrf_token %}
