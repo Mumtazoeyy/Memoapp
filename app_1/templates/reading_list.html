@@ -11,7 +11,7 @@
 <div class="py-2 animate-fade-up">
     <div class="mb-5">
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
-            
+
             <div>
                 <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">My Reading List</h3>
                 <p class="text-muted small mb-0">Personal tracking center for manga, manhwa, and manhua.</p>
@@ -19,12 +19,12 @@
 
             <div class="d-flex flex-wrap gap-2 align-items-center">
                 <form class="search-box-group d-flex" onsubmit="return false;">
-                    <input type="text" name="q" class="search-input rounded-0" placeholder="Search..." style="width: 200px;" 
-                        hx-get="{% url 'search' %}?type={{ search_type }}" 
-                        hx-target="#tabel-body" 
-                        hx-include="closest .search-box-group" 
+                    <input type="text" name="q" class="search-input rounded-0" placeholder="Search..." style="width: 200px;"
+                        hx-get="{% url 'search' %}?type={{ search_type }}"
+                        hx-target="#tabel-body"
+                        hx-include="closest .search-box-group"
                         hx-trigger="keyup[keyCode==13]">
-                    
+
                     {% if search_type == 'reading' %}
                         <select name="category" class="search-input rounded-0" style="width: 80px; border-left: none;">
                             <option value="">All</option>
@@ -33,11 +33,11 @@
                             {% endfor %}
                         </select>
                     {% endif %}
-                    
-                    <button type="button" class="search-btn rounded-0" style="border-left: none;" 
-                            hx-get="{% url 'search' %}?type={{ search_type }}" 
-                            hx-target="#tabel-body" 
-                            hx-include="closest .search-box-group" 
+
+                    <button type="button" class="search-btn rounded-0" style="border-left: none;"
+                            hx-get="{% url 'search' %}?type={{ search_type }}"
+                            hx-target="#tabel-body"
+                            hx-include="closest .search-box-group"
                             hx-trigger="click">⌕</button>
                 </form>
 
@@ -45,7 +45,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="selected_ids" id="selected_ids">
                 </form>
-                
+
                 <button type="button" id="btn-edit-bulk" class="btn btn-outline-dark rounded-0 px-3 fw-semibold btn-pro" style="height: 42px; display: none;" onclick="prepareBulkEdit()">
                     Edit selected
                 </button>
@@ -54,21 +54,20 @@
                 </button>
 
                 <a href="{% url 'reading_add' %}" class="btn btn-outline-dark rounded-0 px-3 py-2 small fw-semibold text-decoration-none btn-pro" style="height: 42px;">+ Add New</a>
-                <button type="button" class="btn btn-outline-dark rounded-0 px-3 py-2 small fw-semibold text-decoration-none btn-pro" 
-                        style="height: 42px;" 
-                        data-bs-toggle="modal" 
+                <button type="button" class="btn btn-outline-dark rounded-0 px-3 py-2 small fw-semibold text-decoration-none btn-pro"
+                        style="height: 42px;"
+                        data-bs-toggle="modal"
                         data-bs-target="#exportModal">
                     Download List
                 </button>
             </div>
         </div>
     </div>
-    
     <div class="table-responsive w-100 d-block animate-fade-up delay-1">
         <table class="table align-middle custom-table-mono" style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0;">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 60px;">No.</th> 
+                    <th scope="col" style="width: 60px;">No.</th>
                     <th scope="col" class="text-start">Title</th>
                     <th scope="col" class="text-end">Chapters</th>
                     <th scope="col" class="text-end">Season</th>
@@ -82,7 +81,7 @@
             <tbody id="tabel-body">
                 {% if reading_items %}
                     {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
-                    
+
                     {% with global_counter=0 %}
                         {% for group in grouped_list %}
                             <tr>
@@ -98,7 +97,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            
+
                             {% for item in group.list %}
                             <tr>
                                 <td style="width: 60px;">
@@ -148,11 +147,11 @@
                 </div>
                 <div class="modal-body">
                     <p class="small text-muted mb-3">Pilih format file yang ingin Anda unduh:</p>
-                    
+
                     <a href="{% url 'export_data' %}" class="btn btn-dark w-100 rounded-0 mb-2 py-2">
                         Download file .TXT
                     </a>
-                    
+
                     <a href="{% url 'export_full' %}" class="btn btn-outline-dark w-100 rounded-0 py-2">
                         Download file .Zip (Full Backup)
                     </a>
@@ -205,7 +204,7 @@
     function prepareBulkEdit() {
         const selected = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(selected).map(cb => cb.value).join(',');
-        
+
         // Menggunakan name url 'reading_edit_bulk' dari urls.py Anda
         window.location.href = "{% url 'reading_edit_bulk' %}?ids=" + ids;
     }
@@ -213,10 +212,10 @@
     function prepareBulkDelete() {
         const selected = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(selected).map(cb => cb.value).join(',');
-        
+
         const hiddenInput = document.getElementById('selected_ids');
         if (hiddenInput) hiddenInput.value = ids;
-        
+
         const modalBody = document.getElementById('modal-body-text');
         if (modalBody) {
             if (selected.length === 1) {

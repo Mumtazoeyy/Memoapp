@@ -4,6 +4,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from app_1 import views
 
+# Tambahan untuk sitemap
+from django.contrib.sitemaps.views import sitemap
+from app_1.sitemaps import HomeSitemap
+
+# Dictionary untuk sitemap
+sitemaps = {
+    'home': HomeSitemap,
+}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     
@@ -17,6 +26,9 @@ urlpatterns = [
     
     # 3. Rute fitur Reading List
     path('reading/', include('app_1.urls')), 
+    
+    # Rute sitemap
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 # Konfigurasi media
