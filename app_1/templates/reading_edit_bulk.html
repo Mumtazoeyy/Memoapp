@@ -1,15 +1,19 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 <div class="py-4 px-3">
     <h3 class="fw-bold mb-4">Bulk Edit Reading</h3>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="table-responsive">
             <table class="table table-bordered border-dark align-middle">
                 <thead class="table-light">
                     <tr class="align-middle">
                         <th class="bg-dark text-white p-2 text-center" style="width: 100px;">ID</th>
+                        <th class="bg-dark text-white p-2 text-center" style="width: 120px;">Image</th>
                         <th class="p-1">
                             <div class="d-flex align-items-center gap-1" style="min-width: 180px;">
                                 <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('title', this)">X</button>
@@ -81,7 +85,28 @@
                     {% for item in items %}
                     <tr>
                         <td class="text-center text-muted small">ID: {{item.id}}</td>
-                        <td><input type="text" name="title_{{item.id}}" value="{{ item.title }}" class="form-control rounded-0 border-dark title-input"></td>
+                        <td class="text-center align-middle">
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                                <img id="preview_{{item.id}}" 
+                                    src="{% if item.image %}{{ item.image.url }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7{% endif %}" 
+                                    alt="Preview" 
+                                    style="width: 50px; height: 75px; object-fit: cover; border: 1px solid #dee2e6;">
+
+                                <label class="btn btn-sm btn-outline-dark rounded-0" style="cursor: pointer;">
+                                    Choose
+                                    <input type="file" name="image_{{item.id}}" accept="image/*" class="d-none" 
+                                        onchange="previewImage(this, '{{item.id}}')">
+                                </label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group align-items-stretch">
+                                <textarea name="title_{{item.id}}" id="input_title_{{item.id}}" class="form-control rounded-0 border-dark title-input" style="height: 55px; line-height: 1.2; padding: 5px; resize: none; overflow: hidden;">{{item.title}}</textarea>
+                                <button class="btn btn-outline-dark rounded-0" type="button" onclick="copyTitle('input_title_{{item.id}}')" title="Copy Title">
+                                    <i class="bi bi-copy"></i>
+                                </button>
+                            </div>
+                        </td>
                         <td><input type="number" name="chapters_{{item.id}}" value="{{ item.chapters }}" class="form-control rounded-0 border-dark chapters-input"></td>
                         <td><input type="text" name="season_{{item.id}}" value="{{ item.season|default:'' }}" class="form-control rounded-0 border-dark season-input"></td>
                         <td>
@@ -92,20 +117,20 @@
                             </select>
                         </td>
                         <td style="min-width: 250px;">
-    <input type="hidden" name="rating_{{item.id}}" id="rating-val-{{item.id}}" value="{{ item.rating|default:'-' }}" class="rating-input">
-    
-    <div class="d-flex align-items-center justify-content-center gap-1">
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↑" style="width: 30px; height: 30px; padding: 0;">↑</button>
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↓" style="width: 30px; height: 30px; padding: 0;">↓</button>
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="→" style="width: 30px; height: 30px; padding: 0;">→</button>
-        
-        <div class="vr mx-1"></div>
-        
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', -1)" style="width: 30px; height: 30px; padding: 0;">-</button>
-        <div id="rating-display-{{item.id}}" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 50px; height: 30px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', 1)" style="width: 30px; height: 30px; padding: 0;">+</button>
-    </div>
-</td>
+                            <input type="hidden" name="rating_{{item.id}}" id="rating-val-{{item.id}}" value="{{ item.rating|default:'-' }}" class="rating-input">
+                            
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↑" style="width: 30px; height: 30px; padding: 0;">↑</button>
+                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↓" style="width: 30px; height: 30px; padding: 0;">↓</button>
+                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="→" style="width: 30px; height: 30px; padding: 0;">→</button>
+                                
+                                <div class="vr mx-1"></div>
+                                
+                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', -1)" style="width: 30px; height: 30px; padding: 0;">-</button>
+                                <div id="rating-display-{{item.id}}" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 50px; height: 30px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
+                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', 1)" style="width: 30px; height: 30px; padding: 0;">+</button>
+                            </div>
+                        </td>
                         <td>
                             <select name="category_{{item.id}}" class="form-select rounded-0 border-dark category-input">
                                 {% for c in categories %}
@@ -122,6 +147,20 @@
         <button type="submit" class="btn btn-dark rounded-0 px-4 mt-3">Update All Items</button>
         <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 mt-3">Cancel</a>
     </form>
+</div>
+
+<!-- Modal Konfirmasi -->
+<div class="modal fade" id="copyModal" tabindex="-1" aria-labelledby="copyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0 border-dark">
+            <div class="modal-body text-center p-4">
+                <i class="bi bi-check-circle-fill text-dark" style="font-size: 2rem;"></i>
+                <h5 class="fw-bold mt-3">Copied!</h5>
+                <p class="text-muted">Title has been copied to your clipboard.</p>
+                <button type="button" class="btn btn-dark rounded-0 px-4 mt-2" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -220,6 +259,51 @@
         display.textContent = input.value;
         
         applyMass('rating', input.value);
+    }
+
+    function previewImage(input, id) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            const img = document.getElementById('preview_' + id);
+
+            reader.onload = function (e) {
+                img.src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function copyTitle(elementId) {
+        // Mengambil nilai dari textarea berdasarkan ID
+        const titleText = document.getElementById(elementId).value;
+
+        navigator.clipboard.writeText(titleText).then(() => {
+            // 1. Cari container notifikasi yang sudah ada di base.html
+            const container = document.querySelector('.toast-container-custom');
+            
+            // 2. Buat elemen notifikasi baru
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-dismissible fade show custom-alert';
+            alertDiv.setAttribute('role', 'alert');
+            
+            // 3. Isi konten
+            alertDiv.innerHTML = `
+                Title copied!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            // 4. Masukkan ke dalam container
+            container.appendChild(alertDiv);
+
+            // 5. Logic auto-close
+            setTimeout(function() {
+                let bsAlert = new bootstrap.Alert(alertDiv);
+                bsAlert.close();
+            }, 3500);
+        }).catch(err => {
+            console.error('Gagal menyalin: ', err);
+        });
     }
 </script>
 {% endblock %}

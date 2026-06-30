@@ -536,6 +536,10 @@ def reading_edit_bulk(request):
                     item.status_id = new_status
                 if new_category:
                     item.category_id = new_category
+                
+                # Menangani upload gambar (Menambahkan logika ini)
+                if f'image_{item.id}' in request.FILES:
+                    item.image = request.FILES[f'image_{item.id}']
 
                 item.save()
 
@@ -544,8 +548,6 @@ def reading_edit_bulk(request):
 
     context = {
         'items': items,
-        # Menggunakan .distinct('name') jika database mendukung,
-        # atau kita ambil hanya yang unik namanya secara manual
         'statuses': {s.name: s for s in Status.objects.all()}.values(),
         'categories': {c.name: c for c in Category.objects.all()}.values(),
     }
