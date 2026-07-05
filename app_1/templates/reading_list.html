@@ -51,9 +51,9 @@
 </style>
 
 <div class="py-2 animate-fade-up">
-    <div class="mb-5">
+    <div class="py-2" style="position: sticky; top: 0; z-index: 1000; background-color: #ffffff; padding-top: 10px; padding-bottom: 10px;">
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
-
+            <!-- Konten Anda tetap sama di sini -->
             <div>
                 <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">My Reading List</h3>
                 <p class="text-muted small mb-0">Personal tracking center for manga, manhwa, and manhua.</p>
@@ -181,29 +181,97 @@
     </div>
 </div>
 
-    <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-dark rounded-0">
-                <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title fw-bold">Pilih Format Export</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-dark rounded-0">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title fw-bold">Pilih Format Export</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- BAGIAN 1: PEMILIHAN (Default) -->
+            <div id="selection-area" class="modal-body">
+                <p class="small text-muted mb-3">Pilih format file yang ingin Anda unduh:</p>
+                
+                <!-- Tombol TXT (Konsisten menggunakan btn-outline-dark) -->
+                <button type="button" class="btn btn-outline-dark w-100 rounded-0 mb-2 py-2 d-flex justify-content-between align-items-center" 
+                        onclick="showDetails('TXT', '{% url 'export_data' %}', '{{ txt_size }}')">
+                    <span>Export Data (.txt)</span>
+                    <small>Lihat Detail →</small>
+                </button>
+
+                <!-- Tombol ZIP (Konsisten menggunakan btn-outline-dark) -->
+                <button type="button" class="btn btn-outline-dark w-100 rounded-0 py-2 d-flex justify-content-between align-items-center" 
+                        onclick="showDetails('ZIP', '{% url 'export_full' %}', '{{ zip_size }}')">
+                    <span>Full Backup (.zip)</span>
+                    <small>Lihat Detail →</small>
+                </button>
+            </div>
+
+            <!-- BAGIAN 2: RINCIAN -->
+            <div id="details-area" class="modal-body" style="display: none;">
+                <h6 class="fw-bold mb-3" id="file-title">Nama File</h6>
+                <div class="bg-light p-3 border mb-3">
+                    <p class="small mb-1"><strong>Format:</strong> <span id="file-format">-</span></p>
+                    <p class="small mb-1"><strong>Ukuran:</strong> <span id="file-size">-</span></p>
+                    <!-- Baris baru untuk detail rincian -->
+                    <p class="small mb-1"><strong>Rincian:</strong> <span id="file-description" class="text-muted">-</span></p>
+                    <p class="small mb-0 mt-2 text-muted"><em>Catatan: Data yang diunduh mencakup konten terbaru dari daftar bacaan Anda.</em></p>
                 </div>
-                <div class="modal-body">
-                    <p class="small text-muted mb-3">Pilih format file yang ingin Anda unduh:</p>
-
-                    <a href="{% url 'export_data' %}" class="btn btn-dark w-100 rounded-0 mb-2 py-2">
-                        Download file .TXT
-                    </a>
-
-                    <a href="{% url 'export_full' %}" class="btn btn-outline-dark w-100 rounded-0 py-2">
-                        Download file .Zip (Full Backup)
-                    </a>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary w-50 rounded-0" onclick="goBack()">Kembali</button>
+                    <a id="download-trigger" href="#" class="btn btn-dark w-50 rounded-0">Konfirmasi Download</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 <script>
+    function showDetails(type, url, size) {
+        // 1. Ambil elemen
+        const selectionArea = document.getElementById('selection-area');
+        const detailsArea = document.getElementById('details-area');
+        const fileTitle = document.getElementById('file-title');
+        const fileFormat = document.getElementById('file-format');
+        const fileSize = document.getElementById('file-size');
+        const fileDescription = document.getElementById('file-description'); // Elemen deskripsi baru
+        const downloadTrigger = document.getElementById('download-trigger');
+
+        // 2. Tentukan Data berdasarkan tipe
+        if (type === 'TXT') {
+            fileTitle.innerText = "Export Data (.txt)";
+            fileFormat.innerText = "Plain Text";
+            // Rincian untuk TXT
+            fileDescription.innerText = "Title | Chapters | Season | Status | Rating";
+        } else {
+            fileTitle.innerText = "Full Backup (.zip)";
+            fileFormat.innerText = "Compressed Archive";
+            // Rincian untuk ZIP
+            fileDescription.innerText = "Database (.sqlite) + Folder Media/Gambar";
+        }
+
+        // 3. Update Ukuran dan Link Download
+        fileSize.innerText = size;
+        downloadTrigger.href = url;
+
+        // 4. Perpindahan tampilan
+        selectionArea.style.display = 'none';
+        detailsArea.style.display = 'block';
+    }
+
+    function goBack() {
+        document.getElementById('selection-area').style.display = 'block';
+        document.getElementById('details-area').style.display = 'none';
+    }
+
+    // Reset modal saat ditutup
+    const exportModal = document.getElementById('exportModal');
+    exportModal.addEventListener('hidden.bs.modal', function () {
+        goBack();
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const btnDelete = document.getElementById('btn-delete-bulk');
         const btnEdit = document.getElementById('btn-edit-bulk');

@@ -385,19 +385,84 @@ def export_full(request):
 
 @login_required
 def reading_list(request):
-    # TAMBAHKAN .filter(user=request.user) SEBELUM .all() ATAU .select_related()
     items = ReadingItem.objects.select_related('category', 'status').filter(user=request.user)
-
-    # Lakukan sorting (tetap gunakan cara yang efisien)
-    # Tips: Anda juga bisa melakukan sorting langsung di database dengan .order_by('title')
     reading_items = sorted(items, key=lambda x: x.title.upper())
+
+    # 1. Ukuran TXT (Sangat cepat)
+    txt_content = get_export_txt_content(request.user)
+    txt_size = f"{len(txt_content.encode('utf-8')) / 1024:.1f} KB"
+
+    # 2. Ukuran ZIP (Hati-hati: Ini akan melakukan kompresi setiap kali halaman dimuat)
+    temp_dir = tempfile.mkdtemp()
+    zip_path = os.path.join(temp_dir, 'test.zip')
+    generate_zip_logic(request.user, zip_path)
+    zip_size = f"{os.path.getsize(zip_path) / (1024 * 1024):.2f} MB"
+    shutil.rmtree(temp_dir) # Hapus folder temp setelah dapat ukurannya
 
     context = {
         'reading_items': reading_items,
         'categories': Category.objects.exclude(id=1), 
         'statuses': Status.objects.exclude(id=1),
+        'txt_size': txt_size,
+        'zip_size': zip_size,
     }
     return render(request, 'reading_list.html', context)
+
+import datetime
+from django.db.models import Sum
+
+# Fungsi untuk menghasilkan konten TXT
+def get_export_txt_content(user):
+    items = ReadingItem.objects.filter(user=user).order_by('title')
+    response_content = ""
+    last_char = None
+    total_titles = items.count()
+    total_chapters = items.aggregate(Sum('chapters'))['chapters__sum'] or 0
+
+    for item in items:
+        current_char = item.title[0].upper() if item.title else "#"
+        if current_char != last_char:
+            response_content += f"\n{current_char} | ••••\n"
+            last_char = current_char
+        
+        data_parts = [item.title] if item.title else []
+        if item.chapters and item.chapters > 0: data_parts.append(f"Ch. {item.chapters}")
+        if item.season and item.season != "-": data_parts.append(item.season)
+        if item.status and item.status.id != 1: data_parts.append(item.status.name)
+        if item.rating and item.rating != "-": data_parts.append(item.rating)
+        if item.category and item.category.id != 1: data_parts.append(item.category.name)
+        if item.notes and item.notes != "-": data_parts.append(item.notes)
+        response_content += " » " + " | ".join(data_parts) + "\n"
+
+    response_content += f"\n{'='*30}\nLaporan Per: {datetime.date.today().strftime('%d %B %Y')}\nTotal Judul: {total_titles}\nTotal Seluruh Chapter: {total_chapters}\n{'='*30}\n"
+    return response_content
+
+# Fungsi untuk membuat ZIP di path tertentu (tanpa return response)
+def generate_zip_logic(user, zip_path):
+    items = ReadingItem.objects.filter(user=user).order_by('title')
+    temp_dir = os.path.dirname(zip_path)
+    db_path = os.path.join(temp_dir, 'data.sqlite')
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE reading_items (title TEXT, chapters INTEGER, season TEXT, status TEXT, rating TEXT, category TEXT, notes TEXT, image_filename TEXT, favorit INTEGER)')
+    
+    for item in items:
+        img_name = os.path.basename(item.image.name) if item.image else ""
+        fav_val = 1 if item.favorit else 0 
+        cursor.execute('INSERT INTO reading_items VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                       (item.title, item.chapters or 0, item.season or "-", 
+                        item.status.name if item.status else "-", item.rating or "-", 
+                        item.category.name if item.category else "-", item.notes or "-", 
+                        img_name, fav_val))
+    conn.commit()
+    conn.close()
+    
+    with zipfile.ZipFile(zip_path, 'w') as zf:
+        zf.write(db_path, arcname='data.sqlite')
+        for item in items:
+            if item.image and os.path.exists(item.image.path):
+                zf.write(item.image.path, arcname=os.path.join('images', os.path.basename(item.image.name)))
 
 @login_required
 def reading_add(request):
@@ -515,7 +580,8 @@ def reading_edit_bulk(request):
         return redirect('reading_list')
 
     ids = [int(i) for i in ids_str.split(',') if i.strip()]
-    items = ReadingItem.objects.filter(id__in=ids)
+    # Menambahkan .order_by('title') agar item terurut berdasarkan judul
+    items = ReadingItem.objects.filter(id__in=ids).order_by('title')
 
     if request.method == 'POST':
         with transaction.atomic():
@@ -537,7 +603,7 @@ def reading_edit_bulk(request):
                 if new_category:
                     item.category_id = new_category
                 
-                # Menangani upload gambar (Menambahkan logika ini)
+                # Menangani upload gambar
                 if f'image_{item.id}' in request.FILES:
                     item.image = request.FILES[f'image_{item.id}']
 

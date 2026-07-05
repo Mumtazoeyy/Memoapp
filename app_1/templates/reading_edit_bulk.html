@@ -4,7 +4,26 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-<div class="py-4 px-3">
+<style>
+    /* Menghilangkan panah spinner (up/down arrows) */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+
+    /* Untuk Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .btn-hover-hitam:hover {
+        background-color: black !important; 
+        color: white !important; 
+        border-color: black !important; }
+</style>
+
+<div class="py-2 px-3">
     <h3 class="fw-bold mb-4">Bulk Edit Reading</h3>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -12,30 +31,31 @@
             <table class="table table-bordered border-dark align-middle">
                 <thead class="table-light">
                     <tr class="align-middle">
-                        <th class="bg-dark text-white p-2 text-center" style="width: 100px;">ID</th>
-                        <th class="bg-dark text-white p-2 text-center" style="width: 120px;">Image</th>
-                        <th class="p-1">
-                            <div class="d-flex align-items-center gap-1" style="min-width: 180px;">
-                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('title', this)">X</button>
-                                <input type="text" id="mass-title" class="form-control form-control-sm flex-grow-1" placeholder="Title" disabled oninput="applyMass('title', this.value)">
-                            </div>
+
+                        <th class="p-2" style="width: 80px; vertical-align: middle;">
+                            <span class="fw-bold">ID</span>
                         </th>
-                        <th class="p-1">
-                            <div class="d-flex align-items-center gap-1" style="min-width: 120px;">
-                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('chapters', this)">X</button>
-                                <input type="number" id="mass-chapters" class="form-control form-control-sm flex-grow-1" placeholder="Chapters" disabled oninput="applyMass('chapters', this.value)">
-                            </div>
+
+                        <th class="p-2" style="width: 120px; vertical-align: middle;">
+                            <span class="fw-bold">Image</span>
                         </th>
-                        <th class="p-1">
-                            <div class="d-flex align-items-center gap-1" style="min-width: 130px;">
-                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('season', this)">X</button>
-                                <input type="text" id="mass-season" class="form-control form-control-sm flex-grow-1" placeholder="Season" disabled oninput="applyMass('season', this.value)">
-                            </div>
+
+                        <th class="p-2" style="min-width: 360px; vertical-align: middle;">
+                            <span class="fw-bold">Title</span>
                         </th>
-                        <th class="p-1">
-                            <div class="d-flex align-items-center gap-1" style="min-width: 160px;">
-                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('status', this)">X</button>
-                                <select id="mass-status" class="form-select form-select-sm flex-grow-1" disabled onchange="applyMass('status', this.value)">
+
+                        <th class="p-2 text-start text-nowrap" style="min-width: 180px; vertical-align: middle;">
+                            <span class="fw-bold">Chapters</span>
+                        </th>
+
+                        <th class="p-2 text-start text-nowrap" style="min-width: 180px; vertical-align: middle;">
+                            <div class="d-flex align-items-center gap-1">
+                                <!-- Select box dengan height yang dipaksa agar sama -->
+                                <select id="mass-status" 
+                                        class="form-select form-select-sm flex-grow-1 border-dark rounded-0" 
+                                        style="height: 31px; padding-top: 0; padding-bottom: 0;" 
+                                        disabled 
+                                        onchange="applyMass('status', this.value)">
                                     <option value="1">Status</option>
                                     {% for s in statuses %}
                                         {% if s.id != 1 %}
@@ -43,27 +63,23 @@
                                         {% endif %}
                                     {% endfor %}
                                 </select>
+                                
+                                <!-- Tombol X dengan height dan width yang dipaksa agar kotak sempurna -->
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-dark rounded-0 border-dark" 
+                                        style="height: 31px; width: 35px; padding: 0; line-height: 1;" 
+                                        onclick="toggleColumn('status', this)">X</button>
                             </div>
                         </th>
-                        <th class="p-1">
-                            <div class="d-flex align-items-center gap-1" style="min-width: 250px;">
-                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('rating', this)">X</button>
-                                <input type="hidden" id="mass-rating" value="-" disabled onchange="applyMass('rating', this.value)">
-                                <div class="d-flex align-items-center gap-1">
-                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold mass-arrow" disabled data-arrow="↑" onclick="setMassRatingArrow('↑', this)" style="width: 30px; height: 30px; padding: 0;">↑</button>
-                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold mass-arrow" disabled data-arrow="↓" onclick="setMassRatingArrow('↓', this)" style="width: 30px; height: 30px; padding: 0;">↓</button>
-                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold mass-arrow" disabled data-arrow="→" onclick="setMassRatingArrow('→', this)" style="width: 30px; height: 30px; padding: 0;">→</button>
-                                    <div class="vr mx-1"></div>
-                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" disabled onclick="changeMassRating(-1)" style="width: 30px; height: 30px; padding: 0;">-</button>
-                                    <div id="mass-rating-display" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 50px; height: 30px; background: #f8f9fa;">-</div>
-                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" disabled onclick="changeMassRating(1)" style="width: 30px; height: 30px; padding: 0;">+</button>
-                                </div>
-                            </div>
-                        </th>
-                        <th class="p-1">
-                            <div class="d-flex align-items-center gap-1" style="min-width: 160px;">
-                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('category', this)">X</button>
-                                <select id="mass-category" class="form-select form-select-sm flex-grow-1" disabled onchange="applyMass('category', this.value)">
+
+                        <th class="p-2 text-start text-nowrap" style="min-width: 180px; vertical-align: middle;">
+                            <div class="d-flex align-items-center gap-1">
+                                <!-- Select box di kiri -->
+                                <select id="mass-category" 
+                                        class="form-select form-select-sm flex-grow-1 border-dark rounded-0" 
+                                        style="height: 31px; padding-top: 0; padding-bottom: 0;" 
+                                        disabled 
+                                        onchange="applyMass('category', this.value)">
                                     <option value="1">Category</option>
                                     {% for c in categories %}
                                         {% if c.id != 1 %}
@@ -71,16 +87,55 @@
                                         {% endif %}
                                     {% endfor %}
                                 </select>
+                                
+                                <!-- Tombol X di kanan -->
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark" style="height: 31px; width: 35px; padding: 0; line-height: 1;" onclick="toggleColumn('category', this)">X</button>
                             </div>
                         </th>
-                        <th class="p-1">
-                            <div class="d-flex align-items-center gap-1" style="min-width: 180px;">
-                                <button type="button" class="btn btn-sm" style="background-color: white; color: black; border: 1px solid #dee2e6;" onclick="toggleColumn('notes', this)">X</button>
-                                <input type="text" id="mass-notes" class="form-control form-control-sm flex-grow-1" placeholder="Notes" disabled oninput="applyMass('notes', this.value)">
+
+                        <th class="p-2 text-start text-nowrap" style="min-width: 250px; vertical-align: middle;">
+                            <div class="d-flex align-items-center gap-1">
+                                
+                                <input type="hidden" id="mass-rating" value="-" disabled onchange="applyMass('rating', this.value)">
+
+                                <div class="d-flex align-items-center gap-1" id="rating-container">
+                                    <!-- Tambahkan class 'btn-hover-hitam' pada semua tombol -->
+                                    <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark bg-light btn-hover-hitam" disabled data-arrow="↑" onclick="setMassRatingArrow('↑', this)" style="width: 31px; height: 31px; padding: 0; line-height: 1;">↑</button>
+                                    <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark bg-light btn-hover-hitam" disabled data-arrow="↓" onclick="setMassRatingArrow('↓', this)" style="width: 31px; height: 31px; padding: 0; line-height: 1;">↓</button>
+                                    <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark bg-light btn-hover-hitam" disabled data-arrow="→" onclick="setMassRatingArrow('→', this)" style="width: 31px; height: 31px; padding: 0; line-height: 1;">→</button>
+
+                                    <div class="vr mx-1"></div>
+
+                                    <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark bg-light btn-hover-hitam" disabled onclick="changeMassRating(-1)" style="width: 31px; height: 31px; padding: 0; line-height: 1;">-</button>
+                                    
+                                    <div id="mass-rating-display" class="border border-secondary text-center fw-bold d-flex align-items-center justify-content-center rounded-0 bg-light text-muted" style="width: 62px; height: 31px; font-size: 14px;">-</div>
+                                    
+                                    <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark bg-light btn-hover-hitam" disabled onclick="changeMassRating(1)" style="width: 31px; height: 31px; padding: 0; line-height: 1;">+</button>
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark btn-hover-hitam" style="height: 31px; width: 35px; padding: 0; line-height: 1;" onclick="toggleColumn('rating', this)">X</button>
                             </div>
                         </th>
+
+                        <th class="p-2 text-start text-nowrap" style="min-width: 180px; vertical-align: middle;">
+                            <div class="d-flex align-items-center gap-1">
+                                <input type="text" id="mass-season" class="form-control form-control-sm flex-grow-1 border-dark rounded-0" placeholder="Season" style="height: 31px;" disabled oninput="applyMass('season', this.value)">
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark" style="height: 31px; width: 35px; padding: 0; line-height: 1;" onclick="toggleColumn('season', this)">X</button>
+                            </div>
+                        </th>
+                        
+                        <th class="p-2 text-start text-nowrap" style="min-width: 180px; vertical-align: middle;">
+                            <div class="d-flex align-items-center gap-1">
+                                <input type="text" id="mass-notes" class="form-control form-control-sm flex-grow-1 border-dark rounded-0" placeholder="Notes" style="height: 31px;" disabled oninput="applyMass('notes', this.value)">
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark" style="height: 31px; width: 35px; padding: 0; line-height: 1;" onclick="toggleColumn('notes', this)">X</button>
+                            </div>
+                        </th>
+                        
                     </tr>
                 </thead>
+
+<!-- # -------------------------------------------------------------------------- -->
+
                 <tbody>
                     {% for item in items %}
                     <tr>
@@ -100,44 +155,72 @@
                             </div>
                         </td>
                         <td>
-                            <div class="input-group align-items-stretch">
-                                <textarea name="title_{{item.id}}" id="input_title_{{item.id}}" class="form-control rounded-0 border-dark title-input" style="height: 55px; line-height: 1.2; padding: 5px; resize: none; overflow: hidden;">{{item.title}}</textarea>
-                                <button class="btn btn-outline-dark rounded-0" type="button" onclick="copyTitle('input_title_{{item.id}}')" title="Copy Title">
+                            <div class="d-flex">
+                                <textarea name="title_{{item.id}}" id="input_title_{{item.id}}" class="form-control rounded-0 border-dark title-input" style="resize: none; overflow: hidden;">{{item.title}}</textarea>
+                                <button class="btn btn-outline-dark rounded-0 border-dark" type="button" onclick="copyTitle('input_title_{{item.id}}')" title="Copy Title">
                                     <i class="bi bi-copy"></i>
                                 </button>
                             </div>
                         </td>
-                        <td><input type="number" name="chapters_{{item.id}}" value="{{ item.chapters }}" class="form-control rounded-0 border-dark chapters-input"></td>
-                        <td><input type="text" name="season_{{item.id}}" value="{{ item.season|default:'' }}" class="form-control rounded-0 border-dark season-input"></td>
                         <td>
-                            <select name="status_{{item.id}}" class="form-select rounded-0 border-dark status-input">
-                                {% for s in statuses %}
-                                    <option value="{{ s.id }}" {% if item.status.id == s.id %}selected{% endif %}>{% if s.id == 1 %}-{% else %}{{ s.name }}{% endif %}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="d-flex">
+                                <input type="number" name="chapters_{{item.id}}" value="{{ item.chapters|default:0 }}" class="form-control rounded-0 border-dark chapters-input" onfocus="this.select();">
+                                <button type="button" class="btn btn-outline-dark rounded-0 border-dark" onclick="adjustValue(this, -1)">-</button>
+                                <button type="button" class="btn btn-outline-dark rounded-0 border-dark" onclick="adjustValue(this, 1)">+</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <select name="status_{{item.id}}" class="form-select rounded-0 border-dark status-input">
+                                    {% for s in statuses %}
+                                        <option value="{{ s.id }}" {% if item.status.id == s.id %}selected{% endif %}>{% if s.id == 1 %}-{% else %}{{ s.name }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                                <button type="button" class="btn btn-outline-dark rounded-0 border-dark btn-hover-hitam" 
+                                        style="height: 37px; width: 37px; padding: 0;" 
+                                        onclick="toggleLock(this)">
+                                    <i class="bi bi-unlock"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <select name="category_{{item.id}}" class="form-select rounded-0 border-dark category-input">
+                                    {% for c in categories %}
+                                        <option value="{{ c.id }}" {% if item.category.id == c.id %}selected{% endif %}>{% if c.id == 1 %}-{% else %}{{ c.name }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                                <button type="button" class="btn btn-outline-dark rounded-0 border-dark btn-hover-hitam" 
+                                        style="height: 37px; width: 37px; padding: 0;" 
+                                        onclick="toggleLock(this)">
+                                    <i class="bi bi-unlock"></i>
+                                </button>
+                            </div>
                         </td>
                         <td style="min-width: 250px;">
                             <input type="hidden" name="rating_{{item.id}}" id="rating-val-{{item.id}}" value="{{ item.rating|default:'-' }}" class="rating-input">
                             
                             <div class="d-flex align-items-center justify-content-center gap-1">
-                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↑" style="width: 30px; height: 30px; padding: 0;">↑</button>
-                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↓" style="width: 30px; height: 30px; padding: 0;">↓</button>
-                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="→" style="width: 30px; height: 30px; padding: 0;">→</button>
+                                <button type="button" class="btn btn-outline-dark rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↑" style="width: 35px; height: 37px; padding: 0;">↑</button>
+                                <button type="button" class="btn btn-outline-dark rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="↓" style="width: 35px; height: 37px; padding: 0;">↓</button>
+                                <button type="button" class="btn btn-outline-dark rounded-0 fw-bold arrow-btn-{{item.id}}" data-id="{{item.id}}" data-arrow="→" style="width: 35px; height: 37px; padding: 0;">→</button>
                                 
                                 <div class="vr mx-1"></div>
                                 
-                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', -1)" style="width: 30px; height: 30px; padding: 0;">-</button>
-                                <div id="rating-display-{{item.id}}" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 50px; height: 30px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
-                                <button type="button" class="btn btn-outline-dark btn-sm rounded-0 fw-bold" onclick="changeRating('{{item.id}}', 1)" style="width: 30px; height: 30px; padding: 0;">+</button>
+                                <button type="button" class="btn btn-outline-dark rounded-0 fw-bold" onclick="changeRating('{{item.id}}', -1)" style="width: 35px; height: 37px; padding: 0;">-</button>
+                                <div id="rating-display-{{item.id}}" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 55px; height: 37px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
+                                <button type="button" class="btn btn-outline-dark rounded-0 fw-bold" onclick="changeRating('{{item.id}}', 1)" style="width: 35px; height: 37px; padding: 0;">+</button>
+                            
+                                <button type="button" class="btn btn-outline-dark rounded-0 border-dark btn-hover-hitam" 
+                                        style="height: 37px; width: 37px; padding: 0;" 
+                                        onclick="toggleLock(this)">
+                                    <i class="bi bi-unlock"></i>
+                                </button>
                             </div>
                         </td>
-                        <td>
-                            <select name="category_{{item.id}}" class="form-select rounded-0 border-dark category-input">
-                                {% for c in categories %}
-                                    <option value="{{ c.id }}" {% if item.category.id == c.id %}selected{% endif %}>{% if c.id == 1 %}-{% else %}{{ c.name }}{% endif %}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
+                        <td><input type="text" name="season_{{item.id}}" value="{{ item.season|default:'' }}" class="form-control rounded-0 border-dark season-input"></td>
                         <td><input type="text" name="notes_{{item.id}}" value="{{ item.notes|default:'' }}" class="form-control rounded-0 border-dark notes-input"></td>
                     </tr>
                     {% endfor %}
@@ -167,7 +250,7 @@
     // 1. Fungsi Toggle Kolom (Untuk tombol X/✓)
     function toggleColumn(colName, btn) {
         const input = document.getElementById('mass-' + colName);
-        const isEnabled = input.disabled;
+        const isEnabled = input.disabled; 
 
         input.disabled = !isEnabled;
         btn.style.backgroundColor = isEnabled ? 'black' : 'white';
@@ -175,9 +258,29 @@
         btn.textContent = isEnabled ? '✓' : 'X';
 
         if (colName === 'rating') {
-            const ratingControls = btn.parentElement.querySelectorAll('button');
-            ratingControls.forEach(b => {
-                if (b !== btn) b.disabled = !isEnabled;
+            const container = document.getElementById('rating-container');
+            const elementsToToggle = container.querySelectorAll('button, #mass-rating-display');
+            
+            elementsToToggle.forEach(el => {
+                if (el !== btn) {
+                    if (el.tagName === 'BUTTON') {
+                        el.disabled = !isEnabled;
+                    }
+                    
+                    if (el.id === 'mass-rating-display') {
+                        if (isEnabled) {
+                            // Kondisi mau diaktifkan (Enabled) -> Jadi Hitam/Jelas
+                            el.classList.remove('border-secondary', 'text-muted');
+                            el.classList.add('border-dark', 'text-dark');
+                            el.classList.remove('bg-light');
+                        } else {
+                            // Kondisi mau dimatikan (Disabled) -> Jadi Redup
+                            el.classList.remove('border-dark', 'text-dark');
+                            el.classList.add('border-secondary', 'text-muted');
+                            el.classList.add('bg-light');
+                        }
+                    }
+                }
             });
         }
     }
@@ -188,6 +291,9 @@
         if (input.disabled) return;
         
         document.querySelectorAll('.' + type + '-input').forEach(el => {
+            // CEK APAKAH BARIS DI-LOCK
+            if (el.closest('tr').classList.contains('locked-row')) return;
+            
             el.value = value;
             if (type === 'rating') {
                 const id = el.id.replace('rating-val-', '');
@@ -195,6 +301,21 @@
                 if (display) display.textContent = value;
             }
         });
+    }
+
+    function toggleLock(btn) {
+        const tr = btn.closest('tr');
+        const icon = btn.querySelector('i');
+        
+        tr.classList.toggle('locked-row');
+        const isLocked = tr.classList.contains('locked-row');
+        
+        icon.className = isLocked ? 'bi bi-lock' : 'bi bi-unlock';
+
+        btn.classList.toggle('btn-dark', isLocked);
+        btn.classList.toggle('btn-outline-dark', !isLocked);
+
+        icon.style.color = isLocked ? 'white' : 'black';
     }
 
     // 3. Logika Rating Meter
@@ -233,6 +354,16 @@
             input.value = (count <= 0) ? "-" : char.repeat(count);
         }
         display.textContent = input.value;
+    }
+
+    function adjustValue(btn, delta) {
+        // Mencari input di dalam div container yang sama
+        const input = btn.parentElement.querySelector('input[type="number"]');
+        let val = parseInt(input.value) || 0;
+        
+        // Menghitung nilai baru (minimal 0)
+        let newValue = Math.max(0, val + delta);
+        input.value = newValue;
     }
 
     function changeRating(id, delta) {
