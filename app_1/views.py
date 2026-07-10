@@ -12,7 +12,7 @@ from django import forms
 import datetime, os
 from django.conf import settings
 
-from .models import ReadingItem, Category, Status
+from .models import ReadingItem, Type, Status
 
 def login_view(request):
     if request.method == 'POST':
@@ -74,12 +74,12 @@ def search_view(request):
             'search_type': 'history' 
         })
     else:
-        category_id = request.GET.get('category')
-        items = ReadingItem.objects.select_related('category').filter(user=request.user)
+        Type_id = request.GET.get('Type')
+        items = ReadingItem.objects.select_related('Type').filter(user=request.user)
         if query:
             items = items.filter(title__icontains=query)
-        if category_id:
-            items = items.filter(category__id=category_id)
+        if Type_id:
+            items = items.filter(Type__id=Type_id)
         # TAMBAHKAN search_type ke dalam context
         return render(request, 'search_results_partial.html', {
             'reading_items': items,
@@ -93,7 +93,7 @@ import re
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import ReadingItem, Status, Category, ImportHistory
+from .models import ReadingItem, Status, Type, ImportHistory
 
 @login_required
 def import_data(request):
@@ -104,7 +104,7 @@ def import_data(request):
 
         # Filter agar default status/kategori juga milik user tersebut jika perlu
         default_status = Status.objects.filter(id=1).first() or Status.objects.first()
-        default_cat = Category.objects.filter(id=1).first() or Category.objects.first()
+        default_cat = Type.objects.filter(id=1).first() or Type.objects.first()
 
         count = 0
         for line in lines:
@@ -118,7 +118,7 @@ def import_data(request):
                 chapters = 0
                 season = "-"
                 status_obj = default_status
-                category_obj = default_cat
+                Type_obj = default_cat
                 rating = "-"
                 notes_list = []
 
@@ -131,8 +131,8 @@ def import_data(request):
                         season = p
                     elif Status.objects.filter(name__iexact=p).exists():
                         status_obj = Status.objects.filter(name__iexact=p).first()
-                    elif Category.objects.filter(name__iexact=p).exists():
-                        category_obj = Category.objects.filter(name__iexact=p).first()
+                    elif Type.objects.filter(name__iexact=p).exists():
+                        Type_obj = Type.objects.filter(name__iexact=p).first()
                     elif any(arrow in p for arrow in ['↑', '↓', '→']):
                         rating = p
                     else:
@@ -144,7 +144,7 @@ def import_data(request):
                     chapters=chapters,
                     season=season,
                     status=status_obj,
-                    category=category_obj,
+                    Type=Type_obj,
                     rating=rating,
                     notes=", ".join(notes_list)[:255] if notes_list else "-"
                 )
@@ -176,7 +176,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import ReadingItem, Status, Category, ImportHistory
+from .models import ReadingItem, Status, Type, ImportHistory
 
 @login_required
 def import_full(request):
@@ -199,12 +199,12 @@ def import_full(request):
         
         for row in rows:
             # Sesuaikan urutan dengan kolom saat export
-            # (title, chapters, season, status, rating, category, notes, image_filename, is_favorite)
+            # (title, chapters, season, status, rating, Type, notes, image_filename, is_favorite)
             title, chaps, seas, stat_name, rat, cat_name, note, img_name, fav = row
             
-            # Cari/Buat Object Status & Category (agar relasi tidak error)
+            # Cari/Buat Object Status & Type (agar relasi tidak error)
             status_obj, _ = Status.objects.get_or_create(name=stat_name)
-            category_obj, _ = Category.objects.get_or_create(name=cat_name)
+            Type_obj, _ = Type.objects.get_or_create(name=cat_name)
             
             # Buat item baru
             item = ReadingItem.objects.create(
@@ -214,7 +214,7 @@ def import_full(request):
                 season=seas,
                 status=status_obj,
                 rating=rat,
-                category=category_obj,
+                Type=Type_obj,
                 notes=note,
                 favorit=bool(fav)
             )
@@ -295,8 +295,8 @@ def export_data(request):
         if item.rating and item.rating != "-":
             data_parts.append(item.rating)
 
-        if item.category and item.category.id != 1:
-            data_parts.append(item.category.name)
+        if item.Type and item.Type.id != 1:
+            data_parts.append(item.Type.name)
 
         if item.notes and item.notes != "-":
             data_parts.append(item.notes)
@@ -342,7 +342,7 @@ def export_full(request):
             season TEXT, 
             status TEXT, 
             rating TEXT, 
-            category TEXT, 
+            Type TEXT, 
             notes TEXT, 
             image_filename TEXT, 
             favorit INTEGER
@@ -360,7 +360,7 @@ def export_full(request):
             INSERT INTO reading_items VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (item.title, item.chapters or 0, item.season or "-", 
               item.status.name if item.status else "-", item.rating or "-", 
-              item.category.name if item.category else "-", item.notes or "-", 
+              item.Type.name if item.Type else "-", item.notes or "-", 
               img_name, fav_val))
     
     conn.commit()
@@ -385,7 +385,7 @@ def export_full(request):
 
 @login_required
 def reading_list(request):
-    items = ReadingItem.objects.select_related('category', 'status').filter(user=request.user)
+    items = ReadingItem.objects.select_related('Type', 'status').filter(user=request.user)
     reading_items = sorted(items, key=lambda x: x.title.upper())
 
     # 1. Ukuran TXT (Sangat cepat)
@@ -401,7 +401,7 @@ def reading_list(request):
 
     context = {
         'reading_items': reading_items,
-        'categories': Category.objects.exclude(id=1), 
+        'categories': Type.objects.exclude(id=1), 
         'statuses': Status.objects.exclude(id=1),
         'txt_size': txt_size,
         'zip_size': zip_size,
@@ -430,7 +430,7 @@ def get_export_txt_content(user):
         if item.season and item.season != "-": data_parts.append(item.season)
         if item.status and item.status.id != 1: data_parts.append(item.status.name)
         if item.rating and item.rating != "-": data_parts.append(item.rating)
-        if item.category and item.category.id != 1: data_parts.append(item.category.name)
+        if item.Type and item.Type.id != 1: data_parts.append(item.Type.name)
         if item.notes and item.notes != "-": data_parts.append(item.notes)
         response_content += " » " + " | ".join(data_parts) + "\n"
 
@@ -445,7 +445,7 @@ def generate_zip_logic(user, zip_path):
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute('CREATE TABLE reading_items (title TEXT, chapters INTEGER, season TEXT, status TEXT, rating TEXT, category TEXT, notes TEXT, image_filename TEXT, favorit INTEGER)')
+    cursor.execute('CREATE TABLE reading_items (title TEXT, chapters INTEGER, season TEXT, status TEXT, rating TEXT, Type TEXT, notes TEXT, image_filename TEXT, favorit INTEGER)')
     
     for item in items:
         img_name = os.path.basename(item.image.name) if item.image else ""
@@ -453,7 +453,7 @@ def generate_zip_logic(user, zip_path):
         cursor.execute('INSERT INTO reading_items VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
                        (item.title, item.chapters or 0, item.season or "-", 
                         item.status.name if item.status else "-", item.rating or "-", 
-                        item.category.name if item.category else "-", item.notes or "-", 
+                        item.Type.name if item.Type else "-", item.notes or "-", 
                         img_name, fav_val))
     conn.commit()
     conn.close()
@@ -470,7 +470,7 @@ def reading_add(request):
     if request.method == 'POST':
         # Mengambil data dari form
         status_id = request.POST.get('status')
-        category_id = request.POST.get('category')
+        Type_id = request.POST.get('Type')
 
         # Membuat objek baru
         ReadingItem.objects.create(
@@ -484,7 +484,7 @@ def reading_add(request):
 
             # Mengambil objek ForeignKey (menggunakan .get() agar lebih aman)
             status=Status.objects.filter(id=status_id).first(),
-            category=Category.objects.filter(id=category_id).first()
+            Type=Type.objects.filter(id=Type_id).first()
         )
 
         messages.success(request, 'Data berhasil ditambahkan!')
@@ -492,7 +492,7 @@ def reading_add(request):
 
     context = {
         'statuses': Status.objects.all(),
-        'categories': Category.objects.all()
+        'categories': Type.objects.all()
     }
     return render(request, 'reading_add.html', context)
 
@@ -515,8 +515,8 @@ def reading_edit(request, pk):
         status_id = request.POST.get('status')
         item.status_id = status_id if status_id else None
 
-        category_id = request.POST.get('category')
-        item.category_id = category_id if category_id else None
+        Type_id = request.POST.get('Type')
+        item.Type_id = Type_id if Type_id else None
 
         # Handle Image Upload
         if request.FILES.get('image'):
@@ -531,7 +531,7 @@ def reading_edit(request, pk):
     context = {
         'item': item,
         'statuses': Status.objects.all(),
-        'categories': Category.objects.all(),
+        'categories': Type.objects.all(),
         'next': next_url
     }
     return render(request, 'reading_edit.html', context)
@@ -595,13 +595,13 @@ def reading_edit_bulk(request):
 
                 # Menangani ForeignKey
                 new_status = request.POST.get(f'status_{item.id}')
-                new_category = request.POST.get(f'category_{item.id}')
+                new_Type = request.POST.get(f'Type_{item.id}')
 
                 # Jika user memilih opsi kosong, tetap gunakan relasi yang ada atau default
                 if new_status:
                     item.status_id = new_status
-                if new_category:
-                    item.category_id = new_category
+                if new_Type:
+                    item.Type_id = new_Type
                 
                 # Menangani upload gambar
                 if f'image_{item.id}' in request.FILES:
@@ -615,7 +615,7 @@ def reading_edit_bulk(request):
     context = {
         'items': items,
         'statuses': {s.name: s for s in Status.objects.all()}.values(),
-        'categories': {c.name: c for c in Category.objects.all()}.values(),
+        'categories': {c.name: c for c in Type.objects.all()}.values(),
     }
     return render(request, 'reading_edit_bulk.html', context)
 
@@ -651,7 +651,7 @@ def dashboard(request):
     total_favorites = items.filter(favorit=True).count()
     
     # 2. Filter kategori dan status agar hanya menghitung milik user tersebut
-    categories = Category.objects.filter(items__user=request.user).annotate(item_count=Count('items'))
+    categories = Type.objects.filter(items__user=request.user).annotate(item_count=Count('items'))
     statuses = Status.objects.filter(items__user=request.user).annotate(item_count=Count('items'))
 
     def safe_calc(value):

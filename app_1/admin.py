@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from .models import Category, Status, ReadingItem, ImportHistory
+from .models import Type, Status, ReadingItem, ImportHistory
 from django.contrib.auth.models import User, Group
 
 # Paksa label model bawaan menjadi Inggris
@@ -15,7 +15,7 @@ Group._meta.verbose_name_plural = 'Groups'
 def get_app_list(self, request, app_label=None):
     app_dict = self._build_app_dict(request, app_label)
     # Sidebar display order
-    ordering = {'User': 1, 'ReadingItem': 2, 'Category': 3, 'Status': 4, 'ImportHistory': 5}
+    ordering = {'User': 1, 'ReadingItem': 2, 'Type': 3, 'Status': 4, 'ImportHistory': 5}
     for app in app_dict.values():
         app['models'] = [m for m in app['models'] if m['object_name'] != 'Memo']
         app['models'].sort(key=lambda x: ordering.get(x['object_name'], 99))
@@ -27,7 +27,7 @@ admin.AdminSite.get_app_list = get_app_list
 class ReadingItemInline(admin.TabularInline):
     model = ReadingItem
     extra = 0
-    fields = ('title', 'category', 'status', 'chapters', 'rating')
+    fields = ('title', 'Type', 'status', 'chapters', 'rating')
     show_change_link = True # Click to go to item details
 
 class ImportHistoryInline(admin.TabularInline):
@@ -46,8 +46,8 @@ class CustomUserAdmin(UserAdmin):
 
 # 4. Other Admin Models (Returned to sidebar)
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+@admin.register(Type)
+class TypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     search_fields = ('name',)
 
@@ -59,19 +59,19 @@ class StatusAdmin(admin.ModelAdmin):
 @admin.register(ReadingItem)
 class ReadingItemAdmin(admin.ModelAdmin):
     # 'user_username_link' in the leftmost position, followed by other information
-    list_display = ('user_username_link', 'title', 'category', 'status', 'chapters', 'rating', 'created_at', 'id')
+    list_display = ('user_username_link', 'title', 'Type', 'status', 'chapters', 'rating', 'created_at', 'id')
     
     # Only the title is clickable to enter the edit page
     list_display_links = ('title',) 
     
     # Direct edit feature in the table (list_editable) has been removed
-    list_filter = ('user', 'status', 'category', 'created_at')
+    list_filter = ('user', 'status', 'Type', 'created_at')
     search_fields = ('user__username', 'title', 'notes')
     list_per_page = 50
-    autocomplete_fields = ['category', 'status'] 
+    autocomplete_fields = ['Type', 'status'] 
     
     fieldsets = (
-        ('Main Information', {'fields': ('user', 'title', 'image', 'category', 'chapters', 'season', 'rating')}),
+        ('Main Information', {'fields': ('user', 'title', 'image', 'Type', 'chapters', 'season', 'rating')}),
         ('Status & Notes', {'fields': ('status', 'notes', 'synopsis')}),
         ('Time', {'fields': ('created_at', 'last_edited_at'), 'classes': ('collapse',)}),
     )

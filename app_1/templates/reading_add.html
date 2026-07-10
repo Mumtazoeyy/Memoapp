@@ -74,8 +74,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="category" class="form-label fw-bold text-dark small text-uppercase">Category</label>
-                    <select class="form-select rounded-0 border-dark" id="category" name="category">
+                    <label for="Type" class="form-label fw-bold text-dark small text-uppercase">Type</label>
+                    <select class="form-select rounded-0 border-dark" id="Type" name="Type">
                         {% for cat in categories %}
                             <option value="{{ cat.id }}" {% if cat.id == 1 %}selected{% endif %}>{{ cat.name }}</option>
                         {% endfor %}

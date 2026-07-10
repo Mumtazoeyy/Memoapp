@@ -38,9 +38,9 @@
                 <div class="mb-4 pb-3 border-bottom border-dark">
                     <input type="text" name="title" value="{{ item.title|default_if_none:'' }}" class="form-control form-control-lg fw-bold mb-2 rounded-0 border-dark" placeholder="Title cannot be empty" required>                    
                     <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-                        <select name="category" class="form-select w-auto rounded-0 border-dark">
+                        <select name="Type" class="form-select w-auto rounded-0 border-dark">
                             {% for cat in categories %}
-                                <option value="{{ cat.id }}" {% if item.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                                <option value="{{ cat.id }}" {% if item.Type.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
                             {% endfor %}
                         </select>
                         <select name="status" class="form-select w-auto rounded-0 border-dark">

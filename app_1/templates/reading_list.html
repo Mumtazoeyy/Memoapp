@@ -9,8 +9,45 @@
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
 <style>
+    /* ==========================================================================
+       DESKTOP RESPONSIVE (Mencegah Scroll Horizontal & Pas Panjang Layar)
+       ========================================================================== */
+    @media (min-width: 768px) {
+        .custom-table-mono {
+            width: 100% !important;
+            table-layout: fixed !important; /* KUNCI: Memaksa tabel patuh pada lebar 100% layar */
+        }
+
+        /* Berikan alokasi lebar statis untuk kolom kecil agar sisa ruang diberikan ke Title */
+        .custom-table-mono th:nth-child(1), .custom-table-mono td:nth-child(1) { width: 60px; } /* No. */
+        .custom-table-mono th:nth-child(3), .custom-table-mono td:nth-child(3) { width: 100px; } /* Chapters */
+        .custom-table-mono th:nth-child(4), .custom-table-mono td:nth-child(4) { width: 80px; }  /* Season */
+        .custom-table-mono th:nth-child(5), .custom-table-mono td:nth-child(5) { width: 110px; } /* Status */
+        .custom-table-mono th:nth-child(6), .custom-table-mono td:nth-child(6) { width: 80px; }  /* Rating */
+        .custom-table-mono th:nth-child(7), .custom-table-mono td:nth-child(7) { width: 90px; }  /* Type */
+        .custom-table-mono th:nth-child(8), .custom-table-mono td:nth-child(8) { width: 150px; } /* Notes */
+        .custom-table-mono th:nth-child(9), .custom-table-mono td:nth-child(9) { width: 40px; }  /* Checkbox */
+
+        /* Kolom Title (Kolom ke-2): Mengambil sisa space, jika kepanjangan akan otomatis terpotong (...) */
+        .custom-table-mono td.col-title {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        .custom-table-mono td.col-title a {
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+    }
+
+    /* ==========================================================================
+       MOBILE RESPONSIVE (Tetap Mempertahankan Scroll Sesuai Kode Lama Anda)
+       ========================================================================== */
     @media (max-width: 767px) {
-        /* 1. Container tetap sebagai scroll area */
         .table-responsive {
             display: block !important;
             width: 100% !important;
@@ -18,29 +55,25 @@
             -webkit-overflow-scrolling: touch !important;
         }
 
-        /* 2. KUNCI: Ubah ke auto agar kolom tidak saling tumpuk */
         .custom-table-mono {
-            width: auto !important;      /* Tabel akan melebar sesuai isi, bukan dipaksa layar */
-            min-width: 100% !important;  /* Minimal selebar layar */
-            table-layout: auto !important; /* PENTING: Biarkan browser mengatur lebar kolom */
+            width: auto !important;      
+            min-width: 100% !important;  
+            table-layout: auto !important; 
             border-collapse: collapse !important;
         }
 
-        /* 3. Paksa agar teks di dalam sel tidak turun baris */
         .custom-table-mono th, 
         .custom-table-mono td {
             white-space: nowrap !important;
-            padding-right: 25px !important; /* Beri jarak antar kolom agar tidak menempel */
+            padding-right: 25px !important; 
             width: auto !important;
         }
 
-        /* 4. Khusus Title: Beri batasan lebar agar tidak terlalu panjang */
         .custom-table-mono tr td:nth-child(2) {
             max-width: 200px !important; 
             overflow: hidden !important;
         }
 
-        /* 5. Potong teks Title jika kepanjangan */
         .custom-table-mono tr td:nth-child(2) a {
             display: block !important;
             white-space: nowrap !important;
@@ -48,12 +81,31 @@
             text-overflow: ellipsis !important;
         }
     }
+
+    .fade-transition {
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .slide-transition {
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    #details-area {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out, opacity 0.4s ease-in;
+    }
+    
+    #details-area.is-open {
+        max-height: 500px; /* Tinggi maksimal yang cukup */
+        opacity: 1;
+    }
 </style>
 
 <div class="py-2 animate-fade-up">
     <div class="py-2" style="position: sticky; top: 0; z-index: 1000; background-color: #ffffff; padding-top: 10px; padding-bottom: 10px;">
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
-            <!-- Konten Anda tetap sama di sini -->
             <div>
                 <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">My Reading List</h3>
                 <p class="text-muted small mb-0">Personal tracking center for manga, manhwa, and manhua.</p>
@@ -68,7 +120,7 @@
                         hx-trigger="keyup[keyCode==13]">
 
                     {% if search_type == 'reading' %}
-                        <select name="category" class="search-input rounded-0" style="width: 80px; border-left: none;">
+                        <select name="Type" class="search-input rounded-0" style="width: 80px; border-left: none;">
                             <option value="">All</option>
                             {% for cat in categories %}
                                 <option value="{{ cat.id }}">{{ cat.name }}</option>
@@ -107,18 +159,19 @@
     </div>
 
     <div class="table-responsive w-100 d-block animate-fade-up delay-1">
-        <table class="table align-middle custom-table-mono" style="width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0;">
+        <!-- MODIFIKASI: Menghapus inline style width/table-layout agar dikontrol sepenuhnya oleh CSS @media di atas -->
+        <table class="table align-middle custom-table-mono" style="border-collapse: separate; border-spacing: 0;">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 60px;">No.</th>
+                    <th scope="col">No.</th>
                     <th scope="col" class="text-start">Title</th>
                     <th scope="col" class="text-end">Chapters</th>
                     <th scope="col" class="text-end">Season</th>
                     <th scope="col" class="text-end">Status</th>
                     <th scope="col" class="text-end">Rating</th>
-                    <th scope="col" class="text-end">Category</th>
+                    <th scope="col" class="text-end">Type</th>
                     <th scope="col" class="text-end">Notes</th>
-                    <th scope="col" class="text-center" style="width: 40px;"><input type="checkbox" id="select-all"></th>
+                    <th scope="col" class="text-center"><input type="checkbox" id="select-all"></th>
                 </tr>
             </thead>
             <tbody id="tabel-body">
@@ -143,7 +196,7 @@
 
                             {% for item in group.list %}
                             <tr>
-                                <td style="width: 60px;">
+                                <td>
                                     <div class="d-flex" style="width: 100%; align-items: center;">
                                         <div class="fw-medium text-muted" style="flex: 1; text-align: center;">
                                             {{ forloop.counter }}
@@ -153,7 +206,8 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="fw-bold text-dark text-start" style="white-space: nowrap; width: auto;">
+                                <!-- MODIFIKASI: Menambahkan class="col-title" dan menghapus inline style width agar responsive -->
+                                <td class="fw-bold text-dark text-start col-title">
                                     <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none">
                                         {{ item.title }}
                                     </a>
@@ -162,7 +216,7 @@
                                 <td class="text-end px-2">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
                                 <td class="text-end px-2">{% if item.status and item.status.id != 1 %}{{ item.status.name }}{% else %}-{% endif %}</td>
                                 <td class="text-dark fw-bold text-end px-2">{{ item.rating }}</td>
-                                <td class="text-end px-2">{% if item.category and item.category.id != 1 %}{{ item.category.name }}{% else %}-{% endif %}</td>
+                                <td class="text-end px-2">{% if item.Type and item.Type.id != 1 %}{{ item.Type.name }}{% else %}-{% endif %}</td>
                                 <td class="text-end px-2">{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}</td>
                                 <td class="text-center"><input type="checkbox" class="item-checkbox" value="{{ item.id }}"></td>
                             </tr>
@@ -181,6 +235,7 @@
     </div>
 </div>
 
+<!-- Modal Export format -->
 <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-dark rounded-0">
@@ -189,18 +244,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
-            <!-- BAGIAN 1: PEMILIHAN (Default) -->
+            <!-- Area Pilihan Tetap Ada -->
             <div id="selection-area" class="modal-body">
                 <p class="small text-muted mb-3">Pilih format file yang ingin Anda unduh:</p>
                 
-                <!-- Tombol TXT (Konsisten menggunakan btn-outline-dark) -->
                 <button type="button" class="btn btn-outline-dark w-100 rounded-0 mb-2 py-2 d-flex justify-content-between align-items-center" 
                         onclick="showDetails('TXT', '{% url 'export_data' %}', '{{ txt_size }}')">
                     <span>Export Data (.txt)</span>
                     <small>Lihat Detail →</small>
                 </button>
 
-                <!-- Tombol ZIP (Konsisten menggunakan btn-outline-dark) -->
                 <button type="button" class="btn btn-outline-dark w-100 rounded-0 py-2 d-flex justify-content-between align-items-center" 
                         onclick="showDetails('ZIP', '{% url 'export_full' %}', '{{ zip_size }}')">
                     <span>Full Backup (.zip)</span>
@@ -208,13 +261,12 @@
                 </button>
             </div>
 
-            <!-- BAGIAN 2: RINCIAN -->
-            <div id="details-area" class="modal-body" style="display: none;">
+            <!-- Area Detail Muncul di Bawahnya -->
+            <div id="details-area" class="modal-body">
                 <h6 class="fw-bold mb-3" id="file-title">Nama File</h6>
                 <div class="bg-light p-3 border mb-3">
                     <p class="small mb-1"><strong>Format:</strong> <span id="file-format">-</span></p>
                     <p class="small mb-1"><strong>Ukuran:</strong> <span id="file-size">-</span></p>
-                    <!-- Baris baru untuk detail rincian -->
                     <p class="small mb-1"><strong>Rincian:</strong> <span id="file-description" class="text-muted">-</span></p>
                     <p class="small mb-0 mt-2 text-muted"><em>Catatan: Data yang diunduh mencakup konten terbaru dari daftar bacaan Anda.</em></p>
                 </div>
@@ -230,43 +282,36 @@
 
 <script>
     function showDetails(type, url, size) {
-        // 1. Ambil elemen
-        const selectionArea = document.getElementById('selection-area');
-        const detailsArea = document.getElementById('details-area');
+        const detArea = document.getElementById('details-area');
         const fileTitle = document.getElementById('file-title');
         const fileFormat = document.getElementById('file-format');
         const fileSize = document.getElementById('file-size');
-        const fileDescription = document.getElementById('file-description'); // Elemen deskripsi baru
+        const fileDescription = document.getElementById('file-description'); 
         const downloadTrigger = document.getElementById('download-trigger');
 
-        // 2. Tentukan Data berdasarkan tipe
+        // Update Data
         if (type === 'TXT') {
             fileTitle.innerText = "Export Data (.txt)";
             fileFormat.innerText = "Plain Text";
-            // Rincian untuk TXT
             fileDescription.innerText = "Title | Chapters | Season | Status | Rating";
         } else {
             fileTitle.innerText = "Full Backup (.zip)";
             fileFormat.innerText = "Compressed Archive";
-            // Rincian untuk ZIP
             fileDescription.innerText = "Database (.sqlite) + Folder Media/Gambar";
         }
-
-        // 3. Update Ukuran dan Link Download
         fileSize.innerText = size;
         downloadTrigger.href = url;
 
-        // 4. Perpindahan tampilan
-        selectionArea.style.display = 'none';
-        detailsArea.style.display = 'block';
+        // Trigger Animasi Buka Tirai
+        detArea.classList.add('is-open');
     }
 
     function goBack() {
-        document.getElementById('selection-area').style.display = 'block';
-        document.getElementById('details-area').style.display = 'none';
+        const detArea = document.getElementById('details-area');
+        // Trigger Animasi Tutup Tirai
+        detArea.classList.remove('is-open');
     }
 
-    // Reset modal saat ditutup
     const exportModal = document.getElementById('exportModal');
     exportModal.addEventListener('hidden.bs.modal', function () {
         goBack();
@@ -311,12 +356,9 @@
         });
     });
 
-    // Fungsi ini disesuaikan dengan 'reading_edit_bulk' di urls.py
     function prepareBulkEdit() {
         const selected = document.querySelectorAll('.item-checkbox:checked');
         const ids = Array.from(selected).map(cb => cb.value).join(',');
-
-        // Menggunakan name url 'reading_edit_bulk' dari urls.py Anda
         window.location.href = "{% url 'reading_edit_bulk' %}?ids=" + ids;
     }
 

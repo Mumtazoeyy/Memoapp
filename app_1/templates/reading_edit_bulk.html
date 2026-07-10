@@ -75,12 +75,12 @@
                         <th class="p-2 text-start text-nowrap" style="min-width: 180px; vertical-align: middle;">
                             <div class="d-flex align-items-center gap-1">
                                 <!-- Select box di kiri -->
-                                <select id="mass-category" 
+                                <select id="mass-Type" 
                                         class="form-select form-select-sm flex-grow-1 border-dark rounded-0" 
                                         style="height: 31px; padding-top: 0; padding-bottom: 0;" 
                                         disabled 
-                                        onchange="applyMass('category', this.value)">
-                                    <option value="1">Category</option>
+                                        onchange="applyMass('Type', this.value)">
+                                    <option value="1">Type</option>
                                     {% for c in categories %}
                                         {% if c.id != 1 %}
                                             <option value="{{ c.id }}">{{ c.name }}</option>
@@ -89,7 +89,7 @@
                                 </select>
                                 
                                 <!-- Tombol X di kanan -->
-                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark" style="height: 31px; width: 35px; padding: 0; line-height: 1;" onclick="toggleColumn('category', this)">X</button>
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 border-dark" style="height: 31px; width: 35px; padding: 0; line-height: 1;" onclick="toggleColumn('Type', this)">X</button>
                             </div>
                         </th>
 
@@ -186,9 +186,9 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-1">
-                                <select name="category_{{item.id}}" class="form-select rounded-0 border-dark category-input">
+                                <select name="Type_{{item.id}}" class="form-select rounded-0 border-dark Type-input">
                                     {% for c in categories %}
-                                        <option value="{{ c.id }}" {% if item.category.id == c.id %}selected{% endif %}>{% if c.id == 1 %}-{% else %}{{ c.name }}{% endif %}</option>
+                                        <option value="{{ c.id }}" {% if item.Type.id == c.id %}selected{% endif %}>{% if c.id == 1 %}-{% else %}{{ c.name }}{% endif %}</option>
                                     {% endfor %}
                                 </select>
                                 

@@ -59,7 +59,7 @@
                 <!-- Metadata Tags -->
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     {% with badge_class="badge border border-dark text-dark rounded-0 px-3 py-1 text-uppercase small fw-medium" %}
-                        <span class="{{ badge_class }}">{{ item.category.name|default:"No Category" }}</span>
+                        <span class="{{ badge_class }}">{{ item.Type.name|default:"No Type" }}</span>
                         <span class="{{ badge_class }}">{{ item.status|default:"No Status" }}</span>
                         <span class="{{ badge_class }} font-monospace">#{{ item.id }}</span>
                     {% endwith %}
