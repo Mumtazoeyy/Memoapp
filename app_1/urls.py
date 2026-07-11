@@ -28,17 +28,14 @@ urlpatterns = [
     path('history/download/<int:history_id>/', views.download_history, name='download_history'),
     path('history/delete/', views.delete_history, name='delete_history'),
 
+    path('library/', views.library_view, name='library'),
+    path('library/results/', views.library_results, name='library_results'),
+    path('item/<int:pk>/', views.item_detail_view, name='item_detail'),
+    path('library/item/<int:pk>/', views.library_item_detail, name='library_item_detail'),
+    path('library/add-to-list/<int:pk>/', views.add_to_reading_list, name='add_to_reading_list'),
+    path('library/remove-from-list/<int:pk>/', views.remove_from_reading_list, name='remove_from_reading_list'),
+
     # Profile & Auth
     path('profile/', views.profile, name='profile'),
     
-    # URL untuk ganti password
-    path('profile/password/', auth_views.PasswordChangeView.as_view(
-        template_name='profile_password_change.html', # Nama file harus sesuai dengan file di folder templates
-        success_url='/profile/' 
-    ), name='password_change'),
-    
-    # URL notifikasi sukses ganti password
-    path('profile/password/done/', auth_views.PasswordChangeDoneView.as_view(
-        template_name='password_change_done.html' 
-    ), name='password_change_done'),
 ]

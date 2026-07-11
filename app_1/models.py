@@ -4,6 +4,25 @@ from django.db.models.signals import post_save, post_migrate
 from django.dispatch import receiver
 from django.apps import apps
 
+# Model Master (Dikelola Admin/Staff)
+class Item(models.Model):
+    title = models.CharField(max_length=200)
+    chapters = models.IntegerField(default=0)
+    season = models.CharField(max_length=10, default='-', blank=True, null=True)
+    
+    # Gunakan tanda kutip agar Python tidak error saat membaca class yang belum didefinisikan
+    status = models.ForeignKey('Status', on_delete=models.SET_DEFAULT, default=1)
+    Type = models.ForeignKey('Type', on_delete=models.SET_DEFAULT, default=1)
+    tags = models.ManyToManyField('Tag', blank=True)
+    
+    synopsis = models.TextField(default='-', blank=True, null=True)
+    image = models.ImageField(upload_to='item_covers/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
 # 1. MODEL Type
 class Type(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -38,7 +57,18 @@ class ImportHistory(models.Model):
     def __str__(self):
         return f"{self.filename} - {self.imported_at.strftime('%Y-%m-%d %H:%M')}"
     
-# 4. MODEL READINGITEM
+# 4. MODEL TAG
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Tags"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+    
+# 5. MODEL READINGITEM
 class ReadingItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reading_items', db_index=True)
     
@@ -51,6 +81,7 @@ class ReadingItem(models.Model):
     rating = models.CharField(max_length=10, default='-')
     
     Type = models.ForeignKey(Type, on_delete=models.SET_DEFAULT, default=1, related_name='items')
+    tags = models.ManyToManyField(Tag, related_name='items', blank=True)
     
     synopsis = models.TextField(default='-', blank=True, null=True)
     notes = models.CharField(max_length=255, default='-', blank=True, null=True)
@@ -63,12 +94,14 @@ class ReadingItem(models.Model):
     def __str__(self):
         return self.title
 
-# 5. MODEL PROFILE
+# 6. MODEL PROFILE
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    cover = models.ImageField(upload_to='covers/', blank=True, null=True) # Field baru
     display_name = models.CharField(max_length=100, blank=True)
     bio = models.TextField(blank=True, null=True)
+    location = models.CharField(max_length=100, blank=True, null=True) # Field baru
     website = models.URLField(blank=True, null=True)
     social = models.CharField(max_length=100, blank=True, null=True)
 
@@ -83,11 +116,26 @@ def create_initial_data(sender, **kwargs):
     if sender.name == 'app_1':
         Type = apps.get_model('app_1', 'Type')
         Status = apps.get_model('app_1', 'Status')
+        Tag = apps.get_model('app_1', 'Tag')
+        Item = apps.get_model('app_1', 'Item')
         
-        # Menggunakan force_insert=True tidak disarankan jika ID 1 sudah ada, 
-        # jadi kita gunakan update_or_create agar aman.
         Type.objects.update_or_create(id=1, defaults={'name': 'No Type'})
         Status.objects.update_or_create(id=1, defaults={'name': 'No Status'})
+        Tag.objects.update_or_create(id=1, defaults={'name': 'No Tag'})
+        
+        # Tambahkan logika untuk memastikan semua item yang tidak punya tag 
+        # diberikan Tag ID 1 agar sinkron dengan sistem baru
+        for item in Item.objects.filter(tags__isnull=True):
+            item.tags.add(1)
+
+from django.db.models.signals import m2m_changed
+
+@receiver(m2m_changed, sender=Item.tags.through)
+def manage_tags(sender, instance, action, pk_set, **kwargs):
+    if action == "post_add":
+        # Jika user menambah tag lain selain ID 1, hapus ID 1
+        if instance.tags.count() > 1 and 1 in [pk for pk in pk_set]:
+            instance.tags.remove(1)
 
 # --- SIGNAL UNTUK PROFILE ---
 

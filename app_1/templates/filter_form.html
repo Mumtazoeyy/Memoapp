@@ -1,0 +1,55 @@
+<!-- FITUR SORT -->
+<div class="mb-4">
+    <label class="small fw-bold mb-2">Sort By</label>
+    <div class="d-flex flex-wrap gap-2">
+        {% for sort_val, sort_label in sort_options %}
+        <button type="submit" name="sort" value="{{ sort_val }}" 
+                class="btn btn-sm rounded-pill {% if request.GET.sort == sort_val or not request.GET.sort and sort_val == 'new' %}btn-danger-custom{% else %}btn-white-custom{% endif %}">
+            {{ sort_label }}
+        </button>
+        {% endfor %}
+    </div>
+</div>
+
+<h5 class="fw-bold mb-3">Filter</h5>
+
+<!-- Type (Radio) -->
+<div class="mb-3">
+    <label class="small fw-bold">Type</label>
+    {% for cat in categories %}
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="Type" value="{{ cat.id }}" 
+               onchange="this.form.submit()" id="t_{{cat.id}}" 
+               {% if request.GET.Type|add:"0" == cat.id or not request.GET.Type and cat.id == 1 %}checked{% endif %}>
+        <label class="form-check-label small" for="t_{{cat.id}}">{{ cat.name }}</label>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Status (Radio) -->
+<div class="mb-3">
+    <label class="small fw-bold">Status</label>
+    {% for stat in statuses %}
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="status" value="{{ stat.name }}" 
+               onchange="this.form.submit()" id="s_{{stat.id}}" 
+               {% if request.GET.status == stat.name or not request.GET.status and stat.id == 1 %}checked{% endif %}>
+        <label class="form-check-label small" for="s_{{stat.id}}">{{ stat.name }}</label>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Genre/Tags -->
+<div class="mb-3" id="tag-container">
+    <label class="small fw-bold">Genre (Tags)</label>
+    {% for tag in tags %}
+    <div class="form-check">
+        <input class="form-check-input tag-checkbox" type="checkbox" name="tag" value="{{ tag.id }}" 
+               onchange="handleTagSelection(this)" id="g_{{tag.id}}" 
+               {% if tag.id in active_tags %}checked{% endif %}>
+        <label class="form-check-label small" for="g_{{tag.id}}">{{ tag.name }}</label>
+    </div>
+    {% endfor %}
+</div>
+
+<a href="{% url 'library' %}" class="btn btn-outline-dark btn-sm rounded-0 w-100">Reset</a>

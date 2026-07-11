@@ -1,0 +1,186 @@
+{% extends 'base/base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    body { background-color: #ffffff; color: #000000; margin: 0; }
+    
+    /* Staggered Fade-up Animation */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up {
+        opacity: 0;
+        animation: fadeUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    }
+
+    .sticky-sidebar { 
+        position: sticky; 
+        top: 0; 
+        height: 100vh; 
+        overflow-y: auto; 
+        border-right: 1px solid #dee2e6;
+        padding: 1.5rem;
+        background-color: #ffffff;
+        z-index: 100;
+    }
+
+    /* Mobile Sidebar & Overlay Styling */
+    .mobile-sidebar {
+        position: fixed; top: 0; left: -100%; width: 280px; height: 100%;
+        background: #fff; z-index: 1050; transition: 0.3s; padding: 20px;
+        overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .mobile-sidebar.active { left: 0; }
+    .overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 1040; display: none;
+    }
+
+    /* Grid & Card Styling */
+    .card-item { 
+        border: 1px solid #dee2e6; 
+        border-radius: 4px; 
+        transition: border-color 0.2s ease; 
+        overflow: hidden;
+    }
+    .card-item:hover { border-color: #000000; }
+    .card-img-top { aspect-ratio: 2 / 3; object-fit: cover; width: 100%; }
+    .card-body { padding: 10px; }
+    .card-title { 
+        font-size: 0.85rem; font-weight: 700; height: 1.3em; 
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap; 
+    }
+    .card-text { font-size: 0.75rem; color: #6c757d; margin-bottom: 2px; }
+    
+    .search-input { height: 38px; border: 1px solid #000; padding: 0 10px; }
+    .search-btn { height: 38px; width: 40px; border: 1px solid #000; background: #000; color: #fff; }
+
+    .btn-white-custom { background-color: white; border: 1px solid #ccc; color: black; }
+    .btn-white-custom:hover { background-color: black; color: white; border-color: black; }
+    .btn-danger-custom { background-color: black; color: white; border: 1px solid black; }
+
+    /* Styling khusus untuk mobile */
+    @media (max-width: 767px) {
+        .search-mobile-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .search-mobile-wrapper .search-box-group,
+        .search-mobile-wrapper .btn-filter-mobile {
+            width: 100%;
+        }
+    }
+
+    /* Styling untuk desktop */
+    @media (min-width: 768px) {
+        .search-mobile-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 300px; /* Membatasi lebar agar pas di desktop */
+        }
+        .btn-filter-mobile {
+            display: none; /* Menyembunyikan tombol filter di desktop */
+        }
+    }
+</style>
+
+<div class="overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+<div class="container-fluid" id="contentWrapper">
+    <div class="row">
+        <!-- FILTER SIDEBAR -->
+        <div class="col-md-3 sticky-sidebar d-none d-md-block animate-fade-up" style="animation-delay: 0s;">
+            <form method="GET" action="{% url 'library' %}">
+                {% include 'filter_form.html' %}
+            </form>
+        </div>
+
+        <!-- MOBILE SIDEBAR -->
+        <div class="mobile-sidebar d-md-none" id="mobileSidebar">
+            <form method="GET" action="{% url 'library' %}">
+                {% include 'filter_form.html' %}
+            </form>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="col-12 col-md-9 p-3 p-md-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3 animate-fade-up" style="animation-delay: 0.1s;">
+                <div>
+                    <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Library</h3>
+                    <p class="text-muted small mb-0">Explore the library.</p>
+                </div>
+
+                <div class="search-mobile-wrapper">
+                    <!-- Form Search -->
+                    <form class="search-box-group d-flex" onsubmit="return false;">
+                        <input type="hidden" name="type" value="{{ search_type }}">
+                        <input type="text" name="q" class="search-input rounded-0 flex-grow-1" placeholder="Search..."
+                            hx-get="{% url 'library_results' %}" hx-target="#tabel-body"
+                            hx-trigger="keyup[keyCode==13] changed delay:300ms" hx-include="closest .search-box-group">
+                        <button type="button" class="search-btn rounded-0" style="border-left: none;"
+                                        hx-get="{% url 'library_results' %}" hx-target="#tabel-body"
+                                        hx-include="closest .search-box-group">⌕</button>
+                    </form>
+
+                    <!-- Tombol Filter -->
+                    <button class="btn btn-outline-dark btn-sm rounded-0 btn-filter-mobile" onclick="toggleMobileSidebar()">
+                        Filter Menu
+                    </button>
+                </div>
+            </div>
+
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3" id="tabel-body">
+                {% for item in items %}
+                <div class="col animate-fade-up" style="animation-delay: {{ forloop.counter0|multiply:0.05|add:0.2 }}s;">
+                    <a href="{% url 'library_item_detail' item.pk %}" class="text-decoration-none">
+                        <div class="card card-item h-100">
+                            <img src="{% if item.image %}{{ item.image.url }}{% else %}https://via.placeholder.com/300x450{% endif %}" 
+                                class="card-img-top" alt="{{ item.title }}">
+                            <div class="card-body">
+                                <div class="card-title text-dark">{{ item.title }}</div>
+                                <div class="card-text">{{ item.status.name }} | {{ item.Type.name }}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% empty %}
+                <p class="text-muted">No items found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mobile Sidebar Toggle
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById('mobileSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('active');
+    overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+}
+
+function handleTagSelection(clickedCheckbox) {
+    const container = document.getElementById('tag-container');
+    const noTagCheckbox = document.getElementById('g_1');
+    const allCheckboxes = container.querySelectorAll('.tag-checkbox');
+
+    if (clickedCheckbox.id === 'g_1' && clickedCheckbox.checked) {
+        allCheckboxes.forEach(cb => { if (cb.id !== 'g_1') cb.checked = false; });
+    } else if (clickedCheckbox.id !== 'g_1' && clickedCheckbox.checked) {
+        noTagCheckbox.checked = false;
+    }
+
+    let anyChecked = false;
+    allCheckboxes.forEach(cb => { if (cb.checked) anyChecked = true; });
+    if (!anyChecked) { noTagCheckbox.checked = true; }
+
+    clickedCheckbox.form.submit();
+}
+</script>
+{% endblock %}

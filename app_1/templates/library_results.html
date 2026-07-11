@@ -1,0 +1,18 @@
+{% for item in items %}
+<div class="col">
+    <a href="{% url 'item_detail' item.pk %}" class="text-decoration-none">
+        <div class="card card-item h-100">
+            <img src="{% if item.image %}{{ item.image.url }}{% else %}https://via.placeholder.com/300x450{% endif %}" 
+                class="card-img-top" alt="{{ item.title }}">
+            <div class="card-body">
+                <div class="card-title text-dark">{{ item.title }}</div>
+                <div class="card-text">{{ item.status.name }} | {{ item.Type.name }}</div>
+            </div>
+        </div>
+    </a>
+</div>
+{% empty %}
+<div class="col-12">
+    <p class="text-muted">No items found.</p>
+</div>
+{% endfor %}

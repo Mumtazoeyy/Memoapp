@@ -885,51 +885,199 @@ def delete_history(request):
                 
     return redirect('history_list')
 
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from .forms import MinimalPasswordChangeForm # Impor form baru kita
-from django.shortcuts import render, redirect
-from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
+from .models import Item, Type, Status, Tag
 
-def password_change(request):
-    if request.method == 'POST':
-        # Gunakan form kustom kita
-        form = MinimalPasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user) # Biar user tidak logout otomatis
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('profile')
-    else:
-        form = MinimalPasswordChangeForm(request.user)
+def item_detail_view(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    return render(request, 'item_detail.html', {'item': item})
+
+from django.shortcuts import render
+from .models import Item, Type, Status, Tag
+
+from django.shortcuts import render
+from django.db.models import Case, When, Value, IntegerField
+from .models import Item, Type, Status, Tag
+
+def library_view(request):
+    items = Item.objects.all()
     
-    return render(request, 'password_change.html', {'form': form})
+    # Menangani default untuk Type (ID 1) dan Status (No Status)
+    type_id = request.GET.get('Type', '1')
+    status_slug = request.GET.get('status', 'No Status')
+    
+    # Ambil tag_ids (pastikan hanya angka)
+    tag_ids = [t for t in request.GET.getlist('tag') if t.isdigit()] 
+    
+    # DEFAULT: Jika tidak ada tag yang dipilih, set ke '1' (No Tag)
+    if not tag_ids:
+        tag_ids = ['1']
+    
+    # Filter Tipe (Default ke ID 1)
+    if type_id:
+        items = items.filter(Type_id=type_id)
+    
+    # Filter Status (Default ke 'No Status')
+    if status_slug:
+        items = items.filter(status__name__iexact=status_slug)
+   
+    # Filter Tag
+    if tag_ids:
+        items = items.filter(tags__id__in=tag_ids).distinct()
+            
+    # Sorting logic
+    sort = request.GET.get('sort')
+    if sort == 'new' or sort == 'latest':
+        items = items.order_by('-created_at')
+    elif sort == 'az':
+        items = items.order_by('title')
+    else:
+        items = items.order_by('-created_at')
 
-from django.shortcuts import render, redirect
+    # Query dengan urutan khusus (No Type/No Status di atas, sisanya abjad)
+    categories = Type.objects.annotate(
+        order=Case(
+            When(name__iexact='No Type', then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        )
+    ).order_by('order', 'name')
+
+    statuses = Status.objects.annotate(
+        order=Case(
+            When(name__iexact='No Status', then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        )
+    ).order_by('order', 'name')
+
+    return render(request, 'library.html', {
+        'items': items,
+        'categories': categories,
+        'statuses': statuses,
+        'tags': Tag.objects.all(),
+        'active_tags': [int(t) for t in tag_ids], 
+        'sort_options': [
+            ('relevance', 'Relevance'), 
+            ('latest', 'Latest'), 
+            ('az', 'A-Z'), 
+            ('new', 'New')
+        ],
+    })
+
+def library_results(request):
+    items = Item.objects.all()
+    
+    # Ambil query pencarian
+    query = request.GET.get('q')
+    type_val = request.GET.get('type')
+    
+    if query:
+        items = items.filter(title__icontains=query)
+    if type_val:
+        items = items.filter(Type__id=type_val)
+        
+    return render(request, 'library_results.html', {'items': items})
+
+from django.shortcuts import render, get_object_or_404
+from .models import Item
+
+def library_item_detail(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    reading_item = None
+    
+    if request.user.is_authenticated:
+        # Mencari apakah sudah ada di Reading List
+        reading_item = ReadingItem.objects.filter(user=request.user, title=item.title).first()
+    
+    return render(request, 'library_item_detail.html', {
+        'item': item,
+        'reading_item': reading_item, # Mengirim data reading_item ke template
+        'is_already_added': reading_item is not None
+    })
+
+@login_required
+def add_to_reading_list(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    
+    # Cek apakah item sudah ada di reading list user untuk menghindari duplikat (opsional)
+    if not ReadingItem.objects.filter(user=request.user, title=item.title).exists():
+        reading_item = ReadingItem.objects.create(
+            user=request.user,
+            title=item.title,
+            chapters=item.chapters,
+            season=item.season,
+            status=item.status,
+            Type=item.Type,
+            synopsis=item.synopsis,
+            image=item.image
+        )
+        # Menambahkan tags (ManyToMany harus dilakukan setelah instance disimpan)
+        reading_item.tags.set(item.tags.all())
+        messages.success(request, f'"{item.title}" telah ditambahkan ke Reading List!')
+    else:
+        messages.info(request, f'"{item.title}" sudah ada di Reading List Anda.')
+        
+    return redirect('library_item_detail', pk=pk)
+
+@login_required
+def remove_from_reading_list(request, pk):
+    # Cari item berdasarkan ID item asli atau judulnya
+    item = get_object_or_404(Item, pk=pk)
+    reading_item = ReadingItem.objects.filter(user=request.user, title=item.title)
+    
+    if reading_item.exists():
+        reading_item.delete()
+        messages.success(request, f'"{item.title}" telah dihapus dari Reading List.')
+    else:
+        messages.error(request, 'Data tidak ditemukan di Reading List Anda.')
+        
+    return redirect('library_item_detail', pk=pk)
+
+from .models import Profile
+from django.contrib.auth import update_session_auth_hash
+from .forms import MinimalPasswordChangeForm # Pastikan form ini ada
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Profile
+
+import re # Tambahkan import ini di paling atas file views.py Anda
 
 @login_required
 def profile(request):
-    # Mengambil profil atau membuatnya jika belum ada
     user_profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    # Inisialisasi form password untuk modal
+    pwd_form = MinimalPasswordChangeForm(request.user)
 
     if request.method == 'POST':
-        # 1. Menangani Display Name
-        # Mengambil input, jika kosong/spasi maka fallback ke username
-        display_name_input = request.POST.get('display_name', '').strip()
-        user_profile.display_name = display_name_input if display_name_input else request.user.username
+        # 1. Cek apakah form yang dikirim adalah form ganti password
+        if 'old_password' in request.POST:
+            pwd_form = MinimalPasswordChangeForm(request.user, request.POST)
+            if pwd_form.is_valid():
+                user = pwd_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Password berhasil diubah!")
+                return redirect('profile')
+            else:
+                messages.error(request, "Gagal mengubah password. Periksa kembali input Anda.")
+        
+        # 3. Proses update profil (Display name, Bio, dll)
+        else:
+            user_profile.display_name = request.POST.get('display_name', user_profile.display_name)
+            user_profile.bio = request.POST.get('bio', user_profile.bio)
+            user_profile.location = request.POST.get('location', user_profile.location)
+            
+            if request.FILES.get('avatar'):
+                user_profile.avatar = request.FILES.get('avatar')
+            if request.FILES.get('cover'):
+                user_profile.cover = request.FILES.get('cover')
+                
+            user_profile.save()
+            messages.success(request, "Profil berhasil diperbarui!")
+            return redirect('profile')
 
-        # 2. Menangani Bio
-        user_profile.bio = request.POST.get('bio', user_profile.bio)
-
-        # 3. Menangani Update Foto Profil
-        if request.FILES.get('avatar'):
-            user_profile.avatar = request.FILES.get('avatar')
-
-        user_profile.save()
-        messages.success(request, "Profil berhasil diperbarui!")
-        return redirect('profile')
-
-    return render(request, 'profile.html')
+    return render(request, 'profile.html', {
+        'profile': user_profile,
+        'pwd_form': pwd_form
+    })
