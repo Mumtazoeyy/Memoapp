@@ -133,9 +133,16 @@ from django.db.models.signals import m2m_changed
 @receiver(m2m_changed, sender=Item.tags.through)
 def manage_tags(sender, instance, action, pk_set, **kwargs):
     if action == "post_add":
-        # Jika user menambah tag lain selain ID 1, hapus ID 1
-        if instance.tags.count() > 1 and 1 in [pk for pk in pk_set]:
+        current_tags = set(instance.tags.values_list('id', flat=True))
+        
+        if len(current_tags) > 1 and 1 in current_tags:
             instance.tags.remove(1)
+
+    # Logika saat ada penghapusan tag
+    elif action == "post_remove":
+        # Jika setelah dihapus tidak ada tag sama sekali, kembalikan "No Tag"
+        if not instance.tags.exists():
+            instance.tags.add(1)
 
 # --- SIGNAL UNTUK PROFILE ---
 

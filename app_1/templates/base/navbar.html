@@ -164,7 +164,7 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'history_list' %}">History</a></li>
                 <li class="nav-item"><hr class="my-2 border-muted"></li>
                 {% if user.is_staff %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'manage' %}">Admin Manage</a></li>
                 {% endif %}
             {% else %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>

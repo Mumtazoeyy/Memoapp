@@ -16,11 +16,15 @@
 <!-- Type (Radio) -->
 <div class="mb-3">
     <label class="small fw-bold">Type</label>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="Type" value="" onchange="this.form.submit()" id="t_all" {% if not request.GET.Type %}checked{% endif %}>
+        <label class="form-check-label small" for="t_all">All</label>
+    </div>
     {% for cat in categories %}
     <div class="form-check">
         <input class="form-check-input" type="radio" name="Type" value="{{ cat.id }}" 
                onchange="this.form.submit()" id="t_{{cat.id}}" 
-               {% if request.GET.Type|add:"0" == cat.id or not request.GET.Type and cat.id == 1 %}checked{% endif %}>
+               {% if request.GET.Type|add:"0" == cat.id %}checked{% endif %}>
         <label class="form-check-label small" for="t_{{cat.id}}">{{ cat.name }}</label>
     </div>
     {% endfor %}
@@ -29,11 +33,15 @@
 <!-- Status (Radio) -->
 <div class="mb-3">
     <label class="small fw-bold">Status</label>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="status" value="" onchange="this.form.submit()" id="s_all" {% if not request.GET.status %}checked{% endif %}>
+        <label class="form-check-label small" for="s_all">All</label>
+    </div>
     {% for stat in statuses %}
     <div class="form-check">
         <input class="form-check-input" type="radio" name="status" value="{{ stat.name }}" 
                onchange="this.form.submit()" id="s_{{stat.id}}" 
-               {% if request.GET.status == stat.name or not request.GET.status and stat.id == 1 %}checked{% endif %}>
+               {% if request.GET.status == stat.name %}checked{% endif %}>
         <label class="form-check-label small" for="s_{{stat.id}}">{{ stat.name }}</label>
     </div>
     {% endfor %}
@@ -42,6 +50,13 @@
 <!-- Genre/Tags -->
 <div class="mb-3" id="tag-container">
     <label class="small fw-bold">Genre (Tags)</label>
+    
+    <!-- Link "All" akan membersihkan filter tag dari URL -->
+    <a href="?{% for key, val in request.GET.items %}{% if key != 'tag' %}{{ key }}={{ val }}&{% endif %}{% endfor %}" 
+       class="d-block small text-decoration-none mb-2 {% if not active_tags %}fw-bold text-dark{% else %}text-muted{% endif %}">
+       All
+    </a>
+
     {% for tag in tags %}
     <div class="form-check">
         <input class="form-check-input tag-checkbox" type="checkbox" name="tag" value="{{ tag.id }}" 

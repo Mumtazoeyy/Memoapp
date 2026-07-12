@@ -113,7 +113,6 @@ class ReadingItemAdmin(admin.ModelAdmin):
 
 @admin.register(ImportHistory)
 class ImportHistoryAdmin(admin.ModelAdmin):
-    # (Kode ImportHistoryAdmin Anda tetap sama)
     list_display = ('user_username_link', 'filename', 'imported_at', 'total_items', 'status')
     list_filter = ('user', 'imported_at')
     readonly_fields = ('imported_at',)

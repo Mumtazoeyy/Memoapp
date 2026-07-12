@@ -28,6 +28,9 @@ urlpatterns = [
     path('history/download/<int:history_id>/', views.download_history, name='download_history'),
     path('history/delete/', views.delete_history, name='delete_history'),
 
+    path('manage/', views.manage_view, name='manage'),  
+    path('sync-item-detail/<int:user_id>/', views.sync_item_detail, name='sync_item_detail'),
+
     path('library/', views.library_view, name='library'),
     path('library/results/', views.library_results, name='library_results'),
     path('item/<int:pk>/', views.item_detail_view, name='item_detail'),

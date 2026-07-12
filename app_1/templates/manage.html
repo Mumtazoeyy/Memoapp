@@ -1,0 +1,104 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Styling tombol kustom */
+    .btn-custom {
+        background-color: #ffffff;
+        color: #000000;
+        border: 2px solid #000000;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        font-weight: bold;
+        cursor: pointer; /* Tambahan agar terlihat seperti tombol */
+    }
+
+    .btn-custom:hover {
+        background-color: #000000;
+        color: #ffffff;
+    }
+    
+    /* Custom lebar modal agar hampir memenuhi layar */
+    .modal-wide .modal-dialog {
+        max-width: 90% !important; /* Lebar 90% dari layar */
+        width: 90% !important;
+        margin: 1.75rem auto; /* Tetap center tengah */
+    }
+</style>
+
+<div class="container mt-5">
+    <h2>Manajemen Sistem</h2>
+    <hr>
+    
+    <div class="row">
+        <!-- Akses Admin -->
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm mb-3">
+                <h4>Akses Admin</h4>
+                <p class="text-muted">Kelola database dan konfigurasi internal aplikasi.</p>
+                <a href="http://127.0.0.1:8000/admin/" target="_blank" class="btn-custom">
+                    Buka Django Admin
+                </a>
+            </div>
+        </div>
+        
+        <!-- Server Web -->
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm mb-3">
+                <h4>Server Web</h4>
+                <p class="text-muted">Kelola aplikasi Anda di PythonAnywhere (MintChocolatte).</p>
+                <a href="https://www.pythonanywhere.com/user/MintChocolatte/webapps/#tab_id_mintchocolatte_pythonanywhere_com" target="_blank" class="btn-custom">
+                    Buka Dashboard WebApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigasi ke Fitur Sinkronisasi (Sekarang jadi Modal) -->
+    <div class="mt-4">
+        <h4>Fitur Admin</h4>
+        <button type="button" class="btn-custom" data-bs-toggle="modal" data-bs-target="#syncModal">
+            Sinkronisasi Data User ke Master
+        </button>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade modal-wide" id="syncModal" tabindex="-1" aria-labelledby="syncModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="syncModalLabel">Pilih User untuk Sinkronisasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <p>Silakan pilih user di bawah ini:</p>
+                <ul class="list-group">
+                    {% for user in users %}
+                        <!-- d-flex dan justify-content-between memisahkan info dan tombol ke ujung kiri & kanan -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            
+                            <!-- Bagian Kiri: Info User disejajarkan menggunakan d-flex dan gap -->
+                            <div class="d-flex align-items-center gap-4">
+                                <!-- Memberikan min-width agar teks jumlah data di sebelahnya lurus rata -->
+                                <strong style="min-width: 200px;">{{ user.username }}</strong>
+                                <span class="text-muted">Jumlah data: <b class="text-dark">{{ user.item_count }}</b> item</span>
+                            </div>
+
+                            <!-- Bagian Kanan: Tombol -->
+                            <a href="{% url 'sync_item_detail' user.id %}" class="btn btn-sm btn-dark px-4">Pilih</a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">Tidak ada user ditemukan.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -902,26 +902,22 @@ from .models import Item, Type, Status, Tag
 def library_view(request):
     items = Item.objects.all()
     
-    # Menangani default untuk Type (ID 1) dan Status (No Status)
-    type_id = request.GET.get('Type', '1')
-    status_slug = request.GET.get('status', 'No Status')
+    # Ambil nilai filter (jika tidak ada, nilainya None)
+    type_id = request.GET.get('Type')
+    status_slug = request.GET.get('status')
     
     # Ambil tag_ids (pastikan hanya angka)
     tag_ids = [t for t in request.GET.getlist('tag') if t.isdigit()] 
     
-    # DEFAULT: Jika tidak ada tag yang dipilih, set ke '1' (No Tag)
-    if not tag_ids:
-        tag_ids = ['1']
-    
-    # Filter Tipe (Default ke ID 1)
+    # Filter Tipe (Hanya aktif jika type_id memiliki nilai)
     if type_id:
         items = items.filter(Type_id=type_id)
     
-    # Filter Status (Default ke 'No Status')
+    # Filter Status (Hanya aktif jika status_slug memiliki nilai)
     if status_slug:
         items = items.filter(status__name__iexact=status_slug)
    
-    # Filter Tag
+    # Filter Tag (Hanya aktif jika tag_ids memiliki nilai)
     if tag_ids:
         items = items.filter(tags__id__in=tag_ids).distinct()
             
@@ -1080,4 +1076,68 @@ def profile(request):
     return render(request, 'profile.html', {
         'profile': user_profile,
         'pwd_form': pwd_form
+    })
+
+from django.db.models import Count
+from django.contrib.auth.models import User
+
+def manage_view(request):
+    # Menggunakan 'reading_items' sesuai dengan petunjuk dari error
+    users = User.objects.annotate(item_count=Count('reading_items')) 
+    return render(request, 'manage.html', {'users': users})
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+import json
+from .models import Item, ReadingItem
+
+def sync_item_detail(request, user_id):
+    selected_user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            selected_ids = data.get('selected_ids', [])
+            added_count = 0
+
+            for reading_id in selected_ids:
+                # 1. Ambil data dari ReadingItem milik user
+                user_item = ReadingItem.objects.get(id=reading_id, user=selected_user)
+                
+                # 2. Cek apakah item dengan judul tersebut sudah ada di Master (Item)
+                exists = Item.objects.filter(title=user_item.title).exists()
+
+                if not exists:
+                    # 3. Tambahkan ke Database Master (Admin)
+                    new_master_item = Item.objects.create(
+                        title=user_item.title,
+                        chapters=user_item.chapters,
+                        season=user_item.season,
+                        status=user_item.status,
+                        Type=user_item.Type,
+                        synopsis=user_item.synopsis,
+                        image=user_item.image
+                    )
+                    
+                    # 4. Sinkronisasi Tags
+                    tags = user_item.tags.all()
+                    if tags.exists():
+                        new_master_item.tags.set(tags)
+                    else:
+                        # Jaring pengaman: jika user_item tidak punya tag, masukkan ID 1
+                        new_master_item.tags.add(1)
+                        
+                    added_count += 1
+                
+            return JsonResponse({'message': f'Berhasil mengirim {added_count} item ke database admin!', 'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'message': str(e), 'status': 'error'}, status=400)
+
+    # Menampilkan daftar ReadingItem milik user untuk dipilih
+    items = selected_user.reading_items.all()
+    
+    return render(request, 'sync_item_detail.html', {
+        'selected_user': selected_user,
+        'items': items
     })

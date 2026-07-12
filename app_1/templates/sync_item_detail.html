@@ -1,0 +1,107 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .col-title { min-width: 200px; }
+    .item-img {
+        width: 40px; 
+        height: 50px; 
+        object-fit: cover; 
+        border-radius: 4px;
+        background-color: #eee;
+    }
+</style>
+
+<div class="container-fluid px-4 mt-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Reading List User: <strong>{{ selected_user.username }}</strong></h2>
+        <a href="javascript:history.back()" class="btn btn-outline-dark">Kembali</a>
+    </div>
+    <hr>
+
+    <div class="card p-4 shadow-sm">
+        <h5>Daftar Reading List {{ selected_user.username }}:</h5>
+        
+        <div class="table-responsive">
+            <table class="table table-hover mt-3 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width: 50px;"><input type="checkbox" id="select-all" checked></th>
+                        <th class="text-start">Judul Item</th>
+                        <th class="text-start">Season</th>
+                        <th class="text-start">Status</th>
+                        <th class="text-start">Type</th>
+                        <th class="text-start">Tags</th>
+                        <th class="text-start">Synopsis</th>
+                        <th class="text-start">Last Edited</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td class="text-center"><input type="checkbox" class="item-checkbox" value="{{ item.id }}" checked></td>
+                        <td class="fw-bold text-dark text-start col-title">
+                            <div class="d-flex align-items-center">
+                                {% if item.image %}
+                                    <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-img me-2">
+                                {% else %}
+                                    <div class="item-img me-2 d-flex align-items-center justify-content-center text-muted" style="font-size: 9px;">No Pic</div>
+                                {% endif %}
+                                <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none">{{ item.title }}</a>
+                            </div>
+                        </td>
+                        <td class="text-start">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
+                        <td class="text-start">{% if item.status %}{{ item.status.name }}{% else %}-{% endif %}</td>
+                        <td class="text-start">{% if item.Type %}{{ item.Type.name }}{% else %}-{% endif %}</td>
+                        <td class="text-start">
+                            {% for tag in item.tags.all %}
+                                <span class="badge bg-secondary">{{ tag.name }}</span>
+                            {% empty %}-{% endfor %}
+                        </td>
+                        <td class="text-start text-truncate" style="max-width: 150px;">{{ item.synopsis|default:"-" }}</td>
+                        <td class="text-start">{{ item.last_edited_at|date:"d M Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">Tidak ada item dalam reading list user ini.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4">
+            <button id="btn-sync" class="btn btn-dark px-5">Konfirmasi Sinkronisasi Item Terpilih</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('select-all').addEventListener('click', function(e) {
+        document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
+    });
+
+    document.getElementById('btn-sync').addEventListener('click', function() {
+        let selectedIds = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => cb.value);
+        
+        if (selectedIds.length > 0) {
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ selected_ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.reload();
+            });
+        } else {
+            alert("Pilih minimal satu item!");
+        }
+    });
+</script>
+{% endblock %}
