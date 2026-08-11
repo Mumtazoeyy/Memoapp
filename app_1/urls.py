@@ -42,5 +42,6 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
 
     path('go-to-wa/', views.redirect_whatsapp, name='redirect_wa'),
+    path('trigger-reminder/', views.trigger_reminder, name='trigger_reminder'),
     
 ]

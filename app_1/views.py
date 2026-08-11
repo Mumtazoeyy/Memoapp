@@ -1209,3 +1209,15 @@ from django.shortcuts import redirect
 def redirect_whatsapp(request):
     phone_number = "6282264974290"
     return redirect(f"https://wa.me/{phone_number}")
+
+from django.http import HttpResponse
+from django.core.management import call_command
+from django.views.decorators.http import require_GET
+
+@require_GET
+def trigger_reminder(request):
+    # Kunci keamanan sederhana agar orang lain tidak bisa mengaksesnya
+    if request.GET.get('key') == 'rahasia123':
+        call_command('send_reminders')
+        return HttpResponse("Pengingat berhasil diproses.")
+    return HttpResponse("Akses ditolak.", status=403)
