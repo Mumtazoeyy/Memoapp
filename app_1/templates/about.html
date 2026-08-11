@@ -3,21 +3,56 @@
 
 {% block content %}
 <style>
-    /* 1. Reset Margin & Kunci Scroll */
-    body {
+    /* 1. Pengaturan dasar halaman */
+    html, body {
         margin: 0;
-        overflow: hidden;
+        padding: 0;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        background-color: #121212;
     }
 
-    /* 2. Background Video */
-    .hero-video-container {
+    /* 2. Mengunci Navbar base.html agar stay di atas */
+    header, nav, .navbar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        transition: background-color 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    /* 3. Container Halaman Pertama */
+    .hero-container {
         position: fixed;
+        top: 56px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 56px - 60px);
+        height: calc(100svh - 56px - 60px);
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    /* Background Video */
+    .hero-video-container {
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         z-index: -1;
         overflow: hidden;
+        opacity: 0;
+        transform: scale(1.15);
+        animation: videoEntrance 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        pointer-events: none;
     }
 
     .hero-video-container video {
@@ -25,15 +60,19 @@
         height: 100%;
         object-fit: cover;
         filter: blur(5px);
+        transition: filter 0.8s ease;
     }
 
-    /* 3. Container Teks (Dibuat fixed) */
+    @keyframes videoEntrance {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* 4. Container Teks Utama */
     .about-content-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
         width: 100%;
-        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -41,33 +80,253 @@
         text-align: center;
         color: #ffffff;
         z-index: 1;
-        
-        /* SOLUSI: Membuat container ini tembus klik */
-        pointer-events: none; 
+        padding: 0 20px;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 
-    /* 4. Efek Shadow & Mengembalikan klik pada Teks */
+    /* Efek Shadow */
     .text-pop-effect {
-        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
-        
-        /* Mengembalikan fungsi klik agar teks tetap bisa di-interaksi jika perlu */
+        text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
+        transition: text-shadow 0.4s ease;
+    }
+
+    /* Khusus kotak petunjuk scroll dengan efek blur hitam */
+    .scroll-hint-box {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        padding: 8px 18px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        pointer-events: none;
+    }
+
+    /* Animasi Masuk Teks */
+    @keyframes smoothSlideUp {
+        0% {
+            opacity: 0;
+            transform: translateY(35px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pureFloating {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    .anim-title {
+        opacity: 0;
+        animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards, 
+                   pureFloating 4s ease-in-out infinite;
+        animation-delay: 0.3s, 2.8s;
+    }
+
+    .anim-desc {
+        opacity: 0;
+        animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards, 
+                   pureFloating 4s ease-in-out infinite;
+        animation-delay: 0.6s, 3.1s;
+    }
+
+    .anim-enjoy {
+        opacity: 0;
+        animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards, 
+                   pureFloating 4s ease-in-out infinite;
+        animation-delay: 0.9s, 3.4s;
+    }
+
+    /* Pembungkus Utama Petunjuk Scroll */
+    .anim-scroll-hint-wrapper {
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+        transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+        z-index: 10;
+    }
+
+    /* Kelas untuk menyembunyikan sepenuhnya */
+    .scroll-hint-hidden {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translate(-50%, 20px) !important;
+        pointer-events: none !important;
+    }
+
+    /* Animasi Hilang-Muncul khusus bagian dalam */
+    @keyframes slowFadePulse {
+        0%, 100% {
+            opacity: 0.4;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .anim-pulse-content {
+        animation: slowFadePulse 4s ease-in-out infinite;
+    }
+
+    /* 5. Dummy Spacer agar halaman bisa di-scroll secara natural */
+    .scroll-spacer {
+        width: 100%;
+        height: 100vh;
+        height: 100svh;
+        pointer-events: none;
+    }
+
+    /* 6. Mengunci Footer base.html agar stay di layar bawah */
+    footer, .footer {
+        position: fixed !important;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        z-index: 1000;
+        background-color: #121212;
+        transition: background-color 0.4s ease;
+    }
+
+    /* 7. Area Informasi Tambahan di Bawah */
+    .detail-wrapper {
+        position: relative;
+        width: 100%;
+        min-height: calc(100vh - 60px);
+        background: transparent;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 80px 0 120px 0;
+        z-index: 2;
+    }
+
+    /* Efek Background Blur Selebar Layar Penuh */
+    .blur-backdrop-section {
+        width: 100%;
+        padding: 60px 20px;
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Tombol WhatsApp Elegan */
+    .btn-whatsapp {
+        display: inline-block;
+        background-color: #25d366;
+        color: #ffffff;
+        padding: 12px 30px;
+        font-weight: bold;
+        border-radius: 50px;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+        transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
         pointer-events: auto;
+    }
+
+    .btn-whatsapp:hover {
+        background-color: #1ebe5d;
+        color: #ffffff;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
     }
 </style>
 
-<!-- Background Video -->
-<div class="hero-video-container">
-    <video autoplay muted loop playsinline>
-        <source src="{% static 'images/bg_1.mp4' %}" type="video/mp4">
-    </video>
+<!-- ================= HALAMAN UTAMA ================= -->
+<div class="hero-container">
+    <!-- Background Video -->
+    <div class="hero-video-container">
+        <video autoplay muted loop playsinline>
+            <source src="{% static 'images/bg_1.mp4' %}" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="about-content-wrapper">
+        <h1 class="display-1 fw-black text-pop-effect mb-0 anim-title">kagataudah</h1>
+        
+        <p class="lead w-50 text-pop-effect mt-2 mb-3 anim-desc d-none d-md-block">
+            This is a simple application designed to help you track your reading progress efficiently and effortlessly.
+        </p>
+
+        <p class="lead text-pop-effect mt-2 anim-enjoy">
+            Enjoy it
+        </p>
+    </div>
+
+    <!-- Petunjuk Scroll ke Bawah dengan Blur Hitam -->
+    <div id="scrollHint" class="anim-scroll-hint-wrapper">
+        <div class="scroll-hint-box text-pop-effect anim-pulse-content text-center" style="font-size: 0.9rem;">
+            <span>Scroll down to explore more</span>
+            <div class="mt-1">
+                <i class="bi bi-chevron-down"></i>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Container Konten -->
-<div class="about-content-wrapper">
-    <h1 class="display-1 fw-black text-pop-effect mb-0">kagataudah</h1>
-    <p class="lead w-50 text-pop-effect mt-0">
-        This is a simple application designed to help you track your reading progress efficiently and effortlessly.
-    </p>
+<!-- Spacer agar halaman punya ruang untuk discroll -->
+<div class="scroll-spacer"></div>
+
+<!-- ================= INFORMASI LEBIH DETAIL DI BAWAHNYA ================= -->
+<div class="detail-wrapper">
+    <div class="blur-backdrop-section text-center">
+        <div class="container" style="max-width: 700px;">
+            <h2 class="display-6 fw-bold mb-3 text-pop-effect">Community & Support</h2>
+            <p class="text-white-50 fs-6 mb-4 text-pop-effect">
+                Join our community or ask any questions regarding the app directly through the WhatsApp button below without needing to save the number.
+            </p>
+            <div>
+                <!-- Menggunakan URL Django Backend untuk menyembunyikan nomor asli -->
+                <a href="{% url 'redirect_wa' %}" target="_blank" class="btn-whatsapp text-pop-effect">
+                    <i class="bi bi-whatsapp me-2"></i> Contact via WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Script Interaksi Scroll -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const scrollHint = document.getElementById('scrollHint');
+
+        window.addEventListener('wheel', function(e) {
+            if (e.deltaY > 0) {
+                scrollHint.classList.add('scroll-hint-hidden');
+            } else if (window.pageYOffset <= 15) {
+                scrollHint.classList.remove('scroll-hint-hidden');
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchstart', function() {
+            scrollHint.classList.add('scroll-hint-hidden');
+        }, { passive: true });
+
+        window.addEventListener('scroll', function() {
+            let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (currentScroll <= 15) {
+                scrollHint.classList.remove('scroll-hint-hidden');
+            } else {
+                scrollHint.classList.add('scroll-hint-hidden');
+            }
+        }, { passive: true });
+    });
+</script>
 
 {% endblock %}

@@ -1,25 +1,28 @@
 {% extends 'base/base.html' %}
 {% load static %}
 
-{% block content %}
+{% block title %}Edit {{ item.title }} - MemoApp{% endblock %}
 
+{% block content %}
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
-<div class="container py-4 animate-fade-up">
+<!-- Kontainer dibuat selebar layar dengan padding responsif -->
+<div class="container-fluid py-3 px-4 edit-reading-epic-wrapper">
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         
-        <nav aria-label="breadcrumb" class="mb-4 animate-fade-up delay-1">
+        <nav aria-label="breadcrumb" class="mb-2 anim-row delay-1">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Library</a></li>
                 <li class="breadcrumb-item active fw-bold" aria-current="page">Editing: {{ item.title }}</li>
             </ol>
         </nav>
 
-        <div class="row g-5">
-            <div class="col-md-3 animate-fade-up delay-2">
-                <div class="text-center">
+        <div class="row g-4">
+            <!-- Kolom Kiri: Cover & Upload -->
+            <div class="col-lg-3 col-md-4">
+                <div class="text-center anim-row delay-2">
                     {% if item.image %}
                         <img id="img-preview" src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm" style="aspect-ratio: 3/4; object-fit: cover; width: 100%;" alt="{{ item.title }}">
                     {% else %}
@@ -29,140 +32,290 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="mt-3">
-                    <input type="file" id="image-input" name="image" class="form-control rounded-0 border-dark" accept="image/*">
+                <div class="mt-3 anim-row delay-3">
+                    <label for="image-input" class="form-label fw-bold text-dark small text-uppercase">Cover Image</label>
+                    <input type="file" id="image-input" name="image" class="form-control rounded-0 border-dark input-epic-effect w-100" accept="image/*">
                 </div>
             </div>
 
-            <div class="col-md-9 animate-fade-up delay-3">
-                <div class="mb-4 pb-3 border-bottom border-dark">
-                    <input type="text" name="title" value="{{ item.title|default_if_none:'' }}" class="form-control form-control-lg fw-bold mb-2 rounded-0 border-dark" placeholder="Title cannot be empty" required>                    
-                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-                        <select name="Type" class="form-select w-auto rounded-0 border-dark">
-                            {% for cat in categories %}
-                                <option value="{{ cat.id }}" {% if item.Type.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <select name="status" class="form-select w-auto rounded-0 border-dark">
-                            {% for s in statuses %}
-                                <option value="{{ s.id }}" {% if item.status.id == s.id %}selected{% endif %}>{{ s.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="badge bg-light text-dark border border-dark rounded-0 px-3 py-2">ID: #{{ item.id }}</span>
+            <!-- Kolom Kanan: Form Inputs (Lebar Penuh) -->
+            <div class="col-lg-9 col-md-8">
+                <div class="mb-3 anim-row delay-1">
+                    <label for="title" class="form-label fw-bold text-dark small text-uppercase">Title</label>
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="title" name="title" value="{{ item.title|default_if_none:'' }}" placeholder="Enter title here..." required>
+                </div>
+
+                <!-- Chapters (Baris Sendiri & Lebar Penuh) -->
+                <div class="mb-3 anim-row delay-2">
+                    <label for="chapters" class="form-label fw-bold text-dark small text-uppercase">Chapters</label>
+                    <div class="d-flex align-items-center w-100" style="gap: 8px;">
+                        <div class="form-control rounded-0 border-dark d-flex align-items-center input-epic-effect w-100" style="height: 40px; padding: 0 10px;">
+                            <span class="fw-bold text-dark" style="margin-right: 5px;">Ch.</span>
+                            <input type="number" id="chapters" name="chapters" value="{{ item.chapters|default:'0' }}" min="0" required style="border: none; outline: none; width: 100%; background: transparent; font-weight: bold;">
+                        </div>
+                        <button type="button" id="btn-chapter-minus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">-</button>
+                        <button type="button" id="btn-chapter-plus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">+</button>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <h6 class="fw-bold text-uppercase mb-2">Synopsis</h6>
-                    <textarea name="synopsis" class="form-control rounded-0 border-dark" rows="5" placeholder="Set your synopsis here...">{{ item.synopsis|default_if_none:"" }}</textarea>
+                <!-- Season / Volume (Baris Sendiri & Lebar Penuh) -->
+                <div class="mb-3 anim-row delay-3">
+                    <label for="season" class="form-label fw-bold text-dark small text-uppercase">Season / Volume</label>
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="season" name="season" value="{{ item.season|default:'' }}" placeholder="None" style="height: 40px;">
                 </div>
 
-                <div class="table-responsive mb-4">
-                    <table class="table table-bordered border-dark align-middle">
-                        <tbody>
-                            <tr>
-                                <th class="bg-light" style="width: 200px;">Rating</th>
-                                <td>
-                                    <input type="hidden" id="rating" name="rating" value="{{ item.rating|default:'-' }}">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <button type="button" class="btn btn-outline-dark rounded-0 type-arrow-btn" data-arrow="↑" style="width: 40px; height: 40px; padding: 0;">↑</button>
-                                        <button type="button" class="btn btn-outline-dark rounded-0 type-arrow-btn" data-arrow="↓" style="width: 40px; height: 40px; padding: 0;">↓</button>
-                                        <button type="button" class="btn btn-outline-dark rounded-0 type-arrow-btn" data-arrow="→" style="width: 40px; height: 40px; padding: 0;">→</button>
-                                        <div class="vr mx-1"></div>
-                                        <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0" style="width: 40px; height: 40px; padding: 0;">-</button>
-                                        <div id="rating-display" class="border border-dark text-center fw-bold d-flex align-items-center justify-content-center" style="width: 80px; height: 40px;">{{ item.rating|default:"-" }}</div>
-                                        <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0" style="width: 40px; height: 40px; padding: 0;">+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="bg-light">Chapters</th>
-                                <td><input type="number" name="chapters" value="{{ item.chapters|default:'0' }}" class="form-control rounded-0 border-dark" placeholder="Set your chapters"></td>
-                            </tr>
-                            <tr>
-                                <th class="bg-light">Season/Volume</th>
-                                <td><input type="text" name="season" value="{{ item.season|default:'' }}" class="form-control rounded-0 border-dark" placeholder="Set your season/volume"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="mb-3 anim-row delay-4">
+                    <label for="status" class="form-label fw-bold text-dark small text-uppercase">Status</label>
+                    <select class="form-select rounded-0 border-dark input-epic-effect w-100" id="status" name="status">
+                        {% for stat in statuses %}
+                            <option value="{{ stat.id }}" {% if item.status.id == stat.id %}selected{% endif %}>{{ stat.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
 
-                <div class="mb-5 p-3 border border-dark bg-light">
-                    <h6 class="fw-bold text-uppercase mb-2">Notes</h6>
-                    <textarea name="notes" class="form-control rounded-0 border-dark" rows="2" placeholder="Set your additional notes here...">{{ item.notes|default_if_none:"" }}</textarea>
+                <div class="mb-3 anim-row delay-5">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Rating</label>
+                    <input type="hidden" id="rating" name="rating" value="{{ item.rating|default:'-' }}">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↑" style="width: 40px; height: 40px;">↑</button>
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↓" style="width: 40px; height: 40px;">↓</button>
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="→" style="width: 40px; height: 40px;">→</button>
+                        </div>
+                        <div class="ms-auto d-flex align-items-center gap-1">
+                            <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">-</button>
+                            <div id="rating-display" class="d-flex align-items-center justify-content-center border border-dark fw-bold" style="width: 60px; height: 40px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
+                            <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">+</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <a href="{% url 'reading_item_detail' item.id %}" class="btn btn-outline-dark rounded-0 px-4 btn-pro btn-outline-pro">Cancel</a>
-                    <button type="submit" class="btn btn-dark rounded-0 px-4 btn-pro btn-dark-pro">Save Changes</button>
+                <div class="mb-3 anim-row delay-6">
+                    <label for="Type" class="form-label fw-bold text-dark small text-uppercase">Type</label>
+                    <select class="form-select rounded-0 border-dark input-epic-effect w-100" id="Type" name="Type">
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if item.Type.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Fitur Tags / Topics (Lebar Penuh) -->
+                <div class="mb-3 anim-row delay-6-5">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Tags / Topics</label>
+                    <details class="border border-dark bg-white shadow-sm rounded-0 w-100">
+                        <summary class="p-2 px-3 fw-bold small text-dark d-flex justify-content-between align-items-center" style="cursor: pointer; user-select: none; background: #f8f9fa;">
+                            <span>Select Tags / Topics</span>
+                            <span class="small">▼</span>
+                        </summary>
+                        <div class="p-3 border-top border-dark bg-light" style="max-height: 150px; overflow-y: auto;">
+                            {% if tags %}
+                                <div class="d-flex flex-wrap gap-3">
+                                    {% for tag in tags %}
+                                        {% if tag.id != 1 %}
+                                            <!-- Garis kotak sudah dihapus, tetap nyaman diklik dan tidak bisa diblok biru -->
+                                            <div class="form-check px-2 py-1" style="cursor: pointer; user-select: none;">
+                                                <input class="form-check-input rounded-0 border-dark" type="checkbox" name="tags" value="{{ tag.id }}" id="tag_{{ tag.id }}" {% if tag in item.tags.all %}checked{% endif %} style="cursor: pointer;">
+                                                <label class="form-check-label small fw-bold text-dark" for="tag_{{ tag.id }}" style="cursor: pointer; user-select: none;">
+                                                    {{ tag.name }}
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted small mb-0 fst-italic">No tags available.</p>
+                            {% endif %}
+                        </div>
+                    </details>
+                </div>
+
+                <div class="mb-3 anim-row delay-7">
+                    <label for="synopsis" class="form-label fw-bold text-dark small text-uppercase">Synopsis</label>
+                    <textarea class="form-control rounded-0 border-dark input-epic-effect w-100" id="synopsis" name="synopsis" rows="4" placeholder="Enter synopsis...">{{ item.synopsis|default_if_none:"" }}</textarea>
+                </div>
+
+                <div class="mb-4 anim-row delay-8">
+                    <label for="notes" class="form-label fw-bold text-dark small text-uppercase">Notes</label>
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="notes" name="notes" value="{{ item.notes|default_if_none:'' }}" placeholder="Short notes...">
+                </div>
+
+                <div class="d-flex gap-2 anim-row delay-9">
+                    <button type="submit" class="btn btn-dark rounded-0 px-4 w-100 btn-pro btn-epic-effect">Save Changes</button>
+                    <a href="{% url 'reading_item_detail' item.id %}" class="btn btn-outline-dark rounded-0 px-4 w-100 btn-epic-effect">Cancel</a>
                 </div>
             </div>
         </div>
     </form>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const imageInput = document.getElementById('image-input');
-    const imgPreview = document.getElementById('img-preview');
-    const noImgPlaceholder = document.getElementById('no-img-placeholder');
-
-    imageInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imgPreview.src = e.target.result;
-                imgPreview.classList.remove('d-none');
-                if (noImgPlaceholder) noImgPlaceholder.classList.add('d-none');
-            }
-            reader.readAsDataURL(file);
+<!-- Styling Animasi dan Penyesuaian Lebar Penuh -->
+<style>
+    @keyframes itemSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
         }
-    });
-
-    const hiddenInput = document.getElementById("rating");
-    const displayBox = document.getElementById("rating-display");
-    const arrowButtons = document.querySelectorAll(".type-arrow-btn");
-    const btnMinus = document.getElementById("btn-rating-minus");
-    const btnPlus = document.getElementById("btn-rating-plus");
-
-    let val = hiddenInput.value || "-";
-    let currentArrow = (val.includes("↑")) ? "↑" : (val.includes("↓")) ? "↓" : (val.includes("→")) ? "→" : "-";
-    let count = (currentArrow !== "-") ? val.length : 0;
-
-    function updateRating() {
-        let displayValue = (currentArrow === "-") ? "-" : currentArrow.repeat(count);
-        displayBox.textContent = displayValue;
-        hiddenInput.value = displayValue;
-
-        arrowButtons.forEach(btn => {
-            btn.classList.toggle("btn-dark", btn.getAttribute("data-arrow") === currentArrow);
-            btn.classList.toggle("btn-outline-dark", btn.getAttribute("data-arrow") !== currentArrow);
-        });
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    arrowButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            currentArrow = btn.getAttribute("data-arrow");
-            count = (currentArrow === "→") ? 1 : (count || 1);
+    .edit-reading-epic-wrapper {
+        animation: itemSlideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        width: 100% !important;
+    }
+
+    .anim-row {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.12s; }
+    .delay-3 { animation-delay: 0.16s; }
+    .delay-4 { animation-delay: 0.20s; }
+    .delay-5 { animation-delay: 0.24s; }
+    .delay-6 { animation-delay: 0.28s; }
+    .delay-6-5 { animation-delay: 0.30s; }
+    .delay-7 { animation-delay: 0.32s; }
+    .delay-8 { animation-delay: 0.36s; }
+    .delay-9 { animation-delay: 0.40s; }
+
+    .input-epic-effect {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .input-epic-effect:focus {
+        background-color: #fff;
+        border-color: #000 !important;
+        box-shadow: 4px 4px 0px #000 !important;
+        transform: translateY(-3px);
+    }
+
+    .btn-epic-effect {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-epic-effect:hover {
+        background-color: #000;
+        color: #fff !important;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    .btn-epic-effect:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const imageInput = document.getElementById('image-input');
+        const imgPreview = document.getElementById('img-preview');
+        const noImgPlaceholder = document.getElementById('no-img-placeholder');
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgPreview.src = e.target.result;
+                        imgPreview.classList.remove('d-none');
+                        if (noImgPlaceholder) noImgPlaceholder.classList.add('d-none');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        const hiddenInput = document.getElementById("rating");
+        const displayBox = document.getElementById("rating-display");
+        const arrowButtons = document.querySelectorAll(".type-arrow-btn");
+        const btnMinus = document.getElementById("btn-rating-minus");
+        const btnPlus = document.getElementById("btn-rating-plus");
+
+        let val = hiddenInput.value || "-";
+        let currentArrow = (val.includes("↑")) ? "↑" : (val.includes("↓")) ? "↓" : (val.includes("→")) ? "→" : "-";
+        let count = (currentArrow !== "-") ? val.length : 0;
+
+        function updateRating() {
+            let displayValue = (currentArrow === "-") ? "-" : currentArrow.repeat(count);
+            displayBox.textContent = displayValue;
+            hiddenInput.value = displayValue;
+            arrowButtons.forEach(btn => {
+                btn.classList.toggle("btn-dark", btn.getAttribute("data-arrow") === currentArrow);
+                btn.classList.toggle("btn-outline-dark", btn.getAttribute("data-arrow") !== currentArrow);
+            });
+        }
+
+        arrowButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                currentArrow = btn.getAttribute("data-arrow");
+                count = (currentArrow === "→") ? 1 : (count || 1);
+                updateRating();
+            });
+        });
+
+        btnPlus.addEventListener("click", () => {
+            if (currentArrow === "→") return;
+            if (currentArrow === "-") { currentArrow = "↑"; count = 1; }
+            else if (count < 5) count++;
             updateRating();
         });
-    });
 
-    btnPlus.addEventListener("click", () => {
-        if (currentArrow === "→") return;
-        if (currentArrow === "-") { currentArrow = "↑"; count = 1; }
-        else if (count < 5) count++;
-        updateRating();
-    });
+        btnMinus.addEventListener("click", () => {
+            if (count > 1) count--;
+            else { currentArrow = "-"; count = 0; }
+            updateRating();
+        });
 
-    btnMinus.addEventListener("click", () => {
-        if (count > 1) count--;
-        else { currentArrow = "-"; count = 0; }
         updateRating();
+
+        const chapterInput = document.getElementById('chapters');
+        const btnChapterMinus = document.getElementById('btn-chapter-minus');
+        const btnChapterPlus = document.getElementById('btn-chapter-plus');
+
+        if (btnChapterMinus && chapterInput) {
+            btnChapterMinus.addEventListener('click', function() {
+                let val = parseInt(chapterInput.value) || 0;
+                if (val > 0) chapterInput.value = val - 1;
+            });
+        }
+
+        if (btnChapterPlus && chapterInput) {
+            btnChapterPlus.addEventListener('click', function() {
+                let val = parseInt(chapterInput.value) || 0;
+                chapterInput.value = val + 1;
+            });
+        }
+
+        // --- SCRIPT OTOMATIS: Mencegah No Tag (ID 1) disatukan dengan tag lain secara Real-time di Browser ---
+        const tagCheckboxes = document.querySelectorAll('input[name="tags"]');
+        const noTagCheckbox = document.getElementById('tag_1');
+
+        if (noTagCheckbox) {
+            tagCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.value === "1" && this.checked) {
+                        // Jika "No Tag" dicentang, uncheck semua tag lain
+                        tagCheckboxes.forEach(cb => {
+                            if (cb.value !== "1") cb.checked = false;
+                        });
+                    } else if (this.value !== "1" && this.checked) {
+                        // Jika tag lain dicentang, uncheck "No Tag"
+                        noTagCheckbox.checked = false;
+                    }
+
+                    // Jika semua tag di-uncheck, otomatis centang kembali "No Tag" agar tidak kosong
+                    const anyChecked = Array.from(tagCheckboxes).some(cb => cb.checked);
+                    if (!anyChecked) {
+                        noTagCheckbox.checked = true;
+                    }
+                });
+            });
+        }
     });
-    
-    updateRating();
-});
 </script>
 {% endblock %}

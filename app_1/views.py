@@ -468,31 +468,36 @@ def generate_zip_logic(user, zip_path):
 def reading_add(request):
     """Menambah data baru dengan sistem notifikasi."""
     if request.method == 'POST':
-        # Mengambil data dari form
         status_id = request.POST.get('status')
         Type_id = request.POST.get('Type')
 
-        # Membuat objek baru
-        ReadingItem.objects.create(
-            user=request.user,  # <--- DITAMBAHKAN UNTUK MENGATASI ERROR
+        new_item = ReadingItem.objects.create(
+            user=request.user,
             title=request.POST.get('title'),
             chapters=request.POST.get('chapters', 0),
             season=request.POST.get('season', '-'),
             rating=request.POST.get('rating', '-'), 
             notes=request.POST.get('notes', '-'),
             image=request.FILES.get('image'), 
-
-            # Mengambil objek ForeignKey (menggunakan .get() agar lebih aman)
             status=Status.objects.filter(id=status_id).first(),
             Type=Type.objects.filter(id=Type_id).first()
         )
+
+        # Handle Tags secara otomatis
+        selected_tags = request.POST.getlist('tags')
+        if selected_tags:
+            new_item.tags.set(selected_tags)
+        else:
+            # Jika user tidak memilih tag sama sekali, otomatis set ke Tag ID 1 (No Tag)
+            new_item.tags.set([1])
 
         messages.success(request, 'Data berhasil ditambahkan!')
         return redirect('reading_list')
 
     context = {
         'statuses': Status.objects.all(),
-        'categories': Type.objects.all()
+        'categories': Type.objects.all(),
+        'tags': Tag.objects.all()
     }
     return render(request, 'reading_add.html', context)
 
@@ -500,7 +505,6 @@ def reading_add(request):
 def reading_edit(request, pk):
     """Edit data dan simpan perubahan dengan notifikasi."""
     item = get_object_or_404(ReadingItem, pk=pk)
-    # Menangkap URL asal dari parameter GET atau POST
     next_url = request.POST.get('next') or request.GET.get('next')
 
     if request.method == 'POST':
@@ -511,27 +515,33 @@ def reading_edit(request, pk):
         item.notes = request.POST.get('notes')
         item.synopsis = request.POST.get('synopsis')
 
-        # Menggunakan _id langsung untuk efisiensi ForeignKey
         status_id = request.POST.get('status')
         item.status_id = status_id if status_id else None
 
         Type_id = request.POST.get('Type')
         item.Type_id = Type_id if Type_id else None
 
-        # Handle Image Upload
         if request.FILES.get('image'):
             item.image = request.FILES.get('image')
 
         item.save()
-        messages.success(request, 'Perubahan berhasil disimpan!')
 
-        # Redirect kembali ke halaman asal (next_url) jika ada
+        # Handle Tags
+        tag_ids = request.POST.getlist('tags')
+        if tag_ids:
+            item.tags.set(tag_ids)
+        else:
+            # Jika user tidak mencentang apa pun, otomatis set ke Tag ID 1 (No Tag)
+            item.tags.set([1])
+
+        messages.success(request, 'Perubahan berhasil disimpan!')
         return redirect(next_url) if next_url else redirect('reading_list')
 
     context = {
         'item': item,
         'statuses': Status.objects.all(),
         'categories': Type.objects.all(),
+        'tags': Tag.objects.all(),
         'next': next_url
     }
     return render(request, 'reading_edit.html', context)
@@ -603,6 +613,11 @@ def reading_edit_bulk(request):
                 if new_Type:
                     item.Type_id = new_Type
                 
+                # Menangani Many-to-Many Tags (jika dikirim dari form per baris)
+                tags_list = request.POST.getlist(f'tags_{item.id}')
+                if tags_list:
+                    item.tags.set(tags_list)
+
                 # Menangani upload gambar
                 if f'image_{item.id}' in request.FILES:
                     item.image = request.FILES[f'image_{item.id}']
@@ -616,6 +631,7 @@ def reading_edit_bulk(request):
         'items': items,
         'statuses': {s.name: s for s in Status.objects.all()}.values(),
         'categories': {c.name: c for c in Type.objects.all()}.values(),
+        'tags': Tag.objects.all(),  # <-- Ditambahkan untuk memuat data tags ke HTML
     }
     return render(request, 'reading_edit_bulk.html', context)
 
@@ -975,21 +991,21 @@ def library_results(request):
         
     return render(request, 'library_results.html', {'items': items})
 
-from django.shortcuts import render, get_object_or_404
-from .models import Item
-
 def library_item_detail(request, pk):
     item = get_object_or_404(Item, pk=pk)
     reading_item = None
     
     if request.user.is_authenticated:
-        # Mencari apakah sudah ada di Reading List
         reading_item = ReadingItem.objects.filter(user=request.user, title=item.title).first()
     
+    # Mengambil semua rating/catatan dari user lain untuk item ini
+    all_user_ratings = ReadingItem.objects.filter(title=item.title).exclude(rating='-').exclude(rating='')
+
     return render(request, 'library_item_detail.html', {
         'item': item,
-        'reading_item': reading_item, # Mengirim data reading_item ke template
-        'is_already_added': reading_item is not None
+        'reading_item': reading_item,
+        'is_already_added': reading_item is not None,
+        'all_user_ratings': all_user_ratings, # Kirim ke template
     })
 
 @login_required
@@ -1036,6 +1052,8 @@ from .forms import MinimalPasswordChangeForm # Pastikan form ini ada
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.urls import reverse
 
 import re # Tambahkan import ini di paling atas file views.py Anda
 
@@ -1047,7 +1065,7 @@ def profile(request):
     pwd_form = MinimalPasswordChangeForm(request.user)
 
     if request.method == 'POST':
-        # 1. Cek apakah form yang dikirim adalah form ganti password
+        # 1. Cek jika form ganti password yang dikirim
         if 'old_password' in request.POST:
             pwd_form = MinimalPasswordChangeForm(request.user, request.POST)
             if pwd_form.is_valid():
@@ -1058,7 +1076,51 @@ def profile(request):
             else:
                 messages.error(request, "Gagal mengubah password. Periksa kembali input Anda.")
         
-        # 3. Proses update profil (Display name, Bio, dll)
+        # 2. Cek jika form reminder yang dikirim
+        elif 'update_reminder' in request.POST:
+            is_active = request.POST.get('is_reminder_active')
+            
+            if is_active:
+                user_profile.reminder_email = request.POST.get('reminder_email')
+                user_profile.reminder_frequency = int(request.POST.get('reminder_frequency', 30))
+                user_profile.last_reminder_sent = timezone.now()
+                user_profile.save()
+
+                # Proses pengiriman email tes/konfirmasi saat diaktifkan
+                try:
+                    total_items = ReadingItem.objects.filter(user=request.user).count()
+                    link_backup = request.build_absolute_uri(reverse('reading_list'))
+                    
+                    subject = "Backup Reminder Setup: Your Reading List Data"
+                    message = (
+                        f"Hello {user_profile.display_name or request.user.username},\n\n"
+                        f"Your backup reminder has been successfully updated!\n"
+                        f"You currently have {total_items} items saved in your reading list.\n\n"
+                        f"Please remember to download your backup regularly!\n"
+                        f"Click the link below to access your reading list:\n{link_backup}"
+                    )
+                    
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user_profile.reminder_email],
+                        fail_silently=False,
+                    )
+                    messages.success(request, "Reminder preferences saved & test email sent successfully!")
+                except Exception as e:
+                    messages.warning(request, f"Preferences saved, but failed to send email: {e}")
+            else:
+                # Jika switch dimatikan, kosongkan data reminder
+                user_profile.reminder_email = None
+                user_profile.reminder_frequency = 30
+                user_profile.last_reminder_sent = None
+                user_profile.save()
+                messages.success(request, "Backup reminder has been disabled.")
+
+            return redirect('profile')
+            
+        # 3. Jika bukan keduanya, berarti form update profil biasa (Display name, Bio, dll)
         else:
             user_profile.display_name = request.POST.get('display_name', user_profile.display_name)
             user_profile.bio = request.POST.get('bio', user_profile.bio)
@@ -1141,3 +1203,9 @@ def sync_item_detail(request, user_id):
         'selected_user': selected_user,
         'items': items
     })
+
+from django.shortcuts import redirect
+
+def redirect_whatsapp(request):
+    phone_number = "6282264974290"
+    return redirect(f"https://wa.me/{phone_number}")

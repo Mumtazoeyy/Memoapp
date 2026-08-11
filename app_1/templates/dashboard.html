@@ -15,11 +15,37 @@
         box-shadow: 2px 2px 0px rgba(0,0,0,0.2); color: #000;
     }
     .slash-line { color: #ccc; margin: 0 5px; }
+
+    /* --- Definisi Animasi Fade Up (Dipercepat ke 0.3s) --- */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Kelas dasar untuk elemen yang akan dianimasikan */
+    .anl-animate {
+        opacity: 0;
+        animation: fadeInUp 0.3s ease forwards; 
+    }
+
+    /* Delay berurutan untuk setiap kolom (Row 1) */
+    .anl-delay-1 { animation-delay: 0.05s; }
+    .anl-delay-2 { animation-delay: 0.1s; }
+    .anl-delay-3 { animation-delay: 0.15s; }
+    .anl-delay-4 { animation-delay: 0.2s; }
 </style>
 
 {% if total_titles > 0 %}
-    <div class="row g-2 mb-3 animate-fade-up delay-1">
-        <div class="col-6 col-lg-3">
+    <!-- Row 1: Statistik Utama (Dianimasikan per kolom) -->
+    <div class="row g-2 mb-3">
+        <!-- Kolom 1 (Total Titles) -->
+        <div class="col-6 col-lg-3 anl-animate anl-delay-1">
             <div class="p-2 border border-1 border-dark bg-white h-100">
                 <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Total Titles</small>
                 <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
@@ -27,7 +53,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <!-- Kolom 2 (Total Chapters) -->
+        <div class="col-6 col-lg-3 anl-animate anl-delay-2">
             <div class="p-2 border border-1 border-dark bg-white h-100">
                 <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Total Chapters</small>
                 <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
@@ -35,7 +62,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <!-- Kolom 3 (Favorites) -->
+        <div class="col-6 col-lg-3 anl-animate anl-delay-3">
             <div class="p-2 border border-1 border-dark bg-white h-100">
                 <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Favorites</small>
                 <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
@@ -43,7 +71,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <!-- Kolom 4 (Top Performer) -->
+        <div class="col-6 col-lg-3 anl-animate anl-delay-4">
             <div class="p-2 border border-1 border-dark bg-dark text-white h-100">
                 <small class="text-secondary fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Top Performer</small>
                 <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 40px;">
@@ -67,7 +96,7 @@
                     <h6 class="fw-black text-uppercase mb-3">Categories</h6>
                     <table class="table table-sm mb-0">
                         {% for cat in all_categories %}
-                        <tr>
+                        <tr class="animate-fade-up">
                             <td class="text-muted ps-0"><span style="display:inline-block; width:10px; height:10px; background-color:{{ cat.color }}; margin-right:5px;"></span> {{ cat.name }}</td>
                             <td class="text-end fw-black">{{ cat.item_count|default:"0" }}</td>
                         </tr>
@@ -88,7 +117,7 @@
                     <h6 class="fw-black text-uppercase mb-3">Statuses</h6>
                     <table class="table table-sm mb-0">
                         {% for stat in all_statuses %}
-                        <tr>
+                        <tr class="animate-fade-up">
                             <td class="text-muted ps-0"><span style="display:inline-block; width:10px; height:10px; background-color:{{ stat.color }}; margin-right:5px;"></span> {{ stat.name }}</td>
                             <td class="text-end fw-black">{{ stat.item_count|default:"0" }}</td>
                         </tr>
@@ -99,19 +128,16 @@
         </div>
     </div>
         
-    <div class="row g-4 mt-2 animate-fade-up delay-3">
-        <!-- KOLOM KIRI: Favorites & Recently Added -->
+    <div class="row g-1 mt-2">
+        <!-- KOLOM KIRI -->
         <div class="col-12 col-lg-6">
             <!-- My Favorites -->
-            <div class="p-3 border border-dark mb-4" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#favoritesModal">
+            <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#favoritesModal" style="cursor: pointer;">
                 <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">My Favorites</h5>
                 <div class="list-group list-group-flush">
                     {% for item in favorites %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                        <!-- Title di kiri -->
+                    <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
                         <span class="fw-bold text-truncate" style="max-width: 70%;">{{ item.title }}</span>
-                        
-                        <!-- Rating dan Bintang Emas di kanan -->
                         <div class="d-flex align-items-center">
                             <span class="me-2">{{ item.rating }}</span>
                             <div style="width: 20px; text-align: right; color: #ffc107; font-size: 0.8rem;">
@@ -129,11 +155,11 @@
             </div>
 
             <!-- Recently Added -->
-            <div class="p-3 border border-dark" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#recentlyAddedModal">
+            <div class="p-3 border border-dark anl-animate" data-bs-toggle="modal" data-bs-target="#recentlyAddedModal" style="cursor: pointer;">
                 <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Recently Added</h5>
                 <div class="list-group list-group-flush">
                     {% for item in recently_added %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
                         <span class="fw-bold">{{ item.title }}</span>
                         <small class="text-muted">Added recently</small>
                     </div>
@@ -147,29 +173,29 @@
             </div>
         </div>
 
-        <!-- KOLOM KANAN: Stats & Recently Updated -->
+        <!-- KOLOM KANAN -->
         <div class="col-12 col-lg-6">
             <!-- Quick Stats -->
-            <div class="p-3 border border-dark mb-4">
+            <div class="p-3 border border-dark mb-4 anl-animate">
                 <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Quick Stats</h5>
                 <div class="row text-center">
                     <div class="col-6 border-end border-dark">
-                        <div class="h2 fw-black">{{ total_titles }}</div> <!-- Ganti ke total_titles -->
+                        <div class="h2 fw-black">{{ total_titles }}</div>
                         <div class="text-muted small">Total Series</div>
                     </div>
                     <div class="col-6">
-                        <div class="h2 fw-black">{{ percentage_completed }}%</div> <!-- Ganti ke percentage_completed -->
+                        <div class="h2 fw-black">{{ percentage_completed }}%</div>
                         <div class="text-muted small">Completed</div>
                     </div>
                 </div>
             </div>
 
             <!-- Recently Updated -->
-            <div class="p-3 border border-dark mb-4" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#recentlyUpdatedModal">
+            <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#recentlyUpdatedModal" style="cursor: pointer;">
                 <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Recently Updated</h5>
                 <div class="list-group list-group-flush">
                     {% for item in recently_updated %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
                         <div>
                             <div class="fw-bold">{{ item.title }}</div>
                             <small class="text-muted">Ch. {{ item.chapters }}</small>
@@ -192,6 +218,42 @@
         <a href="{% url 'reading_add' %}" class="btn btn-outline-dark rounded-0 mt-3 px-4 py-2">Add Your First Item</a>
     </div>
 {% endif %}
+
+<script>
+    function showTooltip(event, name, count) {
+        const tooltip = document.getElementById('cursor-tooltip');
+        tooltip.style.display = 'block';
+        tooltip.style.left = (event.clientX + 15) + 'px';
+        tooltip.style.top = (event.clientY + 15) + 'px';
+        tooltip.innerHTML = `<span>${name} <span class="slash-line">/</span></span>
+                             <span style="font-weight:bold; color:#000;">RESULT: ${count}</span>`;
+    }
+    
+    function hideTooltip() {
+        document.getElementById('cursor-tooltip').style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Targetkan semua elemen tr dengan class animate-fade-up
+        const rows = document.querySelectorAll('tr.animate-fade-up');
+        rows.forEach((row, index) => {
+            row.style.animationDelay = (index * 0.05) + 's';
+        });
+
+        // Animasi untuk box utama (lebih cepat: 0.05s)
+        const boxes = document.querySelectorAll('.anl-animate');
+        boxes.forEach((box, index) => {
+            box.style.animationDelay = (index * 0.05) + 's';
+        });
+
+        // Animasi untuk setiap item di dalam list agar muncul berurutan cepat (0.02s)
+        const items = document.querySelectorAll('.anl-item');
+        items.forEach((item, index) => {
+            item.classList.add('anl-animate');
+            item.style.animationDelay = (index * 0.02) + 's';
+        });
+    });
+</script>
 
 <!-- Modal untuk Menampilkan Semua Favorit -->
 <div class="modal fade" id="favoritesModal" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
@@ -280,17 +342,4 @@
 
 <div id="cursor-tooltip" class="tech-tooltip-fixed"></div>
 
-<script>
-function showTooltip(event, name, count) {
-    const tooltip = document.getElementById('cursor-tooltip');
-    tooltip.style.display = 'block';
-    tooltip.style.left = (event.clientX + 15) + 'px';
-    tooltip.style.top = (event.clientY + 15) + 'px';
-    tooltip.innerHTML = `<span>${name} <span class="slash-line">/</span></span>
-                         <span style="font-weight:bold; color:#000;">RESULT: ${count}</span>`;
-}
-function hideTooltip() {
-    document.getElementById('cursor-tooltip').style.display = 'none';
-}
-</script>
 {% endblock %}

@@ -2,54 +2,166 @@
 
 {% block content %}
 <div class="container d-flex justify-content-center">
-    <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 animate-fade-up" style="max-width: 450px;">
-        <h2 class="fw-bold mb-4" style="letter-spacing: -1px;">REGISTRASI</h2>
+    <!-- Card dengan animasi Bounce & Zoom-in yang konsisten -->
+    <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 register-card-epic" style="max-width: 450px;">
+        <h2 class="fw-bold mb-4 epic-title" style="letter-spacing: -1px;">REGISTRASI</h2>
         
         <form method="POST">
             {% csrf_token %}
             <div class="form-group-mono">
-                {{ form.as_p }}
-                
+                <!-- Render field satu per satu secara looping -->
                 {% for field in form %}
-                    {% for error in field.errors %}
-                        <div class="text-danger small mb-2" style="color: #721c24; margin-top: -15px; margin-bottom: 10px;">
-                            • {{ error }}
-                        </div>
-                    {% endfor %}
+                    <div class="epic-field-item" style="--stagger-index: {{ forloop.counter }};">
+                        <label class="small fw-bold text-uppercase d-block mb-1">{{ field.label }}</label>
+                        {{ field }}
+                        
+                        {% if field.help_text %}
+                            <div class="helptext">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                        
+                        {% for error in field.errors %}
+                            <div class="text-danger small mb-2" style="color: #721c24; margin-top: -5px; margin-bottom: 10px;">
+                                • {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% endfor %}
             </div>
             
-            <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mt-3">DAFTAR AKUN</button>
+            <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mt-3 btn-epic-effect epic-btn">DAFTAR AKUN</button>
         </form>
         
-        <p class="small text-center text-muted mt-3">
-            Sudah punya akun? <a href="{% url 'login' %}" class="text-dark fw-bold">Login di sini</a>
+        <p class="small text-center text-muted mt-3 epic-footer">
+            Sudah punya akun? <a href="{% url 'login' %}" class="text-dark fw-bold link-epic">Login di sini</a>
         </p>
     </div>
 </div>
 
+<!-- Styling Animasi Urut Per Bar dengan Tombol Lebih Cepat -->
 <style>
-    /* Styling agar form bawaan Django sinkron */
-    .form-group-mono p label {
-        display: block;
-        font-size: 0.75rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-bottom: 0.25rem;
+    /* 1. Animasi Utama Card: Zoom-in dengan efek pantulan (bounce) */
+    @keyframes epicCardIntro {
+        0% {
+            opacity: 0;
+            transform: scale(0.7) translateY(50px);
+        }
+        60% {
+            opacity: 1;
+            transform: scale(1.03) translateY(-10px);
+        }
+        80% {
+            transform: scale(0.97) translateY(5px);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
     }
-    .form-group-mono p input {
+
+    .register-card-epic {
+        animation: epicCardIntro 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* 2. Animasi Masuk Berurutan (Staggered Fade & Slide per Bar) */
+    @keyframes itemSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .epic-title {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.15s forwards;
+    }
+
+    /* Jeda antar input dibuat lebih rapat (0.08s per baris) */
+    .epic-field-item {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease calc(0.15s + (var(--stagger-index) * 0.08s)) forwards;
+        margin-bottom: 1rem;
+    }
+
+    /* Tombol dipercepat agar langsung muncul tanpa jeda panjang setelah input terakhir */
+    .epic-btn {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.48s forwards;
+    }
+
+    .epic-footer {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.56s forwards;
+    }
+
+    /* 3. Penyesuaian Form Bawaan Django agar Sinkron dengan Desain */
+    .form-group-mono input, 
+    .form-group-mono select, 
+    .form-group-mono textarea {
         width: 100%;
         padding: 0.6rem;
         border: 1px solid #000;
-        margin-bottom: 1rem;
+        border-radius: 0px;
+        outline: none;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* 4. Efek Interaktif Heboh pada Input saat Fokus (Brutalist Hard Shadow) */
+    .form-group-mono input:focus, 
+    .form-group-mono select:focus, 
+    .form-group-mono textarea:focus {
+        background-color: #fff;
+        border-color: #000 !important;
+        box-shadow: 4px 4px 0px #000 !important;
+        transform: translateY(-3px);
+    }
+
     .helptext {
         font-size: 0.7rem;
         color: #6c757d;
         display: block;
-        margin-top: -0.5rem;
-        margin-bottom: 1rem;
+        margin-top: 0.2rem;
+        margin-bottom: 0.5rem;
     }
+
+    /* 5. Efek Heboh pada Tombol (Glow & Lift) */
+    .btn-epic-effect {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-epic-effect:hover {
+        background-color: #000;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    .btn-epic-effect:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 6. Efek Link Berdenyut/Animasi Garis Bawah */
+    .link-epic {
+        position: relative;
+        text-decoration: none;
+    }
+    .link-epic::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: #000;
+        transition: width 0.3s ease-in-out;
+    }
+    .link-epic:hover::after {
+        width: 100%;
+    }
+
     /* Styling tambahan untuk alert pesan */
     .alert-success { background-color: #d4edda; color: #155724; }
     .alert-danger { background-color: #f8d7da; color: #721c24; }

@@ -1,23 +1,133 @@
 {% extends 'base/base.html' %}
 {% block content %}
 <div class="container d-flex justify-content-center">
-    <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 animate-fade-up" style="max-width: 450px;">
-        <h2 class="fw-bold mb-4" style="letter-spacing: -1px;">LOGIN</h2>
+    <!-- Card dengan animasi Bounce & Zoom-in yang konsisten -->
+    <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 login-card-epic" style="max-width: 450px;">
+        <h2 class="fw-bold mb-4 epic-title" style="letter-spacing: -1px;">LOGIN</h2>
 
         <form method="POST">
             {% csrf_token %}
-            <div class="mb-3">
+            <div class="mb-3 epic-input-1">
                 <label class="small fw-bold text-uppercase">Username</label>
-                <input type="text" name="username" class="form-control rounded-0 border-dark shadow-none py-2" required>
+                <input type="text" name="username" class="form-control rounded-0 border-dark shadow-none py-2 input-epic-effect" required>
             </div>
-            <div class="mb-4">
+            <div class="mb-4 epic-input-2">
                 <label class="small fw-bold text-uppercase">Password</label>
-                <input type="password" name="password" class="form-control rounded-0 border-dark shadow-none py-2" required>
+                <input type="password" name="password" class="form-control rounded-0 border-dark shadow-none py-2 input-epic-effect" required>
             </div>
-            <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mb-3">MASUK</button>
+            <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mb-3 btn-epic-effect">MASUK</button>
         </form>
         
-        <p class="small text-center text-muted">Belum punya akun? <a href="{% url 'register' %}" class="text-dark fw-bold">Daftar sekarang</a></p>
+        <p class="small text-center text-muted epic-footer">Belum punya akun? <a href="{% url 'register' %}" class="text-dark fw-bold link-epic">Daftar sekarang</a></p>
     </div>
 </div>
+
+<!-- Styling Animasi Heboh dengan Tempo yang Disamakan -->
+<style>
+    /* 1. Animasi Utama Card: Zoom-in dengan efek pantulan (bounce) */
+    @keyframes epicCardIntro {
+        0% {
+            opacity: 0;
+            transform: scale(0.7) translateY(50px);
+        }
+        60% {
+            opacity: 1;
+            transform: scale(1.03) translateY(-10px);
+        }
+        80% {
+            transform: scale(0.97) translateY(5px);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .login-card-epic {
+        animation: epicCardIntro 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* 2. Animasi Masuk Berurutan (Staggered Fade & Slide) dengan Tempo Cepat */
+    @keyframes itemSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .epic-title {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.15s forwards;
+    }
+
+    .epic-input-1 {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.23s forwards;
+    }
+
+    .epic-input-2 {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.31s forwards;
+    }
+
+    .btn-pro {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.48s forwards;
+    }
+
+    .epic-footer {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.56s forwards;
+    }
+
+    /* 3. Efek Interaktif Heboh pada Input saat Fokus */
+    .input-epic-effect {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .input-epic-effect:focus {
+        background-color: #fff;
+        border-color: #000 !important;
+        box-shadow: 4px 4px 0px #000 !important; /* Efek brutalist shadow */
+        transform: translateY(-3px);
+    }
+
+    /* 4. Efek Heboh pada Tombol (Glow & Lift) */
+    .btn-epic-effect {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-epic-effect:hover {
+        background-color: #000;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    .btn-epic-effect:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 5. Efek Link Berdenyut/Animasi Garis Bawah */
+    .link-epic {
+        position: relative;
+        text-decoration: none;
+    }
+    .link-epic::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: #000;
+        transition: width 0.3s ease-in-out;
+    }
+    .link-epic:hover::after {
+        width: 100%;
+    }
+</style>
 {% endblock %}

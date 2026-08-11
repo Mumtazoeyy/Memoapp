@@ -100,3 +100,12 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.INFO: 'info',
 }
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'mintcc002@gmail.com'
+EMAIL_HOST_PASSWORD = 'jlke msqh irfx pqur'
+DEFAULT_FROM_EMAIL = 'kagataudah <mintcc002@gmail.com>'

@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
-<div class="py-2 animate-fade-up" style="max-width: 1000px; margin: 0 auto; animation-delay: 0.1s;">
-    <div class="mb-4 text-center text-md-start">
+<div class="py-2 add-reading-epic-wrapper" style="max-width: 1000px; margin: 0 auto;">
+    <div class="mb-4 text-center text-md-start epic-header">
         <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Add New Reading</h3>
         <p class="text-muted small mb-0">Track your new comic or manga entry or import from a file.</p>
     </div>
@@ -18,114 +18,223 @@
             <form method="POST" class="border border-dark p-4 bg-white shadow-sm" enctype="multipart/form-data">
                 {% csrf_token %}
                 
-                <div class="mb-3">
+                <div class="mb-3 anim-row delay-1">
                     <label for="title" class="form-label fw-bold text-dark small text-uppercase">Title</label>
-                    <input type="text" class="form-control rounded-0 border-dark" id="title" name="title" placeholder="Enter title here..." required>
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect" id="title" name="title" placeholder="Enter title here..." required>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 anim-row delay-2">
                     <label for="image" class="form-label fw-bold text-dark small text-uppercase">Cover Image</label>
-                    <input type="file" class="form-control rounded-0 border-dark" id="image" name="image" accept="image/*">
+                    <input type="file" class="form-control rounded-0 border-dark input-epic-effect" id="image" name="image" accept="image/*">
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="chapters" class="form-label fw-bold text-dark small text-uppercase">Chapters</label>
-                        <div class="d-flex align-items-center" style="gap: 8px;">
-                            <button type="button" id="btn-chapter-minus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 40px; height: 40px; padding: 0;">-</button>
-                            <div class="form-control rounded-0 border-dark d-flex align-items-center" style="height: 40px; flex-grow: 1; padding: 0 10px;">
-                                <span class="fw-bold text-dark" style="margin-right: 5px;">Ch.</span>
-                                <input type="number" id="chapters" name="chapters" value="0" min="0" required style="border: none; outline: none; width: 100%; background: transparent; font-weight: bold;">
-                            </div>
-                            <button type="button" id="btn-chapter-plus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 40px; height: 40px; padding: 0;">+</button>
+                <!-- Chapters (Baris Sendiri & Lebar Penuh) -->
+                <div class="mb-3 anim-row delay-2">
+                    <label for="chapters" class="form-label fw-bold text-dark small text-uppercase">Chapters</label>
+                    <div class="d-flex align-items-center w-100" style="gap: 8px;">
+                        <div class="form-control rounded-0 border-dark d-flex align-items-center input-epic-effect w-100" style="height: 40px; padding: 0 10px;">
+                            <span class="fw-bold text-dark" style="margin-right: 5px;">Ch.</span>
+                            <input type="number" id="chapters" name="chapters" value="{{ item.chapters|default:'0' }}" min="0" required style="border: none; outline: none; width: 100%; background: transparent; font-weight: bold;">
                         </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="season" class="form-label fw-bold text-dark small text-uppercase">Season</label>
-                        <input type="text" class="form-control rounded-0 border-dark" id="season" name="season" placeholder="None" style="height: 40px;">
+                        <button type="button" id="btn-chapter-minus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">-</button>
+                        <button type="button" id="btn-chapter-plus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">+</button>
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 anim-row delay-3">
+                    <label for="season" class="form-label fw-bold text-dark small text-uppercase">Season / Volume</label>
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="season" name="season" value="{{ item.season|default:'' }}" placeholder="None" style="height: 40px;">
+                </div>
+
+                <div class="mb-3 anim-row delay-4">
                     <label for="status" class="form-label fw-bold text-dark small text-uppercase">Status</label>
-                    <select class="form-select rounded-0 border-dark" id="status" name="status">
+                    <select class="form-select rounded-0 border-dark input-epic-effect" id="status" name="status">
                         {% for stat in statuses %}
                             <option value="{{ stat.id }}">{{ stat.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 anim-row delay-5">
                     <label class="form-label fw-bold text-dark small text-uppercase">Rating</label>
                     <input type="hidden" id="rating" name="rating" value="-">
                     <div class="d-flex align-items-center gap-2">
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="↑" style="width: 40px; height: 40px;">↑</button>
-                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="↓" style="width: 40px; height: 40px;">↓</button>
-                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn" data-arrow="→" style="width: 40px; height: 40px;">→</button>
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↑" style="width: 40px; height: 40px;">↑</button>
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↓" style="width: 40px; height: 40px;">↓</button>
+                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="→" style="width: 40px; height: 40px;">→</button>
                         </div>
                         <div class="ms-auto d-flex align-items-center gap-1">
-                            <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 40px; height: 40px;">-</button>
+                            <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">-</button>
                             <div id="rating-display" class="d-flex align-items-center justify-content-center border border-dark fw-bold" style="width: 60px; height: 40px; background: #f8f9fa;">-</div>
-                            <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0 fw-bold" style="width: 40px; height: 40px;">+</button>
+                            <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">+</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 anim-row delay-6">
                     <label for="Type" class="form-label fw-bold text-dark small text-uppercase">Type</label>
-                    <select class="form-select rounded-0 border-dark" id="Type" name="Type">
+                    <select class="form-select rounded-0 border-dark input-epic-effect" id="Type" name="Type">
                         {% for cat in categories %}
                             <option value="{{ cat.id }}" {% if cat.id == 1 %}selected{% endif %}>{{ cat.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <div class="mb-3">
+                <!-- Fitur Tags / Topics (Lebar Penuh) -->
+                <div class="mb-3 anim-row delay-6-5">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Tags / Topics</label>
+                    <details class="border border-dark bg-white shadow-sm rounded-0 w-100">
+                        <summary class="p-2 px-3 fw-bold small text-dark d-flex justify-content-between align-items-center" style="cursor: pointer; user-select: none; background: #f8f9fa;">
+                            <span>Select Tags / Topics</span>
+                            <span class="small">▼</span>
+                        </summary>
+                        <div class="p-3 border-top border-dark bg-light" style="max-height: 150px; overflow-y: auto;">
+                            {% if tags %}
+                                <div class="d-flex flex-wrap gap-3">
+                                    {% for tag in tags %}
+                                        {% if tag.id != 1 %}
+                                            <div class="form-check px-2 py-1" style="cursor: pointer; user-select: none;">
+                                                <input class="form-check-input rounded-0 border-dark" type="checkbox" name="tags" value="{{ tag.id }}" id="tag_{{ tag.id }}" {% if tag in item.tags.all %}checked{% endif %} style="cursor: pointer;">
+                                                <label class="form-check-label small fw-bold text-dark" for="tag_{{ tag.id }}" style="cursor: pointer; user-select: none;">
+                                                    {{ tag.name }}
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted small mb-0 fst-italic">No tags available.</p>
+                            {% endif %}
+                        </div>
+                    </details>
+                </div>
+
+                <div class="mb-3 anim-row delay-7">
                     <label for="synopsis" class="form-label fw-bold text-dark small text-uppercase">Synopsis</label>
-                    <textarea class="form-control rounded-0 border-dark" id="synopsis" name="synopsis" rows="4" placeholder="Enter synopsis..."></textarea>
+                    <textarea class="form-control rounded-0 border-dark input-epic-effect" id="synopsis" name="synopsis" rows="4" placeholder="Enter synopsis..."></textarea>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4 anim-row delay-8">
                     <label for="notes" class="form-label fw-bold text-dark small text-uppercase">Notes</label>
-                    <input type="text" class="form-control rounded-0 border-dark" id="notes" name="notes" placeholder="Short notes...">
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect" id="notes" name="notes" placeholder="Short notes...">
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-dark rounded-0 px-4 w-100">Add Item</button>
-                    <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 w-100">Cancel</a>
+                <div class="d-flex gap-2 anim-row delay-9">
+                    <button type="submit" class="btn btn-dark rounded-0 px-4 w-100 btn-pro btn-epic-effect">Add Item</button>
+                    <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 w-100 btn-epic-effect">Cancel</a>
                 </div>
             </form>
         </div>
 
         <div class="col-md-4">
             <!-- TXT Import Form -->
-            <form method="POST" action="{% url 'import_data' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm mb-4">
+            <form method="POST" action="{% url 'import_data' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm mb-4 anim-row delay-10">
                 {% csrf_token %}
-                <h5 class="fw-bold mb-3">Import Data (TXT)</h5>
-                <div class="mb-3">
+                <h5 class="fw-bold mb-3 anim-row delay-11">Import Data (TXT)</h5>
+                <div class="mb-3 anim-row delay-12">
                     <label for="import_file" class="form-label small text-uppercase fw-bold">Upload Text File</label>
-                    <input type="file" class="form-control rounded-0 border-dark" id="import_file" name="import_file" accept=".txt" required>
+                    <input type="file" class="form-control rounded-0 border-dark input-epic-effect" id="import_file" name="import_file" accept=".txt" required>
                 </div>
-                <button type="submit" class="btn btn-dark rounded-0 w-100">Process Import</button>
-                <p class="text-muted small mt-3">Format file TXT: <br><code>» Title | Chapters | Season | Status | Rating</code></p>
+                <div class="anim-row delay-13">
+                    <button type="submit" class="btn btn-dark rounded-0 w-100 btn-epic-effect">Process Import</button>
+                </div>
+                <p class="text-muted small mt-3 anim-row delay-14">Format file TXT: <br><code>» Title | Chapters | Season | Status | Rating</code></p>
             </form>
 
             <!-- SQLite Import Form -->
-            <form method="POST" action="{% url 'import_full' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm">
+            <form method="POST" action="{% url 'import_full' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm anim-row delay-15">
                 {% csrf_token %}
-                <h5 class="fw-bold mb-3">Import Full Backup (ZIP)</h5>
-                <div class="mb-3">
-                    <label for="import_file" class="form-label small text-uppercase fw-bold">Upload ZIP File</label>
-                    <input type="file" class="form-control rounded-0 border-dark" id="import_file" name="import_file" accept=".zip" required>
+                <h5 class="fw-bold mb-3 anim-row delay-16">Import Full Backup (ZIP)</h5>
+                <div class="mb-3 anim-row delay-17">
+                    <label for="import_file_zip" class="form-label small text-uppercase fw-bold">Upload ZIP File</label>
+                    <input type="file" class="form-control rounded-0 border-dark input-epic-effect" id="import_file_zip" name="import_file" accept=".zip" required>
                 </div>
-                <button type="submit" class="btn btn-dark rounded-0 w-100">Process Full Import</button>
-                <p class="text-muted small mt-3">Select the <code>.zip</code> file you previously downloaded from the Export menu in this app.</p>
+                <div class="anim-row delay-18">
+                    <button type="submit" class="btn btn-dark rounded-0 w-100 btn-epic-effect">Process Full Import</button>
+                </div>
+                <p class="text-muted small mt-3 anim-row delay-19">Select the <code>.zip</code> file you previously downloaded from the Export menu in this app.</p>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Styling Animasi dan Tempo Konsisten -->
+<style>
+    @keyframes itemSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .add-reading-epic-wrapper {
+        animation: itemSlideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .epic-header {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.15s forwards;
+    }
+
+    .anim-row {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.12s; }
+    .delay-3 { animation-delay: 0.16s; }
+    .delay-4 { animation-delay: 0.20s; }
+    .delay-5 { animation-delay: 0.24s; }
+    .delay-6 { animation-delay: 0.28s; }
+    .delay-6-5 { animation-delay: 0.30s; }
+    .delay-7 { animation-delay: 0.32s; }
+    .delay-8 { animation-delay: 0.36s; }
+    .delay-9 { animation-delay: 0.40s; }
+    
+    .delay-10 { animation-delay: 0.44s; }
+    .delay-11 { animation-delay: 0.48s; }
+    .delay-12 { animation-delay: 0.52s; }
+    .delay-13 { animation-delay: 0.56s; }
+    .delay-14 { animation-delay: 0.60s; }
+
+    .delay-15 { animation-delay: 0.64s; }
+    .delay-16 { animation-delay: 0.68s; }
+    .delay-17 { animation-delay: 0.72s; }
+    .delay-18 { animation-delay: 0.76s; }
+    .delay-19 { animation-delay: 0.80s; }
+
+    .input-epic-effect {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .input-epic-effect:focus {
+        background-color: #fff;
+        border-color: #000 !important;
+        box-shadow: 4px 4px 0px #000 !important;
+        transform: translateY(-3px);
+    }
+
+    .btn-epic-effect {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-epic-effect:hover {
+        background-color: #000;
+        color: #fff !important;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    .btn-epic-effect:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -168,16 +277,31 @@
             else { currentArrow = "-"; count = 0; }
             updateRating();
         });
-    });
 
-    const chapterInput = document.getElementById('chapters');
-    document.getElementById('btn-chapter-minus').addEventListener('click', function() {
-        let val = parseInt(chapterInput.value);
-        if (val > 0) chapterInput.value = val - 1;
-    });
+        // Chapters Logic
+        const chapterInput = document.getElementById('chapters');
+        const btnChapterMinus = document.getElementById('btn-chapter-minus');
+        const btnChapterPlus = document.getElementById('btn-chapter-plus');
 
-    document.getElementById('btn-chapter-plus').addEventListener('click', function() {
-        chapterInput.value = parseInt(chapterInput.value) + 1;
+        if (chapterInput) {
+            btnChapterMinus.addEventListener('click', function() {
+                let val = parseInt(chapterInput.value) || 0;
+                if (val > 0) chapterInput.value = val - 1;
+            });
+
+            btnChapterPlus.addEventListener('click', function() {
+                let val = parseInt(chapterInput.value) || 0;
+                chapterInput.value = val + 1;
+            });
+
+            // Auto highlight/select text on focus or click
+            chapterInput.addEventListener('focus', function() {
+                this.select();
+            });
+            chapterInput.addEventListener('click', function() {
+                this.select();
+            });
+        }
     });
 </script>
 {% endblock %}

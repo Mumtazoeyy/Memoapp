@@ -2,103 +2,217 @@
 {% load static %}
 
 {% block content %}
-<style>
-    /* Styling tombol kustom */
-    .btn-custom {
-        background-color: #ffffff;
-        color: #000000;
-        border: 2px solid #000000;
-        padding: 10px 20px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-block;
-        font-weight: bold;
-        cursor: pointer; /* Tambahan agar terlihat seperti tombol */
-    }
-
-    .btn-custom:hover {
-        background-color: #000000;
-        color: #ffffff;
-    }
-    
-    /* Custom lebar modal agar hampir memenuhi layar */
-    .modal-wide .modal-dialog {
-        max-width: 90% !important; /* Lebar 90% dari layar */
-        width: 90% !important;
-        margin: 1.75rem auto; /* Tetap center tengah */
-    }
-</style>
-
 <div class="container mt-5">
-    <h2>Manajemen Sistem</h2>
-    <hr>
+    <!-- Card with bounce & zoom-in animation -->
+    <div class="dashboard-card py-4 py-md-5 my-4 border border-dark rounded-0 position-relative home-card-epic w-100 shadow-sm bg-white">
+        <div class="position-absolute top-0 start-0 w-100 border-top border-dark" style="border-width: 1px !important;"></div>
+
+        <div class="text-center px-3 px-md-4 mt-3">
+            <span class="d-inline-block border border-dark bg-white text-dark rounded-0 px-3 py-1 mb-3 mb-md-4 text-uppercase fw-bold epic-badge" style="font-size: 0.75rem; letter-spacing: 1px;">
+                System Control
+            </span>
+
+            <h1 class="fw-bold text-dark mb-3 fs-2 fs-md-1 display-6 epic-title" style="letter-spacing: -1px;">
+                System Management Center
+            </h1>
+            
+            <p class="text-muted fs-6 fs-md-5 mb-4 mb-md-5 mx-auto epic-desc" style="max-width: 600px; line-height: 1.6;">
+                Manage internal database configurations, handle web server operations, and synchronize user data seamlessly.
+            </p>
+        </div>
+    </div>
     
     <div class="row">
         <!-- Akses Admin -->
-        <div class="col-md-6">
-            <div class="card p-4 shadow-sm mb-3">
-                <h4>Akses Admin</h4>
-                <p class="text-muted">Kelola database dan konfigurasi internal aplikasi.</p>
-                <a href="https://mintchocolatte.pythonanywhere.com/admin/" target="_blank" class="btn-custom">
-                    Buka Django Admin
-                </a>
+        <div class="col-md-6 mb-4 animate-box-1">
+            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0">
+                <h4 class="fw-bold">Admin Access</h4>
+                <p class="text-muted">Manage internal application databases and secure system configurations.</p>
+                <div>
+                    <a href="https://mintchocolatte.pythonanywhere.com/admin/" target="_blank" class="btn-custom btn-epic-effect">
+                        Open Django Admin
+                    </a>
+                </div>
             </div>
         </div>
         
         <!-- Server Web -->
-        <div class="col-md-6">
-            <div class="card p-4 shadow-sm mb-3">
-                <h4>Server Web</h4>
-                <p class="text-muted">Kelola aplikasi Anda di PythonAnywhere (MintChocolatte).</p>
-                <a href="https://www.pythonanywhere.com/user/MintChocolatte/webapps/#tab_id_mintchocolatte_pythonanywhere_com" target="_blank" class="btn-custom">
-                    Buka Dashboard WebApp
-                </a>
+        <div class="col-md-6 mb-4 animate-box-2">
+            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0">
+                <h4 class="fw-bold">Web Server</h4>
+                <p class="text-muted">Manage and monitor your application server on PythonAnywhere (MintChocolatte).</p>
+                <div>
+                    <a href="https://www.pythonanywhere.com/user/MintChocolatte/webapps/#tab_id_mintchocolatte_pythonanywhere_com" target="_blank" class="btn-custom btn-epic-effect">
+                        Open WebApp Dashboard
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Navigasi ke Fitur Sinkronisasi (Sekarang jadi Modal) -->
-    <div class="mt-4">
-        <h4>Fitur Admin</h4>
-        <button type="button" class="btn-custom" data-bs-toggle="modal" data-bs-target="#syncModal">
-            Sinkronisasi Data User ke Master
-        </button>
+        <!-- Fitur Admin (Sinkronisasi) -->
+        <div class="col-md-6 mb-4 animate-box-3">
+            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0">
+                <h4 class="fw-bold">Admin Features</h4>
+                <p class="text-muted">Perform user data synchronization from local environment to the master database.</p>
+                <div>
+                    <button type="button" class="btn-custom btn-epic-effect" data-bs-toggle="modal" data-bs-target="#syncModal">
+                        Sync User Data to Master
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Modal -->
 <div class="modal fade modal-wide" id="syncModal" tabindex="-1" aria-labelledby="syncModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="syncModalLabel">Pilih User untuk Sinkronisasi</h5>
+        <div class="modal-content rounded-0 border-dark">
+            <div class="modal-header border-bottom border-dark">
+                <h5 class="modal-title fw-bold" id="syncModalLabel">Select User for Synchronization</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
             <div class="modal-body">
-                <p>Silakan pilih user di bawah ini:</p>
-                <ul class="list-group">
+                <p class="text-muted mb-3">Please choose a user from the list below:</p>
+                <ul class="list-group list-group-flush border border-dark">
                     {% for user in users %}
-                        <!-- d-flex dan justify-content-between memisahkan info dan tombol ke ujung kiri & kanan -->
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            
-                            <!-- Bagian Kiri: Info User disejajarkan menggunakan d-flex dan gap -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                             <div class="d-flex align-items-center gap-4">
-                                <!-- Memberikan min-width agar teks jumlah data di sebelahnya lurus rata -->
                                 <strong style="min-width: 200px;">{{ user.username }}</strong>
-                                <span class="text-muted">Jumlah data: <b class="text-dark">{{ user.item_count }}</b> item</span>
+                                <span class="text-muted">Data count: <b class="text-dark">{{ user.item_count }}</b> items</span>
                             </div>
-
-                            <!-- Bagian Kanan: Tombol -->
-                            <a href="{% url 'sync_item_detail' user.id %}" class="btn btn-sm btn-dark px-4">Pilih</a>
+                            <a href="{% url 'sync_item_detail' user.id %}" class="btn btn-sm btn-dark px-4 rounded-0">Select</a>
                         </li>
                     {% empty %}
-                        <li class="list-group-item">Tidak ada user ditemukan.</li>
+                        <li class="list-group-item text-center text-muted py-4">No users found.</li>
                     {% endfor %}
                 </ul>
             </div>
-            
         </div>
     </div>
 </div>
+
+<style>
+    /* Styling Tombol Kustom */
+    .btn-custom {
+        background-color: #ffffff;
+        color: #000000;
+        border: 2px solid #000000;
+        padding: 10px 20px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* Efek Tombol Epic (Glow & Lift) */
+    .btn-epic-effect {
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-epic-effect:hover {
+        background-color: #000;
+        color: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    }
+    .btn-epic-effect:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Custom Lebar Modal */
+    .modal-wide .modal-dialog {
+        max-width: 90% !important;
+        width: 90% !important;
+        margin: 1.75rem auto;
+    }
+
+    /* 1. Main Card Animation: Zoom-in with bounce effect */
+    @keyframes epicCardIntro {
+        0% {
+            opacity: 0;
+            transform: scale(0.85) translateY(30px);
+        }
+        60% {
+            opacity: 1;
+            transform: scale(1.01) translateY(-5px);
+        }
+        80% {
+            transform: scale(0.99) translateY(2px);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .home-card-epic {
+        animation: epicCardIntro 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* 2. Staggered Fade & Slide Animation for Header Elements */
+    @keyframes itemSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .epic-badge {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.1s forwards;
+    }
+
+    .epic-title {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.18s forwards;
+    }
+
+    .epic-desc {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.26s forwards;
+    }
+
+    /* 3. Specific Box Animations with Staggered Tempo */
+    .animate-box-1 {
+        opacity: 0;
+        animation: itemSlideUp 0.5s ease-out 0.35s forwards;
+    }
+
+    .animate-box-2 {
+        opacity: 0;
+        animation: itemSlideUp 0.5s ease-out 0.45s forwards;
+    }
+
+    .animate-box-3 {
+        opacity: 0;
+        animation: itemSlideUp 0.5s ease-out 0.55s forwards;
+    }
+
+    /* Efek Transisi Hover Kartu */
+    .card-hover-effect {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Efek List Item Modal */
+    .list-group-item {
+        transition: background-color 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>
 {% endblock %}

@@ -40,5 +40,7 @@ urlpatterns = [
 
     # Profile & Auth
     path('profile/', views.profile, name='profile'),
+
+    path('go-to-wa/', views.redirect_whatsapp, name='redirect_wa'),
     
 ]

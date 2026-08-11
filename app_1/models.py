@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_migrate
 from django.dispatch import receiver
 from django.apps import apps
+from django.db.models import Avg, Count
 
 # Model Master (Dikelola Admin/Staff)
 class Item(models.Model):
@@ -10,7 +11,6 @@ class Item(models.Model):
     chapters = models.IntegerField(default=0)
     season = models.CharField(max_length=10, default='-', blank=True, null=True)
     
-    # Gunakan tanda kutip agar Python tidak error saat membaca class yang belum didefinisikan
     status = models.ForeignKey('Status', on_delete=models.SET_DEFAULT, default=1)
     Type = models.ForeignKey('Type', on_delete=models.SET_DEFAULT, default=1)
     tags = models.ManyToManyField('Tag', blank=True)
@@ -22,6 +22,26 @@ class Item(models.Model):
     def __str__(self):
         return self.title
 
+    # --- 2. PINDAHKAN PROPERTI INI KE MODEL ITEM ---
+    @property
+    def total_users_enrolled(self):
+        """Menghitung berapa banyak user yang menambahkan item ini ke reading list."""
+        # Menghitung berdasarkan seberapa banyak ReadingItem yang memiliki judul/referensi sama
+        return ReadingItem.objects.filter(title=self.title).count()
+
+    @property
+    def user_ratings_list(self):
+        """Mengambil semua data ReadingItem dari user lain yang berkaitan dengan item ini"""
+        return ReadingItem.objects.filter(title=self.title).exclude(rating='-').exclude(rating='')
+
+    @property
+    def rating_counts(self):
+        """Mengembalikan dictionary berisi jumlah user untuk setiap jenis rating."""
+        ratings = ReadingItem.objects.filter(title=self.title).exclude(rating='-').exclude(rating='')
+        counts = {}
+        for r in ratings:
+            counts[r.rating] = counts.get(r.rating, 0) + 1
+        return counts
 
 # 1. MODEL Type
 class Type(models.Model):
@@ -104,6 +124,9 @@ class Profile(models.Model):
     location = models.CharField(max_length=100, blank=True, null=True) # Field baru
     website = models.URLField(blank=True, null=True)
     social = models.CharField(max_length=100, blank=True, null=True)
+    reminder_email = models.EmailField(blank=True, null=True)
+    reminder_frequency = models.IntegerField(default=30) # Menyimpan nilai 7, 30, atau 90
+    last_reminder_sent = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -154,3 +177,17 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+@receiver(m2m_changed, sender=ReadingItem.tags.through)
+def manage_reading_item_tags(sender, instance, action, pk_set, **kwargs):
+    if action == "post_add":
+        current_tags = set(instance.tags.values_list('id', flat=True))
+        
+        # Jika ada tag lain yang dipilih bersamaan dengan Tag ID 1 ("No Tag"), hapus Tag ID 1
+        if len(current_tags) > 1 and 1 in current_tags:
+            instance.tags.remove(1)
+
+    elif action == "post_remove":
+        # Jika semua tag dihapus (kosong), otomatis kembalikan Tag ID 1 ("No Tag")
+        if not instance.tags.exists():
+            instance.tags.add(1)

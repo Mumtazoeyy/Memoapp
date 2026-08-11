@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="module" style="padding: 20px; border: 1px solid #417690; border-radius: 4px;">
+            <h2 style="background-color: #417690; color: #fff; padding: 10px 15px; margin: -20px -20px 20px -20px; border-radius: 3px 3px 0 0;">Import Tags via JSON File</h2>
+            <p>Unggah file format <code>.json</code> yang berisi daftar tag/genre manga/manhwa Anda untuk dimasukkan secara otomatis.</p>
+            
+            <div style="margin: 20px 0;">
+                <label for="json_file" style="display: block; margin-bottom: 8px; font-weight: bold; color: #417690;">Pilih File JSON:</label>
+                <input type="file" name="json_file" accept=".json" required style="padding: 6px; border: 1px solid #417690; border-radius: 4px; background: #fff;">
+            </div>
+            
+            <div class="submit-row" style="margin-top: 20px; padding: 0; background: transparent; border: none;">
+                <input type="submit" value="Upload & Proses" class="default" style="cursor: pointer; background-color: #417690; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold;">
+                <a href="../" class="button" style="background: var(--close-link-bg-color, #ba2121); color: #fff; text-decoration: none; padding: 10px 15px; border-radius: 4px; margin-left: 10px;">Batal</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
