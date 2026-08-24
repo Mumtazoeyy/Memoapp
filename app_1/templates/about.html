@@ -12,6 +12,45 @@
         background-color: #121212;
     }
 
+    /* Styling Loading Screen */
+    #page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #121212;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #ffffff;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .loader-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .loader-bar-container {
+        width: 220px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 15px;
+    }
+
+    .loader-bar-fill {
+        width: 0%;
+        height: 100%;
+        background-color: #25d366;
+        transition: width 0.2s ease;
+    }
+
     /* 2. Mengunci Navbar base.html agar stay di atas */
     header, nav, .navbar {
         position: fixed !important;
@@ -51,8 +90,11 @@
         overflow: hidden;
         opacity: 0;
         transform: scale(1.15);
-        animation: videoEntrance 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         pointer-events: none;
+    }
+
+    .hero-video-container.play-entrance {
+        animation: videoEntrance 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .hero-video-container video {
@@ -102,7 +144,7 @@
         padding: 8px 18px;
         border-radius: 30px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        pointer-events: none;
+        pointer-events: auto; /* Diubah agar bisa diklik */
     }
 
     /* Animasi Masuk Teks */
@@ -126,21 +168,21 @@
         }
     }
 
-    .anim-title {
+    .play-text-anim .anim-title {
         opacity: 0;
         animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards, 
                    pureFloating 4s ease-in-out infinite;
         animation-delay: 0.3s, 2.8s;
     }
 
-    .anim-desc {
+    .play-text-anim .anim-desc {
         opacity: 0;
         animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards, 
                    pureFloating 4s ease-in-out infinite;
         animation-delay: 0.6s, 3.1s;
     }
 
-    .anim-enjoy {
+    .play-text-anim .anim-enjoy {
         opacity: 0;
         animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards, 
                    pureFloating 4s ease-in-out infinite;
@@ -153,12 +195,12 @@
         bottom: 25px;
         left: 50%;
         transform: translateX(-50%);
-        pointer-events: none;
+        pointer-events: auto; /* Agar elemen link bisa diklik */
         transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
         z-index: 10;
+        cursor: pointer;
     }
 
-    /* Kelas untuk menyembunyikan sepenuhnya */
     .scroll-hint-hidden {
         opacity: 0 !important;
         visibility: hidden !important;
@@ -166,7 +208,6 @@
         pointer-events: none !important;
     }
 
-    /* Animasi Hilang-Muncul khusus bagian dalam */
     @keyframes slowFadePulse {
         0%, 100% {
             opacity: 0.4;
@@ -215,7 +256,6 @@
         z-index: 2;
     }
 
-    /* Efek Background Blur Selebar Layar Penuh */
     .blur-backdrop-section {
         width: 100%;
         padding: 60px 20px;
@@ -224,7 +264,6 @@
         -webkit-backdrop-filter: blur(8px);
     }
 
-    /* Tombol WhatsApp Elegan */
     .btn-whatsapp {
         display: inline-block;
         background-color: #25d366;
@@ -246,17 +285,26 @@
     }
 </style>
 
+<!-- ================= LOADING SCREEN (True Download Tracker + Fallback) ================= -->
+<div id="page-loader">
+    <div class="fw-bold text-pop-effect" style="letter-spacing: 2px; font-size: 0.85rem;">LOADING ...</div>
+    <div id="loaderPercentage" class="text-white-50 mt-1" style="font-size: 0.75rem;">0%</div>
+    <div class="loader-bar-container">
+        <div id="loaderBarFill" class="loader-bar-fill"></div>
+    </div>
+</div>
+
 <!-- ================= HALAMAN UTAMA ================= -->
 <div class="hero-container">
     <!-- Background Video -->
-    <div class="hero-video-container">
-        <video autoplay muted loop playsinline>
+    <div id="heroVideoContainer" class="hero-video-container">
+        <video id="bgVideo" autoplay muted loop playsinline preload="auto">
             <source src="{% static 'images/bg_1.mp4' %}" type="video/mp4">
         </video>
     </div>
 
     <!-- Konten Utama -->
-    <div class="about-content-wrapper">
+    <div id="contentWrapper" class="about-content-wrapper">
         <h1 class="display-1 fw-black text-pop-effect mb-0 anim-title">kagataudah</h1>
         
         <p class="lead w-50 text-pop-effect mt-2 mb-3 anim-desc d-none d-md-block">
@@ -268,9 +316,9 @@
         </p>
     </div>
 
-    <!-- Petunjuk Scroll ke Bawah dengan Blur Hitam -->
+    <!-- Petunjuk Scroll ke Bawah (Bisa Diklik) -->
     <div id="scrollHint" class="anim-scroll-hint-wrapper">
-        <div class="scroll-hint-box text-pop-effect anim-pulse-content text-center" style="font-size: 0.9rem;">
+        <div class="scroll-hint-box text-white text-pop-effect anim-pulse-content text-center" style="font-size: 0.9rem;">
             <span>Scroll down to explore more</span>
             <div class="mt-1">
                 <i class="bi bi-chevron-down"></i>
@@ -283,7 +331,7 @@
 <div class="scroll-spacer"></div>
 
 <!-- ================= INFORMASI LEBIH DETAIL DI BAWAHNYA ================= -->
-<div class="detail-wrapper">
+<div id="scrollDownTarget" class="detail-wrapper">
     <div class="blur-backdrop-section text-center">
         <div class="container" style="max-width: 700px;">
             <h2 class="display-6 fw-bold mb-3 text-pop-effect">Community & Support</h2>
@@ -291,7 +339,6 @@
                 Join our community or ask any questions regarding the app directly through the WhatsApp button below without needing to save the number.
             </p>
             <div>
-                <!-- Menggunakan URL Django Backend untuk menyembunyikan nomor asli -->
                 <a href="{% url 'redirect_wa' %}" target="_blank" class="btn-whatsapp text-pop-effect">
                     <i class="bi bi-whatsapp me-2"></i> Contact via WhatsApp
                 </a>
@@ -300,11 +347,126 @@
     </div>
 </div>
 
-<!-- Script Interaksi Scroll -->
+<!-- Script Loading, Download Nyata, & Auto-Play Video yang Solid -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        const loader = document.getElementById('page-loader');
+        const loaderBarFill = document.getElementById('loaderBarFill');
+        const loaderPercentage = document.getElementById('loaderPercentage');
+        const video = document.getElementById('bgVideo');
+        const heroVideoContainer = document.getElementById('heroVideoContainer');
+        const contentWrapper = document.getElementById('contentWrapper');
         const scrollHint = document.getElementById('scrollHint');
+        const scrollTarget = document.getElementById('scrollDownTarget');
 
+        let isDone = false;
+
+        function launchPage(videoBlobUrl) {
+            if (isDone) return;
+            isDone = true;
+
+            // Pastikan bar menunjuk ke 100% penuh sempurna
+            loaderBarFill.style.width = '100%';
+            loaderPercentage.innerText = '100%';
+
+            if (video && videoBlobUrl) {
+                video.src = videoBlobUrl;
+                
+                // Tunggu sampai video selesai mendekode dan benar-benar siap diputar tanpa jeda
+                video.oncanplaythrough = function() {
+                    video.play().catch(() => {});
+                    revealContent();
+                };
+
+                // Fallback pengaman jika event canplaythrough agak lambat terpanggil
+                setTimeout(function() {
+                    video.play().catch(() => {});
+                    revealContent();
+                }, 400);
+            } else {
+                revealContent();
+            }
+        }
+
+        function revealContent() {
+            loader.classList.add('loader-hidden');
+            heroVideoContainer.classList.add('play-entrance');
+            contentWrapper.classList.add('play-text-anim');
+        }
+
+        // Ambil path sumber video dari elemen <source>
+        const sourceElement = video ? video.querySelector('source') : null;
+        const videoUrl = sourceElement ? sourceElement.src : null;
+
+        if (videoUrl) {
+            sourceElement.src = '';
+            
+            // Unduh file video secara nyata byte-by-byte
+            fetch(videoUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Gagal mengunduh video');
+                    
+                    const contentLength = response.headers.get('content-length');
+                    if (!contentLength) {
+                        return response.blob().then(blob => launchPage(URL.createObjectURL(blob)));
+                    }
+
+                    const total = parseInt(contentLength, 10);
+                    let loaded = 0;
+                    const reader = response.body.getReader();
+                    const chunks = [];
+
+                    return new ReadableStream({
+                        start(controller) {
+                            function push() {
+                                reader.read().then(({ done, value }) => {
+                                    if (done) {
+                                        controller.close();
+                                        return;
+                                    }
+                                    loaded += value.length;
+                                    chunks.push(value);
+                                    controller.enqueue(value);
+
+                                    let percent = Math.floor((loaded / total) * 100);
+                                    loaderBarFill.style.width = percent + '%';
+                                    loaderPercentage.innerText = percent + '%';
+
+                                    push();
+                                }).catch(err => {
+                                    controller.error(err);
+                                });
+                            }
+                            push();
+                        }
+                    });
+                })
+                .then(stream => new Response(stream))
+                .then(response => response.blob())
+                .then(blob => {
+                    const videoBlobUrl = URL.createObjectURL(blob);
+                    launchPage(videoBlobUrl);
+                })
+                .catch(error => {
+                    console.error("Terjadi kesalahan saat mengunduh video:", error);
+                    launchPage(videoUrl);
+                });
+        } else {
+            launchPage(null);
+        }
+
+        // Fitur Klik pada Petunjuk Scroll untuk Turun ke Bawah
+        if (scrollHint && scrollTarget) {
+            scrollHint.addEventListener('click', function() {
+                // Berikan efek hilang yang sama persis seperti saat user scroll ke bawah
+                scrollHint.classList.add('scroll-hint-hidden');
+                
+                // Luncurkan halaman ke bawah secara mulus
+                scrollTarget.scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+
+        // Logika Interaksi Scroll Sembunyikan/Munculkan Hint
         window.addEventListener('wheel', function(e) {
             if (e.deltaY > 0) {
                 scrollHint.classList.add('scroll-hint-hidden');
@@ -319,7 +481,6 @@
 
         window.addEventListener('scroll', function() {
             let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-
             if (currentScroll <= 15) {
                 scrollHint.classList.remove('scroll-hint-hidden');
             } else {
@@ -328,5 +489,4 @@
         }, { passive: true });
     });
 </script>
-
 {% endblock %}
