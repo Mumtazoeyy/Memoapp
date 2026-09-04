@@ -1,9 +1,7 @@
 from pathlib import Path
-import os
-from django.contrib.messages import constants as messages
 import cloudinary
 import cloudinary.uploader
-import cloudinary.api
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
