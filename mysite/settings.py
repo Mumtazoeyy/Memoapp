@@ -1,6 +1,4 @@
 from pathlib import Path
-import cloudinary
-import cloudinary.uploader
 from django.contrib.messages import constants as messages
 
 # Build paths inside the project
@@ -27,8 +25,6 @@ INSTALLED_APPS = [
     'app_1',
     'django.contrib.sites',
     'django.contrib.sitemaps',
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 SITE_ID = 1
@@ -112,11 +108,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'mintcc002@gmail.com'
 EMAIL_HOST_PASSWORD = 'jlke msqh irfx pqur'
 DEFAULT_FROM_EMAIL = 'kagataudah <mintcc002@gmail.com>'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'q1pfuljk',
-    'API_KEY': '444929886645724',
-    'API_SECRET': 'I2yyeSXT21e26FPgqxot9vsK6nM',
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
