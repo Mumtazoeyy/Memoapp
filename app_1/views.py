@@ -470,6 +470,9 @@ def reading_add(request):
     if request.method == 'POST':
         status_id = request.POST.get('status')
         Type_id = request.POST.get('Type')
+        
+        # Ambil nilai synopsis dari POST, jika kosong beri default '-'
+        synopsis_text = request.POST.get('synopsis')
 
         new_item = ReadingItem.objects.create(
             user=request.user,
@@ -478,6 +481,7 @@ def reading_add(request):
             season=request.POST.get('season', '-'),
             rating=request.POST.get('rating', '-'), 
             notes=request.POST.get('notes', '-'),
+            synopsis=synopsis_text if synopsis_text else '-', # <-- Tambahkan ini
             image=request.FILES.get('image'), 
             status=Status.objects.filter(id=status_id).first(),
             Type=Type.objects.filter(id=Type_id).first()
@@ -535,7 +539,7 @@ def reading_edit(request, pk):
             item.tags.set([1])
 
         messages.success(request, 'Perubahan berhasil disimpan!')
-        return redirect(next_url) if next_url else redirect('reading_list')
+        return redirect('reading_item_detail', item_id=item.id)
 
     context = {
         'item': item,

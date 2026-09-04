@@ -87,7 +87,7 @@
 
             <div class="mb-4 detail-anim-4">
                 <h6 class="fw-bold text-uppercase mb-2">Synopsis</h6>
-                <p class="text-secondary" style="line-height: 1.6;">
+                <div class="text-secondary break-long-text" style="line-height: 1.6;">
                     {% if item.synopsis and item.synopsis != '-' %}
                         {{ item.synopsis|linebreaks }}
                     {% else %}
@@ -124,7 +124,7 @@
             <div class="mb-5 p-3 border border-dark bg-light detail-anim-6">
                 <h6 class="fw-bold text-uppercase mb-2">Notes</h6>
                 {% if item.notes and item.notes != "-" %}
-                    <p class="mb-0 text-dark">{{ item.notes|safe }}</p>
+                    <div class="mb-0 text-dark break-long-text">{{ item.notes|safe }}</div>
                 {% else %}
                     <p class="mb-0 text-muted fst-italic">No additional notes.</p>
                 {% endif %}
@@ -175,6 +175,17 @@
         border-color: #000 !important;
         transform: translateY(-3px);
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* CSS Pemaksa Teks Agar Tidak Over / Meluber */
+    .break-long-text, 
+    .break-long-text p, 
+    .break-long-text span {
+        word-break: break-all !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 </style>
 
