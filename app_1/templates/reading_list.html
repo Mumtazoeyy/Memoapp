@@ -113,6 +113,72 @@
         max-height: 500px; /* Tinggi maksimal yang cukup */
         opacity: 1;
     }
+
+    /* Smooth scroll saat tombol abjad diklik */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Penyesuaian offset scroll agar header kelompok tidak tertutup sticky header */
+    .group-header-row {
+        scroll-margin-top: 140px;
+    }
+
+    /* Container utama navigasi abjad */
+    .alphabet-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 6px 0;
+        border-top: 1px solid #e5e5e5;
+    }
+
+    /* Styling tombol-tombol huruf A-Z */
+    .alphabet-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    /* Efek hover pada tombol abjad */
+    .alphabet-link:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    /* Styling opsional jika huruf tidak memiliki item */
+    .alphabet-link.disabled {
+        color: #ccc;
+        cursor: default;
+        pointer-events: none;
+    }
+
+    /* Efek indikator gelap blur tipis di dalam kotak saja */
+    @keyframes thinDarkGlow {
+        0% {
+            box-shadow: inset 0 0 0px 0px rgba(0, 0, 0, 0);
+        }
+        40% {
+            /* Indikator tipis samar di tepi dalam kotak */
+            box-shadow: inset 0 0 8px 1px rgba(0, 0, 0, 0.35);
+        }
+        100% {
+            box-shadow: inset 0 0 0px 0px rgba(0, 0, 0, 0);
+        }
+    }
+
+    /* Terapkan hanya pada td di baris header */
+    .group-header-row.highlight-active td {
+        animation: thinDarkGlow 1.6s ease-in-out;
+    }
 </style>
 
 <div class="py-2 animate-fade-up">
@@ -170,6 +236,17 @@
         </div>
     </div>
 
+    <!-- FITUR NAVIGASI ABJAD A-Z -->
+        {% if reading_items %}
+            {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
+            
+            <div class="alphabet-nav mt-2">
+                {% for group in grouped_list %}
+                    <a href="#group-{{ group.grouper }}" class="alphabet-link">{{ group.grouper }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
     <div class="table-responsive w-100 d-block animate-fade-up delay-1">
         <!-- MODIFIKASI: Menghapus inline style width/table-layout agar dikontrol sepenuhnya oleh CSS @media di atas -->
         <table class="table align-middle custom-table-mono" style="border-collapse: separate; border-spacing: 0;">
@@ -192,7 +269,7 @@
 
                     {% with global_counter=0 %}
                         {% for group in grouped_list %}
-                            <tr>
+                            <tr id="group-{{ group.grouper }}" class="group-header-row">
                                 <td colspan="9" style="background-color: #f8f9fa; font-weight: bold; padding: 10px; border-bottom: 2px solid #000;">
                                     <div class="d-flex justify-content-between align-items-center w-100">
                                         <span class="ps-2">{{ group.grouper }} | ••••</span>
@@ -225,7 +302,7 @@
                                     </a>
                                 </td>
                                 <td class="text-end px-2">Ch. {{ item.chapters }}</td>
-                                <td class="text-end px-2">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
+                                <td class="text-end px-2 col-notes">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
                                 <td class="text-end px-2">{% if item.status and item.status.id != 1 %}{{ item.status.name }}{% else %}-{% endif %}</td>
                                 <td class="text-dark fw-bold text-end px-2">{{ item.rating }}</td>
                                 <td class="text-end px-2">{% if item.Type and item.Type.id != 1 %}{{ item.Type.name }}{% else %}-{% endif %}</td>
@@ -392,5 +469,39 @@
             }
         }
     }
+
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('.alphabet-link');
+        if (!link) return;
+
+        e.preventDefault();
+
+        const targetId = link.getAttribute('href');
+        if (!targetId || targetId === '#') return;
+
+        const targetElement = document.querySelector(targetId);
+
+        if (targetElement) {
+            targetElement.classList.remove('highlight-active');
+
+            targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+            const onScrollEnd = function() {
+                window.removeEventListener('scrollend', onScrollEnd);
+                
+                void targetElement.offsetWidth; // Reflow
+                targetElement.classList.add('highlight-active');
+            };
+
+            if ('onscrollend' in window) {
+                window.addEventListener('scrollend', onScrollEnd, { once: true });
+            } else {
+                setTimeout(onScrollEnd, 500);
+            }
+        }
+    });
 </script>
 {% endblock %}
