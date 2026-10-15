@@ -654,6 +654,9 @@ def toggle_favorite(request, pk):
 
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import Count, Sum, Avg, Q
+from datetime import timedelta, date
+import calendar
     
 @login_required
 def dashboard(request):
@@ -725,6 +728,67 @@ def dashboard(request):
     favorites_list = items.filter(favorit=True)
     top_rated = items.order_by('-rating')[:5]
 
+    # =========================================================
+    # TAMBAHAN: KALKULASI ANALITIK BARU (STREAK, PACE, STALLED, ONGOING, MONTHLY 1-31)
+    # =========================================================
+    today = timezone.now().date()
+    current_year = today.year
+    current_month = today.month
+    
+    # A. Monthly Activity Data (Tanggal 1 sampai 31)
+    days_in_month = calendar.monthrange(current_year, current_month)[1]
+    monthly_activity_data = []
+    max_count = 1
+    
+    for day_num in range(1, days_in_month + 1):
+        target_date = date(current_year, current_month, day_num)
+        count = items.filter(last_edited_at__date=target_date).count()
+        if count > max_count:
+            max_count = count
+        monthly_activity_data.append({
+            'day': day_num,
+            'count': count
+        })
+
+    max_scale = max(10, max_count)
+
+    # B. Reading Streak
+    streak_count = 0
+    check_date = today
+    while True:
+        has_activity = items.filter(last_edited_at__date=check_date).exists()
+        if has_activity:
+            streak_count += 1
+            check_date -= timedelta(days=1)
+        else:
+            if check_date == today:
+                check_date -= timedelta(days=1)
+                continue
+            break
+
+    # C. Weekly Velocity & Average Pace
+    start_of_week = timezone.now() - timedelta(days=7)
+    updates_this_week = items.filter(last_edited_at__gte=start_of_week).count()
+    avg_per_day = round(updates_this_week / 7, 1)
+
+    # D. Stalled / On-Hold Items (>30 Hari tanpa update atau status On-Hold)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    stalled_items = items.filter(
+        Q(status__name__iexact='On-Hold') | Q(last_edited_at__lt=thirty_days_ago)
+    ).distinct().order_by('last_edited_at')
+
+    # E. Completion Time Estimate untuk Series Ongoing
+    ongoing_items = items.filter(status__name__iexact='Ongoing')
+    for item in ongoing_items:
+        if avg_per_day > 0 and hasattr(item, 'total_chapters') and item.total_chapters:
+            remaining_ch = item.total_chapters - item.chapters
+            if remaining_ch > 0:
+                item.estimated_days = round(remaining_ch / avg_per_day)
+            else:
+                item.estimated_days = 0
+        else:
+            item.estimated_days = None
+
     context = {
         'total_titles': total_titles,
         'total_chapters': total_chapters,
@@ -736,12 +800,19 @@ def dashboard(request):
         'top_rated': top_rated,
         'favorites': favorites,
         'favorites_list': favorites_list,
-        # Data tambahan
-        'recently_added': recently_added, # Sudah terfilter 7 hari dari atas
-        'all_recently_added': all_recently_added, # Untuk modal
+        'recently_added': recently_added,
+        'all_recently_added': all_recently_added,
         'recently_updated': recently_updated,
         'all_recently_updated': all_recently_updated,
         'percentage_completed': percentage_completed,
+        # Variabel tambahan baru
+        'monthly_activity_data': monthly_activity_data,
+        'max_scale': max_scale,
+        'streak_count': streak_count,
+        'updates_this_week': updates_this_week,
+        'avg_per_day': avg_per_day,
+        'stalled_items': stalled_items,
+        'ongoing_items': ongoing_items,
     }
     return render(request, 'dashboard.html', context)
 

@@ -83,6 +83,181 @@
         </div>
     </div>
 
+    <!-- Sisi Grafik Bulanan (Lebar 3/4 layar / col-lg-9, sejajar dengan 3 kotak statistik di atasnya) -->
+    <div class="row g-2 mb-4">
+        
+        <!-- 1. Grafik Bulanan (Sisi Kiri - col-lg-9) -->
+        <div class="col-12 col-lg-9 anl-animate position-relative">
+            <div class="p-3 border border-dark bg-white h-100 d-flex flex-column justify-content-between" style="min-height: 250px;">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-2 mb-3">
+                        <h5 class="fw-black text-uppercase mb-0">Monthly Activity (1-31)</h5>
+                        <small class="text-muted fw-bold">PEAK: {{ max_scale }} / DAY</small>
+                    </div>
+                    
+                    <!-- Wrapper Grafik dengan Indikator Sumbu Y di Kiri -->
+                    <div class="position-relative w-100 px-2 my-2 d-flex align-items-center" style="height: 200px;">
+                        
+                        <!-- Indikator Angka Sumbu Y -->
+                        <div class="d-flex flex-column justify-content-between text-end pe-2 text-muted fw-bold" style="font-size: 0.5rem; height: 100%; width: 32px;">
+                            <span>{{ max_scale }}</span>
+                            <span>10</span>
+                            <span>5</span>
+                            <span>4</span>
+                            <span>3</span>
+                            <span>2</span>
+                            <span>1</span>
+                            <span>0</span>
+                        </div>
+
+                        <!-- Area SVG Grafik -->
+                        <div class="flex-grow-1 position-relative h-100">
+                            <svg viewBox="0 0 900 100" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
+                                <!-- Garis Grid Latar Belakang -->
+                                <line x1="0" y1="0" x2="900" y2="0" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
+                                <line x1="0" y1="14.28" x2="900" y2="14.28" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
+                                <line x1="0" y1="28.57" x2="900" y2="28.57" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
+                                <line x1="0" y1="42.85" x2="900" y2="42.85" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
+                                <line x1="0" y1="57.14" x2="900" y2="57.14" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
+                                <line x1="0" y1="71.42" x2="900" y2="71.42" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
+                                <line x1="0" y1="85.71" x2="900" y2="85.71" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
+                                <line x1="0" y1="100" x2="900" y2="100" stroke="#e9ecef" stroke-width="1" />
+
+                                <!-- Group Transform untuk Garis SVG -->
+                                <g transform="translate(0, 100) scale(1, -1)">
+                                    <polyline 
+                                        fill="none" 
+                                        stroke="#212529" 
+                                        stroke-width="1.5" 
+                                        stroke-linecap="round" 
+                                        stroke-linejoin="round"
+                                        vector-effect="non-scaling-stroke"
+                                        points="
+                                            {% for act in monthly_activity_data %}
+                                                {% widthratio forloop.counter0|add:forloop.counter0|add:1 62 900 %},{% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %} 
+                                            {% endfor %}
+                                        "
+                                    />
+                                </g>
+                            </svg>
+
+                            <!-- Titik Dot HTML (Hanya muncul jika act.count > 0) -->
+                            {% for act in monthly_activity_data %}
+                                {% if act.count > 0 %}
+                                <div class="monthly-data-point position-absolute" 
+                                    style="left: calc((({{ forloop.counter0 }} + 0.5) / 31) * 100%); bottom: calc({% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %}%); transform: translate(-50%, 50%); cursor: pointer; padding: 6px;"
+                                    data-day="{{ act.day }}"
+                                    data-count="{{ act.count }}">
+                                    <div style="width: 7px; height: 7px; background-color: #212529; border-radius: 50%;"></div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Label Sumbu X: Tanggal 1 sampai 31 -->
+                <div class="d-flex justify-content-between align-items-center ps-4 pe-1 pt-3 border-top border-light overflow-hidden">
+                    {% for act in monthly_activity_data %}
+                    <div class="text-center" style="font-size: 0.55rem; width: calc(100% / 31);">
+                        <span class="text-muted fw-bold">{{ act.day }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sisi Kanan: 3 Kartu Statistik Ditumpuk Vertikal (Ukuran Ditambah Sedikit) -->
+        <div class="col-12 col-lg-3 d-flex flex-column justify-content-between gap-1">
+            <!-- 1. Reading Streak -->
+            <div class="col-12 anl-animate">
+                <div class="border border-dark bg-white" style="padding: 10px 14px;">
+                    <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Current Streak</small>
+                    <div class="d-flex align-items-center justify-content-between my-1">
+                        <span class="fs-4 fw-black text-dark">{{ streak_count }} <small class="fs-6 text-muted fw-normal">Days</small></span>
+                        <span class="fs-5">🔥</span>
+                    </div>
+                    <small class="text-muted d-block" style="font-size: 0.7rem;">Consecutive days with updates</small>
+                </div>
+            </div>
+
+            <!-- 2. Reading Pace -->
+            <div class="col-12 anl-animate">
+                <div class="border border-dark bg-white" style="padding: 10px 14px;">
+                    <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Weekly Velocity</small>
+                    <div class="d-flex align-items-center justify-content-between my-1">
+                        <span class="fs-4 fw-black text-dark">{{ updates_this_week }} <small class="fs-6 text-muted fw-normal">Updates</small></span>
+                        <span class="badge bg-dark rounded-0 px-2 py-1 text-uppercase" style="font-size: 0.6rem;">HIGH SPEED</span>
+                    </div>
+                    <small class="text-muted d-block" style="font-size: 0.7rem;">Total activity in last 7 days</small>
+                </div>
+            </div>
+
+            <!-- 4. Stalled / Hiatus Watcher -->
+            <div class="col-12 anl-animate" data-bs-toggle="modal" data-bs-target="#stalledModal" style="cursor: pointer;">
+                <div class="border border-dark bg-white" style="padding: 10px 14px;">
+                    <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Stalled / On-Hold</small>
+                    <div class="d-flex align-items-center justify-content-between my-1">
+                        <span class="fs-4 fw-black text-dark">{{ stalled_items|length }} <small class="fs-6 text-muted fw-normal">Titles</small></span>
+                        <span class="badge bg-secondary rounded-0 px-2 py-1 text-uppercase" style="font-size: 0.6rem;">Inactive</span>
+                    </div>
+                    <small class="text-muted d-block fst-italic" style="font-size: 0.7rem;">Click to review stalled list</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elemen Tooltip Khusus -->
+    <div id="monthly-cursor-tooltip" class="tech-tooltip-fixed"></div>
+
+    <!-- Style CSS Khusus Tooltip -->
+    <style>
+        .tech-tooltip-fixed {
+            position: fixed; pointer-events: none; display: none; background: #fff;
+            padding: 6px 10px; border-left: 3px solid #000; font-family: monospace;
+            font-size: 11px; text-transform: uppercase; z-index: 9999;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2); color: #000;
+        }
+        .slash-line { color: #ccc; margin: 0 5px; }
+    </style>
+
+    <!-- Script Tooltip -->
+    <script>
+        (function() {
+            const tooltip = document.getElementById('monthly-cursor-tooltip');
+            const points = document.querySelectorAll('.monthly-data-point');
+
+            function showTooltip(event, name, count) {
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.clientX + 15) + 'px';
+                tooltip.style.top = (event.clientY + 15) + 'px';
+                tooltip.innerHTML = `<span>Date ${name} <span class="slash-line">/</span></span>
+                                    <span style="font-weight:bold; color:#000;">RESULT: ${count}</span>`;
+            }
+
+            function hideTooltip() {
+                tooltip.style.display = 'none';
+            }
+
+            points.forEach(point => {
+                point.addEventListener('mouseenter', function(event) {
+                    const day = this.getAttribute('data-day');
+                    const count = this.getAttribute('data-count');
+                    showTooltip(event, day, count);
+                });
+
+                point.addEventListener('mousemove', function(event) {
+                    tooltip.style.left = (event.clientX + 15) + 'px';
+                    tooltip.style.top = (event.clientY + 15) + 'px';
+                });
+
+                point.addEventListener('mouseleave', function() {
+                    hideTooltip();
+                });
+            });
+        })();
+    </script>
+
     <div class="row g-4 my-4 pt-2 pb-4 border-top border-bottom border-dark border-1 animate-fade-up delay-2">
         <div class="col-12 col-lg-6">
             <div class="d-flex align-items-start h-100">
@@ -129,11 +304,25 @@
     </div>
         
     <div class="row g-1 mt-2">
-        <!-- KOLOM KIRI -->
-        <div class="col-12 col-lg-6">
-            <!-- My Favorites -->
+        <div class="col-12">
+            <!-- Quick Stats -->
+            <div class="p-3 border border-dark mb-4 anl-animate">
+                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Quick Stats</h5>
+                <div class="row text-center">
+                    <div class="col-6 border-end border-dark">
+                        <div class="h2 fw-black">{{ total_titles }}</div>
+                        <div class="text-muted small">Total Series</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h2 fw-black">{{ percentage_completed }}%</div>
+                        <div class="text-muted small">Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorites -->
             <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#favoritesModal" style="cursor: pointer;">
-                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">My Favorites</h5>
+                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Favorites</h5>
                 <div class="list-group list-group-flush">
                     {% for item in favorites %}
                     <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
@@ -155,13 +344,13 @@
             </div>
 
             <!-- Recently Added -->
-            <div class="p-3 border border-dark anl-animate" data-bs-toggle="modal" data-bs-target="#recentlyAddedModal" style="cursor: pointer;">
+            <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#recentlyAddedModal" style="cursor: pointer;">
                 <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Recently Added</h5>
                 <div class="list-group list-group-flush">
                     {% for item in recently_added %}
                     <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
-                        <span class="fw-bold">{{ item.title }}</span>
-                        <small class="text-muted">Added recently</small>
+                        <span class="fw-bold text-truncate me-2" style="max-width: 70%;">{{ item.title }}</span>
+                        <small class="text-muted text-nowrap">{{ item.created_at|date:"d M Y" }}</small>
                     </div>
                     {% empty %}
                     <div class="text-muted small py-2">No items added.</div>
@@ -171,24 +360,6 @@
                 <div class="text-muted small mt-2 fst-italic">Click to see all recently added</div>
                 {% endif %}
             </div>
-        </div>
-
-        <!-- KOLOM KANAN -->
-        <div class="col-12 col-lg-6">
-            <!-- Quick Stats -->
-            <div class="p-3 border border-dark mb-4 anl-animate">
-                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Quick Stats</h5>
-                <div class="row text-center">
-                    <div class="col-6 border-end border-dark">
-                        <div class="h2 fw-black">{{ total_titles }}</div>
-                        <div class="text-muted small">Total Series</div>
-                    </div>
-                    <div class="col-6">
-                        <div class="h2 fw-black">{{ percentage_completed }}%</div>
-                        <div class="text-muted small">Completed</div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Recently Updated -->
             <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#recentlyUpdatedModal" style="cursor: pointer;">
@@ -196,9 +367,14 @@
                 <div class="list-group list-group-flush">
                     {% for item in recently_updated %}
                     <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
-                        <div>
-                            <div class="fw-bold">{{ item.title }}</div>
+                        <!-- Sisi Kiri: Judul -->
+                        <span class="fw-bold text-truncate me-2" style="max-width: 50%;">{{ item.title }}</span>
+                        
+                        <!-- Sisi Kanan: Chapter, Tanda Pemisah (|), dan Tanggal -->
+                        <div class="text-end text-nowrap">
                             <small class="text-muted">Ch. {{ item.chapters }}</small>
+                            <small class="text-muted mx-1">|</small>
+                            <small class="text-muted">{{ item.last_edited_at|date:"d M Y" }}</small>
                         </div>
                     </div>
                     {% empty %}
@@ -266,7 +442,7 @@
       <div class="modal-body">
         <div class="list-group list-group-flush">
             {% for item in favorites_list %}
-            <div class="list-group-item d-flex align-items-center">
+            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex align-items-center text-decoration-none text-dark">
                 <!-- Bintang di kiri -->
                 <div style="width: 20px; text-align: left; color: #ffc107; font-size: 0.8rem; margin-right: 10px;">
                     {% if item.favorit %}★{% endif %}
@@ -277,7 +453,7 @@
                 
                 <!-- Rating di kanan -->
                 <span class="ms-2">{{ item.rating }}</span>
-            </div>
+            </a>
             {% empty %}
             <div class="text-muted text-center py-3">No favorites found.</div>
             {% endfor %}
@@ -298,11 +474,11 @@
       <div class="modal-body">
         <div class="list-group list-group-flush">
             {% for item in all_recently_added %}
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-                <span class="fw-bold">{{ item.title }}</span>
+            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
+                <span class="fw-bold text-truncate me-2" style="max-width: 70%;">{{ item.title }}</span>
                 <!-- Menggunakan field created_at dari model ReadingItem -->
-                <small class="text-muted">{{ item.created_at|date:"d M Y" }}</small>
-            </div>
+                <small class="text-muted text-nowrap">{{ item.created_at|date:"d M Y" }}</small>
+            </a>
             {% empty %}
             <div class="text-muted text-center py-3">No items found.</div>
             {% endfor %}
@@ -323,14 +499,15 @@
       <div class="modal-body">
         <div class="list-group list-group-flush">
             {% for item in all_recently_updated %}
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="fw-bold">{{ item.title }}</div>
+            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
+                <!-- Sisi Kiri: Judul dan Chapter -->
+                <div class="text-truncate me-2" style="max-width: 70%;">
+                    <div class="fw-bold text-truncate">{{ item.title }}</div>
                     <small class="text-muted">Ch. {{ item.chapters }}</small>
                 </div>
-                <!-- Menggunakan field last_edited_at dari models.py -->
-                <small class="text-muted">{{ item.last_edited_at|date:"d M Y" }}</small>
-            </div>
+                <!-- Sisi Kanan: Tanggal Update -->
+                <small class="text-muted text-nowrap">{{ item.last_edited_at|date:"d M Y" }}</small>
+            </a>
             {% empty %}
             <div class="text-muted text-center py-3">No updates found.</div>
             {% endfor %}
@@ -341,5 +518,32 @@
 </div>
 
 <div id="cursor-tooltip" class="tech-tooltip-fixed"></div>
+
+<!-- Modal untuk Menampilkan Item Stalled / On-Hold -->
+<div class="modal fade" id="stalledModal" tabindex="-1" aria-labelledby="stalledModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="stalledModalLabel">Stalled & Inactive Series (>30 Days)</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="list-group list-group-flush">
+            {% for item in stalled_items %}
+            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
+                <div class="text-truncate me-2" style="max-width: 65%;">
+                    <div class="fw-bold text-truncate">{{ item.title }}</div>
+                    <small class="text-muted">Status: {{ item.status.name }}</small>
+                </div>
+                <small class="text-muted text-nowrap">{{ item.last_edited_at|date:"d M Y" }}</small>
+            </a>
+            {% empty %}
+            <div class="text-muted text-center py-3">No stalled items found. Great job keeping your collection active!</div>
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
