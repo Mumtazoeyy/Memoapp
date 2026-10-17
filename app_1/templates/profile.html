@@ -44,6 +44,12 @@
         animation: itemSlideUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.25s forwards;
     }
 
+    /* Staggered animation untuk bagian bawah agar urut mengalir */
+    .epic-sequential-group {
+        opacity: 0;
+        animation: itemSlideUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.4s forwards;
+    }
+
     .full-width-container { width: 100%; padding: 0 !important; }
     .profile-header { position: relative; margin-bottom: 80px; }
     .banner { width: 100%; height: 250px; background: #333; background-size: cover; background-position: center; }
@@ -140,14 +146,14 @@
         <div class="user-details mt-4">
             <h2>{{ user.profile.display_name|default:user.username }}</h2>
             <div class="text-muted d-flex align-items-center flex-wrap gap-2 mt-1">
-                <span>ID: {{ user.id }} • @{{ user.username }}</span>
+                <span>ID: {{ user.id }}@{{ user.username }}</span>
                 {% if user.profile.location %}
-                    <span>• 
+                    <span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin" style="vertical-align: -1px; margin-right: 2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                         {{ user.profile.location }}
                     </span>
                 {% endif %}
-                <span>• 
+                <span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar" style="vertical-align: -1px; margin-right: 2px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                     Joined {{ user.date_joined|date:"F Y" }}
                 </span>
@@ -162,59 +168,67 @@
     </div>
 </div>
 
-<!-- Section: Backup Reminder Settings -->
-<div class="row px-4 mt-5">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm rounded-0 p-4 bg-light">
-            <h5 class="fw-bold mb-2">Backup Reminder Settings</h5>
-            <p class="text-muted small mb-4">Set up automated email reminders to backup your reading list data periodically.</p>
-            
-            <form method="POST" action="{% url 'profile' %}">
-                {% csrf_token %}
-                <input type="hidden" name="update_reminder" value="1">
+<!-- Bungkus bagian bawah agar animasi fade-up menjadi satu kesatuan yang mengalir utuh dan berurutan -->
+<div class="epic-sequential-group">
+    <!-- HIJAU: TULISAN FITUR DALAM PROSES - HAPUS BARIS INI NANTI -->
+    <div class="mx-4 mt-5 mb-3 px-3 py-2 bg-success bg-opacity-10 border border-success text-success small fw-bold">
+        ⚠️ Feature is currently under development
+    </div>
 
-                <!-- Toggle Aktif / Nonaktif -->
-                <div class="form-check form-switch mb-4">
-                    <input class="form-check-input border-dark" type="checkbox" role="switch" id="enableReminder" name="is_reminder_active" value="1" {% if profile.reminder_email %}checked{% endif %} onchange="toggleReminderFields(this)">
-                    <label class="form-check-label fw-bold small text-dark" for="enableReminder" style="cursor: pointer;">
-                        Enable Backup Reminder Email
-                    </label>
-                </div>
+    <!-- Section: Backup Reminder Settings -->
+    <div class="row px-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-0 p-4 bg-light">
+                <h5 class="fw-bold mb-2">Backup Reminder Settings</h5>
+                <p class="text-muted small mb-4">Set up automated email reminders to backup your reading list data periodically.</p>
+                
+                <form method="POST" action="{% url 'profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="update_reminder" value="1">
 
-                <!-- Bagian Input yang akan aktif jika dicentang -->
-                <div id="reminderFields" style="{% if not profile.reminder_email %}display: none;{% endif %}">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-uppercase">Reminder Email</label>
-                        <input type="email" name="reminder_email" id="reminderEmailInput" class="form-control rounded-0 bg-white border-dark" value="{{ profile.reminder_email|default:user.email }}" placeholder="Enter email for notifications">
+                    <!-- Toggle Aktif / Nonaktif -->
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input border-dark" type="checkbox" role="switch" id="enableReminder" name="is_reminder_active" value="1" {% if profile.reminder_email %}checked{% endif %} onchange="toggleReminderFields(this)">
+                        <label class="form-check-label fw-bold small text-dark" for="enableReminder" style="cursor: pointer;">
+                            Enable Backup Reminder Email
+                        </label>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-uppercase d-block">Reminder Frequency</label>
-                        <div class="d-flex flex-wrap gap-4 mt-2">
-                            <div class="form-check">
-                                <input class="form-check-input rounded-0 border-dark" type="radio" name="reminder_frequency" id="freq_7days" value="7" {% if profile.reminder_frequency == 7 %}checked{% endif %}>
-                                <label class="form-check-label small fw-bold" for="freq_7days" style="cursor: pointer;">
-                                    Every 7 Days
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input rounded-0 border-dark" type="radio" name="reminder_frequency" id="freq_30days" value="30" {% if profile.reminder_frequency == 30 or not profile.reminder_frequency %}checked{% endif %}>
-                                <label class="form-check-label small fw-bold" for="freq_30days" style="cursor: pointer;">
-                                    Every 1 Month
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input rounded-0 border-dark" type="radio" name="reminder_frequency" id="freq_90days" value="90" {% if profile.reminder_frequency == 90 %}checked{% endif %}>
-                                <label class="form-check-label small fw-bold" for="freq_90days" style="cursor: pointer;">
-                                    Every 3 Months
-                                </label>
+                    <!-- Bagian Input yang akan aktif jika dicentang -->
+                    <div id="reminderFields" style="{% if not profile.reminder_email %}display: none;{% endif %}">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-uppercase">Reminder Email</label>
+                            <input type="email" name="reminder_email" id="reminderEmailInput" class="form-control rounded-0 bg-white border-dark" value="{{ profile.reminder_email|default:user.email }}" placeholder="Enter email for notifications">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-uppercase d-block">Reminder Frequency</label>
+                            <div class="d-flex flex-wrap gap-4 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input rounded-0 border-dark" type="radio" name="reminder_frequency" id="freq_7days" value="7" {% if profile.reminder_frequency == 7 %}checked{% endif %}>
+                                    <label class="form-check-label small fw-bold" for="freq_7days" style="cursor: pointer;">
+                                        Every 7 Days
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input rounded-0 border-dark" type="radio" name="reminder_frequency" id="freq_30days" value="30" {% if profile.reminder_frequency == 30 or not profile.reminder_frequency %}checked{% endif %}>
+                                    <label class="form-check-label small fw-bold" for="freq_30days" style="cursor: pointer;">
+                                        Every 1 Month
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input rounded-0 border-dark" type="radio" name="reminder_frequency" id="freq_90days" value="90" {% if profile.reminder_frequency == 90 %}checked{% endif %}>
+                                    <label class="form-check-label small fw-bold" for="freq_90days" style="cursor: pointer;">
+                                        Every 3 Months
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <button type="submit" class="btn btn-dark rounded-0 px-4 mt-2" style="font-size: 14px; font-weight: 600;">Save Reminder Preferences</button>
-            </form>
+                    <button type="submit" class="btn btn-dark rounded-0 px-4 mt-2" style="font-size: 14px; font-weight: 600;">Save Reminder Preferences</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

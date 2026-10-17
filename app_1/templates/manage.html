@@ -25,12 +25,15 @@
     <div class="row">
         <!-- Akses Admin -->
         <div class="col-md-6 mb-4 animate-box-1">
-            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0">
+            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0 d-flex flex-column">
                 <h4 class="fw-bold">Admin Access</h4>
-                <p class="text-muted">Manage internal application databases and secure system configurations.</p>
-                <div>
-                    <a href="https://mintchocolatte.pythonanywhere.com/admin/" target="_blank" class="btn-custom btn-epic-effect">
-                        Open Django Admin
+                <p class="text-muted flex-grow-1">Manage internal application databases and secure system configurations.</p>
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <a href="https://mintchocolatte.pythonanywhere.com/admin/" target="_blank" class="btn-custom btn-epic-effect text-center text-decoration-none">
+                        Open Django Admin server (PythonAnywhere)
+                    </a>
+                    <a href="http://127.0.0.1:8000/admin" target="_blank" class="btn-custom btn-epic-effect text-center text-decoration-none">
+                        Open Django Admin server (Local)
                     </a>
                 </div>
             </div>
@@ -38,11 +41,11 @@
         
         <!-- Server Web -->
         <div class="col-md-6 mb-4 animate-box-2">
-            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0">
+            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0 d-flex flex-column">
                 <h4 class="fw-bold">Web Server</h4>
-                <p class="text-muted">Manage and monitor your application server on PythonAnywhere (MintChocolatte).</p>
-                <div>
-                    <a href="https://www.pythonanywhere.com/user/MintChocolatte/webapps/#tab_id_mintchocolatte_pythonanywhere_com" target="_blank" class="btn-custom btn-epic-effect">
+                <p class="text-muted flex-grow-1">Manage and monitor your application server on PythonAnywhere (MintChocolatte).</p>
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <a href="https://www.pythonanywhere.com/user/MintChocolatte/webapps/#tab_id_mintchocolatte_pythonanywhere_com" target="_blank" class="btn-custom btn-epic-effect text-center text-decoration-none">
                         Open WebApp Dashboard
                     </a>
                 </div>
@@ -51,11 +54,11 @@
 
         <!-- Fitur Admin (Sinkronisasi) -->
         <div class="col-md-6 mb-4 animate-box-3">
-            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0">
+            <div class="card p-4 shadow-sm card-hover-effect h-100 border-dark rounded-0 d-flex flex-column">
                 <h4 class="fw-bold">Admin Features</h4>
-                <p class="text-muted">Perform user data synchronization from local environment to the master database.</p>
-                <div>
-                    <button type="button" class="btn-custom btn-epic-effect" data-bs-toggle="modal" data-bs-target="#syncModal">
+                <p class="text-muted flex-grow-1">Perform user data synchronization from local environment to the master database.</p>
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <button type="button" class="btn-custom btn-epic-effect text-center w-100" data-bs-toggle="modal" data-bs-target="#syncModal">
                         Sync User Data to Master
                     </button>
                 </div>
