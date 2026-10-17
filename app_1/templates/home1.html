@@ -5,13 +5,13 @@
 </head>
 
 <div class="container-fluid px-4">
-    <!-- Card with bounce & zoom-in animation, width adjusts to full screen -->
+    <!-- SECTION 1: HERO DASHBOARD (HOME 1) -->
     <div class="dashboard-card py-4 py-md-5 my-4 border border-dark rounded-0 position-relative home-card-epic w-100">
         <div class="position-absolute top-0 start-0 w-100 border-top border-dark" style="border-width: 1px !important;"></div>
 
         <div class="text-center px-3 px-md-4 mt-3">
             <span class="d-inline-block border border-dark bg-white text-dark rounded-0 px-3 py-1 mb-3 mb-md-4 text-uppercase fw-bold epic-badge" style="font-size: 0.75rem; letter-spacing: 1px;">
-                Library Dashboard
+                Library Space
             </span>
 
             <h1 class="fw-bold text-dark mb-3 fs-2 fs-md-1 display-6 epic-title" style="letter-spacing: -1px;">
@@ -19,43 +19,100 @@
             </h1>
             
             <p class="text-muted fs-6 fs-md-5 mb-4 mb-md-5 mx-auto epic-desc" style="max-width: 600px; line-height: 1.6;">
-                Your reading control center. Track chapter progress, manage favorite series status, and keep your comic or manga collection neatly organized.
+                Your reading space. Keep track of chapters, organize your favorite series, and manage your comics or manga collection easily.
             </p>
 
             <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-5 mx-auto epic-buttons" style="max-width: 500px;">
                 <a href="{% url 'library' %}" class="btn btn-dark btn-pro rounded-0 px-4 py-3 fw-bold w-100 btn-epic-effect" style="letter-spacing: 1px;">
-                    + ADD LIST
+                    + ADD NEW
                 </a>
                 <a href="{% url 'reading_list' %}" class="btn btn-outline-dark btn-pro rounded-0 px-4 py-3 fw-bold w-100 btn-epic-effect-outline" style="letter-spacing: 1px;">
-                    VIEW COLLECTION
+                    MY COLLECTION
                 </a>
             </div>
 
             <div class="row text-center mx-auto gy-4 epic-stats" style="max-width: 650px;">
                 <div class="col-12 col-md-4 position-relative stat-item">
-                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Status</span>
-                    <span class="fw-bold fs-5">Track Progress</span>
+                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Reading Progress</span>
+                    <span class="fw-bold fs-5">Track Chapters</span>
                     <hr class="d-md-none border-dark opacity-25 w-25 mx-auto mt-4 mb-0">
                     <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y border-end border-dark opacity-50" style="height: 50%;"></div>
                 </div>
                 
                 <div class="col-12 col-md-4 position-relative stat-item">
-                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Organize</span>
-                    <span class="fw-bold fs-5">Manage Library</span>
+                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Organization</span>
+                    <span class="fw-bold fs-5">Manage Books</span>
                     <hr class="d-md-none border-dark opacity-25 w-25 mx-auto mt-4 mb-0">
                     <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y border-end border-dark opacity-50" style="height: 50%;"></div>
                 </div>
                 
                 <div class="col-12 col-md-4 stat-item">
-                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Rating</span>
-                    <span class="fw-bold fs-5">Review Series</span>
+                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Your Thoughts</span>
+                    <span class="fw-bold fs-5">Rate & Review</span>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<hr class="text-muted opacity-25 my-5">
+    
+
+    <!-- SECTION 2: DAILY INSPIRATION & QUICK NOTES (HOME 2) -->
+    <div class="row g-4 align-items-stretch mb-5">
+        
+        <!-- Spotlight Card: Direct Link & Context to Reading Dashboard Stats -->
+        <div class="col-12 col-lg-8 epic-home2-left">
+            <div class="card rounded-0 border border-dark p-4 p-md-5 h-100 bg-white position-relative custom-brutalist-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="badge bg-dark text-white rounded-0 px-3 py-1 text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1px;">
+                        Analytics Overview
+                    </span>
+                    <span class="text-muted small fw-bold">Live Statistics</span>
+                </div>
+                
+                <h3 class="fw-black text-dark mb-3 fs-3 fs-md-2" style="letter-spacing: -0.5px;">
+                    Track your reading streaks, category breakdown, and recent chapter updates.
+                </h3>
+                
+                <p class="text-muted mb-4" style="line-height: 1.6; max-width: 600px;">
+                    Check out your overall reading history, monitor weekly updates, view category distribution (Manhwa, Manhua, Manga), and manage your top favorites directly on the dashboard.
+                </p>
+
+                <div class="mt-auto d-flex flex-wrap gap-3">
+                    <a href="http://127.0.0.1:8000/reading/dashboard/" class="btn btn-dark rounded-0 px-4 py-2 fw-bold btn-epic-effect">
+                        Open Reading Dashboard →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Memo Card (Tidak diubah sama sekali) -->
+        <div class="col-12 col-lg-4 epic-home2-right">
+            <div class="card rounded-0 border border-dark p-4 h-100 bg-light custom-brutalist-card d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="badge border border-dark bg-white text-dark rounded-0 px-2 py-1 text-uppercase fw-bold" style="font-size: 0.65rem;">
+                        Quick Reminder
+                    </span>
+                    <span class="text-muted small">Personal Note</span>
+                </div>
+
+                <h5 class="fw-bold mb-2 text-dark">Reading Goals</h5>
+                <p class="text-muted small mb-3">Keep up your reading pace this week. Don't forget to mark completed series!</p>
+
+                <div class="bg-white border border-dark p-3 rounded-0 mb-3 flex-grow-1">
+                    <p class="mb-0 small text-dark fw-semibold">
+                        📌 "Finish current story arc before starting a new series."
+                    </p>
+                </div>
+
+                <div class="mt-auto">
+                    <a href="#" class="btn btn-outline-dark rounded-0 w-100 fw-bold btn-epic-effect-outline py-2">
+                        + Add Note
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -79,7 +136,7 @@
     });
 </script>
 
-<!-- Styling Animasi Konsisten dengan Halaman Login -->
+<!-- Styling Animasi (Clean Brutalist - Tanpa Box-Shadow) -->
 <style>
     /* 1. Main Card Animation: Zoom-in with bounce effect */
     @keyframes epicCardIntro {
@@ -104,7 +161,7 @@
         animation: epicCardIntro 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    /* 2. Staggered Fade & Slide Animation with Fast Tempo */
+    /* 2. Staggered Fade & Slide Animation */
     @keyframes itemSlideUp {
         from {
             opacity: 0;
@@ -141,37 +198,47 @@
         animation: itemSlideUp 0.4s ease 0.47s forwards;
     }
 
-    /* 3. Epic Effect on Main Button (Glow & Lift) */
+    .epic-home2-left {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.55s forwards;
+    }
+
+    .epic-home2-right {
+        opacity: 0;
+        animation: itemSlideUp 0.4s ease 0.63s forwards;
+    }
+
+    /* 3. Brutalist Button Hover Effect (Lift-up tanpa Shadow) */
     .btn-epic-effect {
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
     }
     .btn-epic-effect:hover {
         background-color: #000;
         color: #fff;
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
     }
     .btn-epic-effect:active {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transform: translateY(0);
     }
 
     /* 4. Outline Button Effect */
     .btn-epic-effect-outline {
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
     }
     .btn-epic-effect-outline:hover {
         background-color: #000;
         color: #fff !important;
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
     }
     .btn-epic-effect-outline:active {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transform: translateY(0);
+    }
+
+    /* 5. Custom Card Hover Effect (Pure Flat Lift) */
+    .custom-brutalist-card {
+        transition: transform 0.25s ease;
+    }
+    .custom-brutalist-card:hover {
+        transform: translateY(-3px);
     }
 </style>
