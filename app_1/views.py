@@ -653,11 +653,12 @@ def toggle_favorite(request, pk):
     return redirect('reading_item_detail', item_id=pk)
 
 from django.utils import timezone
-from datetime import timedelta
-from django.db.models import Count, Sum, Avg, Q
 from datetime import timedelta, date
+from django.db.models import Count, Sum, Avg, Q
 import calendar
-    
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 @login_required
 def dashboard(request):
 
@@ -729,13 +730,54 @@ def dashboard(request):
     top_rated = items.order_by('-rating')[:5]
 
     # =========================================================
-    # TAMBAHAN: KALKULASI ANALITIK BARU (STREAK, PACE, STALLED, ONGOING, MONTHLY 1-31)
+    # TAMBAHAN: KALKULASI ANALITIK BARU (STREAK, PACE, STALLED, ONGOING, MONTHLY 1-31 & HISTORY 3 BULAN)
     # =========================================================
     today = timezone.now().date()
-    current_year = today.year
-    current_month = today.month
     
-    # A. Monthly Activity Data (Tanggal 1 sampai 31)
+    # Check jika user meminta melihat bulan tertentu dari query parameter ?month=YYYY-MM
+    requested_month_str = request.GET.get('month')
+    if requested_month_str:
+        try:
+            parts = requested_month_str.split('-')
+            current_year = int(parts[0])
+            current_month = int(parts[1])
+            target_date_obj = date(current_year, current_month, 1)
+        except (ValueError, IndexError):
+            current_year = today.year
+            current_month = today.month
+            target_date_obj = today
+    else:
+        current_year = today.year
+        current_month = today.month
+        target_date_obj = today
+
+    current_month_name = target_date_obj.strftime('%B %Y')
+
+    # Buat daftar 3 bulan terakhir untuk ditampilkan di Modal History
+    last_three_months = []
+    for i in range(3):
+        m_target = today.month - i
+        y_target = today.year
+        while m_target <= 0:
+            m_target += 12
+            y_target -= 1
+            
+        m_date = date(y_target, m_target, 1)
+        m_code = m_date.strftime('%Y-%m')
+        m_name = m_date.strftime('%B %Y')
+        
+        m_days = calendar.monthrange(y_target, m_target)[1]
+        m_start = date(y_target, m_target, 1)
+        m_end = date(y_target, m_target, m_days)
+        m_total_activity = items.filter(last_edited_at__date__gte=m_start, last_edited_at__date__lte=m_end).count()
+        
+        last_three_months.append({
+            'code': m_code,
+            'name': m_name,
+            'total_activity': m_total_activity
+        })
+    
+    # A. Monthly Activity Data (Sesuai Bulan yang Terpilih)
     days_in_month = calendar.monthrange(current_year, current_month)[1]
     monthly_activity_data = []
     max_count = 1
@@ -813,6 +855,9 @@ def dashboard(request):
         'avg_per_day': avg_per_day,
         'stalled_items': stalled_items,
         'ongoing_items': ongoing_items,
+        # Variabel pendukung Modal 3 Bulan Terakhir
+        'current_month_name': current_month_name,
+        'last_three_months': last_three_months,
     }
     return render(request, 'dashboard.html', context)
 

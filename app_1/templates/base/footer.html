@@ -15,7 +15,18 @@
     }
 </style>
 
-<footer class="footer-mono py-4 mt-auto {% if request.resolver_match.url_name == 'about' %}dark-theme{% endif %}">
+<!-- Pembatas "End Here" dengan jarak top & bottom yang disesuaikan -->
+<div class="container px-0 mt-5 mb-4 animate-fade-up delay-2">
+    <div class="position-relative text-center">
+        <hr class="border-dark border-1 opacity-100 m-0">
+        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 fw-black text-uppercase text-muted" style="font-size: 0.7rem; letter-spacing: 1px;">
+            End Here
+        </span>
+    </div>
+</div>
+
+<!-- Footer dengan margin top pas -->
+<footer class="footer-mono py-4 mt-4 {% if request.resolver_match.url_name == 'about' %}dark-theme{% endif %}">
     <div class="container text-center">
         <p class="mb-0 text-muted small">
             &copy; {% now "Y" %} <span class="fw-bold text-dark">MemoApp</span>. All rights reserved.
