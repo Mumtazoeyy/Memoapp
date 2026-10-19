@@ -471,17 +471,28 @@ def reading_add(request):
         status_id = request.POST.get('status')
         Type_id = request.POST.get('Type')
         
-        # Ambil nilai synopsis dari POST, jika kosong beri default '-'
         synopsis_text = request.POST.get('synopsis')
+
+        # --- VALIDASI & AMANKAN FIELD CHAPTERS ---
+        raw_chapters = request.POST.get('chapters', '0')
+        try:
+            # Pastikan hanya mengambil angka dan batasi agar tidak overflow
+            chapters_val = int(raw_chapters) if str(raw_chapters).isdigit() else 0
+            # Berikan batas pengaman maksimal misal 9 digit (999.999.999) agar aman dari Overflow
+            if chapters_val > 999999999:
+                chapters_val = 0
+        except (ValueError, TypeError):
+            chapters_val = 0
+        # ----------------------------------------
 
         new_item = ReadingItem.objects.create(
             user=request.user,
             title=request.POST.get('title'),
-            chapters=request.POST.get('chapters', 0),
+            chapters=chapters_val,  # <--- Gunakan variabel yang sudah divalidasi aman
             season=request.POST.get('season', '-'),
             rating=request.POST.get('rating', '-'), 
             notes=request.POST.get('notes', '-'),
-            synopsis=synopsis_text if synopsis_text else '-', # <-- Tambahkan ini
+            synopsis=synopsis_text if synopsis_text else '-',
             image=request.FILES.get('image'), 
             status=Status.objects.filter(id=status_id).first(),
             Type=Type.objects.filter(id=Type_id).first()
@@ -492,7 +503,6 @@ def reading_add(request):
         if selected_tags:
             new_item.tags.set(selected_tags)
         else:
-            # Jika user tidak memilih tag sama sekali, otomatis set ke Tag ID 1 (No Tag)
             new_item.tags.set([1])
 
         messages.success(request, 'Data berhasil ditambahkan!')
@@ -513,7 +523,18 @@ def reading_edit(request, pk):
 
     if request.method == 'POST':
         item.title = request.POST.get('title')
-        item.chapters = request.POST.get('chapters')
+        
+        # --- VALIDASI & AMANKAN FIELD CHAPTERS ---
+        raw_chapters = request.POST.get('chapters', '0')
+        try:
+            chapters_val = int(raw_chapters) if str(raw_chapters).isdigit() else 0
+            if chapters_val > 999999999:
+                chapters_val = 0
+        except (ValueError, TypeError):
+            chapters_val = 0
+        item.chapters = chapters_val
+        # ----------------------------------------
+
         item.season = request.POST.get('season')
         item.rating = request.POST.get('rating')
         item.notes = request.POST.get('notes')
@@ -602,7 +623,18 @@ def reading_edit_bulk(request):
             for item in items:
                 # Menggunakan request.POST.get untuk mengambil data
                 item.title = request.POST.get(f'title_{item.id}', item.title)
-                item.chapters = request.POST.get(f'chapters_{item.id}', 0)
+                
+                # --- VALIDASI & AMANKAN FIELD CHAPTERS BULK ---
+                raw_chapters = request.POST.get(f'chapters_{item.id}', 0)
+                try:
+                    chapters_val = int(raw_chapters) if str(raw_chapters).isdigit() else 0
+                    if chapters_val > 999999999:
+                        chapters_val = 0
+                except (ValueError, TypeError):
+                    chapters_val = 0
+                item.chapters = chapters_val
+                # ---------------------------------------------
+
                 item.season = request.POST.get(f'season_{item.id}', '-')
                 item.rating = request.POST.get(f'rating_{item.id}', '-')
                 item.notes = request.POST.get(f'notes_{item.id}', '-')

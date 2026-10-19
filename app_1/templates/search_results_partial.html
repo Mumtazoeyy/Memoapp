@@ -2,7 +2,9 @@
     {% for log in histories %}
     <tr class="animate-fade-up" style="animation-delay: {{ forloop.counter0|add:2 }}00ms;">
         <td class="text-center" style="width: 40px;">{{ forloop.counter }}</td>
-        <td class="fw-bold">{{ log.filename }}</td>
+        <td class="fw-bold col-title" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ log.filename }}">
+            {{ log.filename }}
+        </td>
         <td>{{ log.imported_at|date:"d M Y, H:i" }}</td>
         <td>{{ log.total_items }}</td>
         <td class="text-center">
@@ -22,6 +24,7 @@
 {% else %}
     {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
     {% for group in grouped_list %}
+        <!-- Baris Header Grup -->
         <tr id="group-{{ group.grouper }}" class="group-header-row">
             <td colspan="9" style="background-color: #f8f9fa; font-weight: bold; padding: 10px; border-bottom: 2px solid #000;">
                 <div class="d-flex justify-content-between align-items-center w-100">
@@ -36,27 +39,47 @@
             </td>
         </tr>
 
+        <!-- Baris Item Data -->
         {% for item in group.list %}
         <tr class="animate-fade-up" style="animation-delay: {{ forloop.counter0|add:2 }}00ms;">
-            <td style="width: 60px;">
-                <div class="d-flex" style="width: 100%; align-items: center;">
-                    <div class="fw-medium text-muted" style="flex: 1; text-align: center;">
-                        {{ forloop.counter }}
-                    </div>
-                    <div style="width: 20px; text-align: right; color: #ffc107; font-size: 0.8rem;">
-                        {% if item.favorit %}★{% endif %}
-                    </div>
+            <td class="text-center">
+                <div class="d-flex justify-content-center align-items-center gap-1">
+                    <span class="fw-medium text-muted">{{ forloop.counter }}</span>
+                    <span style="color: #ffc107; font-size: 0.8rem;">{% if item.favorit %}★{% endif %}</span>
                 </div>
             </td>
-            <td class="fw-bold text-dark text-start">
-                <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none">{{ item.title }}</a>
+            
+            <!-- 1. TITLE (Diberi Ellipsis) -->
+            <td class="fw-bold text-dark text-start col-title" style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ item.title }}">
+                <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none d-block overflow-hidden text-truncate">
+                    {{ item.title }}
+                </a>
             </td>
-            <td class="text-end px-2">Ch. {{ item.chapters }}</td>
-            <td class="text-end px-2 col-season" title="{{ item.season|default:'' }}">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
+            
+            <!-- 2. CHAPTERS (Diberi Ellipsis) -->
+            <td class="text-end px-2 col-chapters" style="max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Ch. {{ item.chapters }}">
+                Ch. {{ item.chapters }}
+            </td>
+            
+            <!-- 3. SEASON (Diberi Ellipsis) -->
+            <td class="text-end px-2 col-season" style="max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{% if item.season %}{{ item.season }}{% else %}-{% endif %}">
+                {% if item.season %}{{ item.season }}{% else %}-{% endif %}
+            </td>
+            
+            <!-- Status (Dibiarkan biasa) -->
             <td class="text-end px-2">{% if item.status and item.status.id != 1 %}{{ item.status.name }}{% else %}-{% endif %}</td>
+            
+            <!-- Rating (Dibiarkan biasa) -->
             <td class="text-dark fw-bold text-end px-2">{{ item.rating }}</td>
+            
+            <!-- Type (Dibiarkan biasa) -->
             <td class="text-end px-2">{% if item.Type and item.Type.id != 1 %}{{ item.Type.name }}{% else %}-{% endif %}</td>
-            <td class="text-end px-2 col-notes" title="{{ item.notes|default:'' }}">{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}</td>
+            
+            <!-- 4. NOTES (Diberi Ellipsis) -->
+            <td class="text-end px-2 col-notes" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}">
+                {% if item.notes %}{{ item.notes }}{% else %}-{% endif %}
+            </td>
+            
             <td class="text-center">
                 <input type="checkbox" class="item-checkbox" value="{{ item.id }}">
             </td>
@@ -71,48 +94,19 @@
 
 <script>
 document.querySelectorAll('.group-checkbox').forEach(groupCb => {
+    groupCb.removeEventListener('change', arguments.callee);
     groupCb.addEventListener('change', function() {
-        // 1. Mencari baris (tr) tempat checkbox grup berada
         const row = this.closest('tr'); 
         let nextRow = row.nextElementSibling;
         
-        // 2. Loop terus ke bawah selama baris berikutnya BUKAN header grup baru
         while (nextRow && !nextRow.querySelector('td[colspan="9"]')) {
             const itemCb = nextRow.querySelector('.item-checkbox');
-            if (itemCb) itemCb.checked = this.checked; // Sinkronisasi status checkbox
+            if (itemCb) itemCb.checked = this.checked;
             nextRow = nextRow.nextElementSibling;
         }
-        updateBulkButtons();
+        if (typeof updateBulkButtons === 'function') {
+            updateBulkButtons();
+        }
     });
 });
 </script>
-
-<style>
-    .animate-fade-up {
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeUp 0.5s forwards;
-    }
-
-    @keyframes fadeUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Wajib dipasang di tag <table> pembungkusnya agar kolom tidak saling dorong */
-    .custom-table-mono {
-        table-layout: fixed !important;
-        width: 100% !important;
-    }
-
-    /* Memotong teks Season & Notes jika melampaui lebar kolom */
-    .custom-table-mono td.col-season,
-    .custom-table-mono td.col-notes {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        max-width: 0 !important;
-    }
-</style>

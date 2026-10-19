@@ -4,17 +4,17 @@
     <link rel="stylesheet" href="{% static 'css/style_home.css' %}">
 </head>
 
-<div class="container-fluid px-4">
+<div class="container-fluid px-2 px-md-4">
     <!-- SECTION 1: HERO DASHBOARD (HOME 1) -->
-    <div class="dashboard-card py-4 py-md-5 my-4 border border-dark rounded-0 position-relative home-card-epic w-100">
+    <div class="dashboard-card py-4 py-md-5 my-3 my-md-4 border border-dark rounded-0 position-relative home-card-epic w-100">
         <div class="position-absolute top-0 start-0 w-100 border-top border-dark" style="border-width: 1px !important;"></div>
 
-        <div class="text-center px-3 px-md-4 mt-3">
+        <div class="text-center px-2 px-md-4 mt-3">
             <span class="d-inline-block border border-dark bg-white text-dark rounded-0 px-3 py-1 mb-3 mb-md-4 text-uppercase fw-bold epic-badge" style="font-size: 0.75rem; letter-spacing: 1px;">
                 Library Space
             </span>
 
-            <h1 class="fw-bold text-dark mb-3 fs-2 fs-md-1 display-6 epic-title" style="letter-spacing: -1px;">
+            <h1 class="fw-bold text-dark mb-3 fs-3 fs-md-1 display-6 epic-title" style="letter-spacing: -1px;">
                 <span id="dynamic-greeting">Hello</span>, Let's Continue Reading.
             </h1>
             
@@ -54,14 +54,12 @@
         </div>
     </div>
 
-    
-
     <!-- SECTION 2: DAILY INSPIRATION & QUICK NOTES (HOME 2) -->
-    <div class="row g-4 align-items-stretch mb-5">
+    <div class="row g-3 g-md-4 align-items-stretch mb-5">
         
-        <!-- Spotlight Card: Direct Link & Context to Reading Dashboard Stats -->
+        <!-- Spotlight Card -->
         <div class="col-12 col-lg-8 epic-home2-left">
-            <div class="card rounded-0 border border-dark p-4 p-md-5 h-100 bg-white position-relative custom-brutalist-card">
+            <div class="card rounded-0 border border-dark p-3 p-md-5 h-100 bg-white position-relative custom-brutalist-card">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="badge bg-dark text-white rounded-0 px-3 py-1 text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1px;">
                         Analytics Overview
@@ -69,7 +67,7 @@
                     <span class="text-muted small fw-bold">Live Statistics</span>
                 </div>
                 
-                <h3 class="fw-black text-dark mb-3 fs-3 fs-md-2" style="letter-spacing: -0.5px;">
+                <h3 class="fw-black text-dark mb-3 fs-4 fs-md-2" style="letter-spacing: -0.5px;">
                     Track your reading streaks, category breakdown, and recent chapter updates.
                 </h3>
                 
@@ -78,16 +76,16 @@
                 </p>
 
                 <div class="mt-auto d-flex flex-wrap gap-3">
-                    <a href="http://127.0.0.1:8000/reading/dashboard/" class="btn btn-dark rounded-0 px-4 py-2 fw-bold btn-epic-effect">
+                    <a href="http://127.0.0.1:8000/reading/dashboard/" class="btn btn-dark rounded-0 px-4 py-2 fw-bold btn-epic-effect w-100 w-sm-auto">
                         Open Reading Dashboard →
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Memo Card (Tidak diubah sama sekali) -->
+        <!-- Quick Memo Card (Dengan tombol + Add Note) -->
         <div class="col-12 col-lg-4 epic-home2-right">
-            <div class="card rounded-0 border border-dark p-4 h-100 bg-light custom-brutalist-card d-flex flex-column">
+            <div class="card rounded-0 border border-dark p-3 p-md-4 h-100 bg-light custom-brutalist-card d-flex flex-column">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="badge border border-dark bg-white text-dark rounded-0 px-2 py-1 text-uppercase fw-bold" style="font-size: 0.65rem;">
                         Quick Reminder
@@ -104,6 +102,7 @@
                     </p>
                 </div>
 
+                <!-- Tombol + Add Note -->
                 <div class="mt-auto">
                     <a href="#" class="btn btn-outline-dark rounded-0 w-100 fw-bold btn-epic-effect-outline py-2">
                         + Add Note
@@ -113,6 +112,7 @@
         </div>
 
     </div>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -136,9 +136,8 @@
     });
 </script>
 
-<!-- Styling Animasi (Clean Brutalist - Tanpa Box-Shadow) -->
 <style>
-    /* 1. Main Card Animation: Zoom-in with bounce effect */
+    /* 1. Main Card Animation */
     @keyframes epicCardIntro {
         0% {
             opacity: 0;
@@ -173,42 +172,15 @@
         }
     }
 
-    .epic-badge {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.15s forwards;
-    }
+    .epic-badge { opacity: 0; animation: itemSlideUp 0.4s ease 0.15s forwards; }
+    .epic-title { opacity: 0; animation: itemSlideUp 0.4s ease 0.23s forwards; }
+    .epic-desc { opacity: 0; animation: itemSlideUp 0.4s ease 0.31s forwards; }
+    .epic-buttons { opacity: 0; animation: itemSlideUp 0.4s ease 0.39s forwards; }
+    .epic-stats { opacity: 0; animation: itemSlideUp 0.4s ease 0.47s forwards; }
+    .epic-home2-left { opacity: 0; animation: itemSlideUp 0.4s ease 0.55s forwards; }
+    .epic-home2-right { opacity: 0; animation: itemSlideUp 0.4s ease 0.63s forwards; }
 
-    .epic-title {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.23s forwards;
-    }
-
-    .epic-desc {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.31s forwards;
-    }
-
-    .epic-buttons {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.39s forwards;
-    }
-
-    .epic-stats {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.47s forwards;
-    }
-
-    .epic-home2-left {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.55s forwards;
-    }
-
-    .epic-home2-right {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.63s forwards;
-    }
-
-    /* 3. Brutalist Button Hover Effect (Lift-up tanpa Shadow) */
+    /* 3. Brutalist Button Hover Effect */
     .btn-epic-effect {
         transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
     }
@@ -217,9 +189,7 @@
         color: #fff;
         transform: translateY(-3px);
     }
-    .btn-epic-effect:active {
-        transform: translateY(0);
-    }
+    .btn-epic-effect:active { transform: translateY(0); }
 
     /* 4. Outline Button Effect */
     .btn-epic-effect-outline {
@@ -230,15 +200,19 @@
         color: #fff !important;
         transform: translateY(-3px);
     }
-    .btn-epic-effect-outline:active {
-        transform: translateY(0);
-    }
+    .btn-epic-effect-outline:active { transform: translateY(0); }
 
-    /* 5. Custom Card Hover Effect (Pure Flat Lift) */
+    /* 5. Custom Card Hover Effect */
     .custom-brutalist-card {
         transition: transform 0.25s ease;
     }
     .custom-brutalist-card:hover {
         transform: translateY(-3px);
+    }
+
+    @media (max-width: 575.98px) {
+        .w-sm-auto {
+            width: 100% !important;
+        }
     }
 </style>
