@@ -38,6 +38,8 @@ urlpatterns = [
     path('library/add-to-list/<int:pk>/', views.add_to_reading_list, name='add_to_reading_list'),
     path('library/remove-from-list/<int:pk>/', views.remove_from_reading_list, name='remove_from_reading_list'),
 
+    path('notes/', views.notes_view, name='notes'),
+
     # Profile & Auth
     path('profile/', views.profile, name='profile'),
 

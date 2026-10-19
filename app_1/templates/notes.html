@@ -1,0 +1,266 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Pembungkus Utama -->
+<div class="container-fluid px-2 px-md-4 edit-reading-epic-wrapper">
+    
+    <!-- HEADER SECTION -->
+    <div class="row mb-4 fade-up-1">
+        <div class="col-12">
+            <div class="border border-dark bg-white p-3 p-md-4 rounded-0 position-relative custom-brutalist-card">
+                <span class="d-inline-block border border-dark bg-dark text-white rounded-0 px-3 py-1 mb-2 text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">
+                    Personal Space
+                </span>
+                <h1 class="fw-bold text-dark mb-1 fs-3 fs-md-2">My Reading Notes</h1>
+                <p class="text-muted mb-0 small">Catat ide, pemikiran, atau target bacaan harianmu di sini.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT: FORM & LIST NOTES -->
+    <div class="row g-4 align-items-start">
+        
+        <!-- KOLOM KIRI: FORM TAMBAH NOTE -->
+        <div class="col-12 col-lg-4 fade-up-2">
+            <div class="card rounded-0 border border-dark p-3 p-md-4 bg-light custom-brutalist-card">
+                <h5 class="fw-bold text-dark mb-3 border-bottom border-dark pb-2">Tambah Catatan Baru</h5>
+                
+                <form id="note-form">
+                    <div class="mb-3">
+                        <label for="note-title" class="form-label small fw-bold text-uppercase">Judul Catatan</label>
+                        <input type="text" class="form-control rounded-0 border-dark shadow-none" id="note-title" placeholder="Contoh: Target Minggu Ini" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="note-content" class="form-label small fw-bold text-uppercase">Isi Catatan</label>
+                        <textarea class="form-control rounded-0 border-dark shadow-none" id="note-content" rows="4" placeholder="Tulis catatan atau kutipan di sini..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-dark rounded-0 w-100 fw-bold btn-epic-effect py-2" style="letter-spacing: 1px;">
+                        SIMPAN CATATAN
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- KOLOM KANAN: DAFTAR NOTES -->
+        <div class="col-12 col-lg-8 fade-up-3">
+            <div class="card rounded-0 border border-dark p-3 p-md-4 bg-white custom-brutalist-card">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark pb-2">
+                    <h5 class="fw-bold text-dark mb-0">Daftar Catatan (<span id="note-count">0</span>)</h5>
+                    <button id="clear-all-trigger" class="btn btn-sm btn-outline-danger rounded-0 fw-bold" style="font-size: 0.75rem;">Hapus Semua</button>
+                </div>
+
+                <!-- Container List Note -->
+                <div id="notes-container" class="row g-3">
+                    <div class="col-12" id="empty-state">
+                        <div class="text-center py-5 border border-dark bg-light">
+                            <p class="text-muted mb-0 small">Belum ada catatan yang tersimpan. Yuk, buat catatan pertamamu!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI HAPUS SATU CATATAN -->
+<div class="modal fade" id="deleteSingleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0 border border-dark shadow-none">
+            <div class="modal-header rounded-0 border-bottom border-dark bg-light py-2">
+                <h6 class="modal-title fw-bold text-uppercase text-dark mb-0">Konfirmasi Hapus</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="mb-0 text-dark">Apakah Anda yakin ingin menghapus catatan ini?</p>
+            </div>
+            <div class="modal-footer rounded-0 border-top border-dark pt-2 pb-2">
+                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 fw-bold px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="button" id="confirm-delete-single" class="btn btn-sm btn-danger rounded-0 fw-bold px-3">Hapus</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI HAPUS SEMUA CATATAN -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0 border border-dark shadow-none">
+            <div class="modal-header rounded-0 border-bottom border-dark bg-light py-2">
+                <h6 class="modal-title fw-bold text-uppercase text-dark mb-0">Hapus Semua Catatan</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="mb-0 text-dark">Apakah Anda yakin ingin menghapus <strong>seluruh catatan</strong>? Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="modal-footer rounded-0 border-top border-dark pt-2 pb-2">
+                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 fw-bold px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="button" id="confirm-delete-all" class="btn btn-sm btn-danger rounded-0 fw-bold px-3">Hapus Semua</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT INTERAKTIF -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("note-form");
+        const titleInput = document.getElementById("note-title");
+        const contentInput = document.getElementById("note-content");
+        const notesContainer = document.getElementById("notes-container");
+        const noteCount = document.getElementById("note-count");
+        const clearAllTrigger = document.getElementById("clear-all-trigger");
+        
+        // Modal Instances (Bootstrap)
+        const deleteSingleModal = new bootstrap.Modal(document.getElementById('deleteSingleModal'));
+        const deleteAllModal = new bootstrap.Modal(document.getElementById('deleteAllModal'));
+        
+        let noteIdToDelete = null;
+
+        // Ambil data dari LocalStorage
+        let notes = JSON.parse(localStorage.getItem("my_reading_notes")) || [];
+        renderNotes();
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            const newNote = {
+                id: Date.now(),
+                title: titleInput.value.trim(),
+                content: contentInput.value.trim(),
+                date: new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })
+            };
+
+            notes.unshift(newNote);
+            localStorage.setItem("my_reading_notes", JSON.stringify(notes));
+
+            titleInput.value = "";
+            contentInput.value = "";
+            renderNotes();
+        });
+
+        function renderNotes() {
+            notesContainer.innerHTML = "";
+            noteCount.innerText = notes.length;
+
+            if (notes.length === 0) {
+                notesContainer.innerHTML = `
+                    <div class="col-12" id="empty-state">
+                        <div class="text-center py-5 border border-dark bg-light">
+                            <p class="text-muted mb-0 small">Belum ada catatan yang tersimpan. Yuk, buat catatan pertamamu!</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            notes.forEach((note) => {
+                const col = document.createElement("div");
+                col.className = "col-12 col-md-6 fade-up-item";
+                col.innerHTML = `
+                    <div class="border border-dark p-3 h-100 bg-light position-relative d-flex flex-column justify-content-between custom-brutalist-card">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 80%;">${escapeHtml(note.title)}</h6>
+                                <button onclick="openDeleteModal(${note.id})" class="btn btn-sm p-0 text-muted hover-danger" title="Hapus" style="line-height: 1; font-size: 0.8rem; font-weight: bold;">DEL</button>
+                            </div>
+                            <p class="text-muted small mb-3" style="white-space: pre-wrap; word-break: break-word;">${escapeHtml(note.content)}</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-top border-dark pt-2 mt-auto">
+                            <span class="text-muted" style="font-size: 0.65rem;">${note.date}</span>
+                            <span class="badge bg-dark text-white rounded-0" style="font-size: 0.6rem; letter-spacing: 0.5px;">NOTE</span>
+                        </div>
+                    </div>
+                `;
+                notesContainer.appendChild(col);
+            });
+        }
+
+        // Buka Modal Hapus 1 Catatan
+        window.openDeleteModal = function(id) {
+            noteIdToDelete = id;
+            deleteSingleModal.show();
+        };
+
+        // Konfirmasi Hapus 1 Catatan
+        document.getElementById("confirm-delete-single").addEventListener("click", function() {
+            if (noteIdToDelete !== null) {
+                notes = notes.filter(note => note.id !== noteIdToDelete);
+                localStorage.setItem("my_reading_notes", JSON.stringify(notes));
+                renderNotes();
+                noteIdToDelete = null;
+                deleteSingleModal.hide();
+            }
+        });
+
+        // Buka Modal Hapus Semua
+        clearAllTrigger.addEventListener("click", function() {
+            if (notes.length > 0) {
+                deleteAllModal.show();
+            }
+        });
+
+        // Konfirmasi Hapus Semua Catatan
+        document.getElementById("confirm-delete-all").addEventListener("click", function() {
+            notes = [];
+            localStorage.removeItem("my_reading_notes");
+            renderNotes();
+            deleteAllModal.hide();
+        });
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    });
+</script>
+
+<style>
+    /* Pengaturan Utama Mepet Ke Atas */
+    .edit-reading-epic-wrapper {
+        margin-top: -30px !important; 
+        padding-top: 0 !important;
+    }
+
+    /* Animasi Fade Up */
+    @keyframes fadeUpAnim {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-up-1 { opacity: 0; animation: fadeUpAnim 0.5s ease 0.05s forwards; }
+    .fade-up-2 { opacity: 0; animation: fadeUpAnim 0.5s ease 0.15s forwards; }
+    .fade-up-3 { opacity: 0; animation: fadeUpAnim 0.5s ease 0.25s forwards; }
+    .fade-up-item { animation: fadeUpAnim 0.4s ease forwards; }
+
+    /* Custom Brutalist Card & Hover Effects */
+    .custom-brutalist-card {
+        transition: transform 0.2s ease;
+    }
+    .custom-brutalist-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-epic-effect {
+        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+    .btn-epic-effect:hover {
+        background-color: #000;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .hover-danger:hover {
+        color: #dc3545 !important;
+    }
+</style>
+{% endblock %}

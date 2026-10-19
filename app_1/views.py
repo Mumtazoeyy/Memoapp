@@ -1373,3 +1373,13 @@ def trigger_reminder(request):
         call_command('send_reminders')
         return HttpResponse("Pengingat berhasil diproses.")
     return HttpResponse("Akses ditolak.", status=403)
+
+from django.shortcuts import render
+
+def notes_view(request):
+    """
+    View untuk merender halaman catatan (Notes).
+    Catatan disimpan di sisi client menggunakan LocalStorage, 
+    jadi view ini cukup merender template HTML-nya saja.
+    """
+    return render(request, 'notes.html') # Sesuaikan nama file HTML Anda jika berbeda

@@ -4,13 +4,14 @@
     <link rel="stylesheet" href="{% static 'css/style_home.css' %}">
 </head>
 
-<div class="container-fluid px-2 px-md-4">
+<!-- Pembungkus utama dengan class edit-reading-epic-wrapper -->
+<div class="container-fluid px-2 px-md-4 edit-reading-epic-wrapper">
     <!-- SECTION 1: HERO DASHBOARD (HOME 1) -->
     <div class="dashboard-card py-4 py-md-5 my-3 my-md-4 border border-dark rounded-0 position-relative home-card-epic w-100">
         <div class="position-absolute top-0 start-0 w-100 border-top border-dark" style="border-width: 1px !important;"></div>
 
         <div class="text-center px-2 px-md-4 mt-3">
-            <span class="d-inline-block border border-dark bg-white text-dark rounded-0 px-3 py-1 mb-3 mb-md-4 text-uppercase fw-bold epic-badge" style="font-size: 0.75rem; letter-spacing: 1px;">
+            <span class="d-inline-block border border-dark bg-white text-dark rounded-0 px-3 py-1 mb-3 mb-md-4 text-uppercase fw-bold epic-badge mobile-breadcrumb" style="font-size: 0.75rem; letter-spacing: 1px;">
                 Library Space
             </span>
 
@@ -83,7 +84,7 @@
             </div>
         </div>
 
-        <!-- Quick Memo Card (Dengan tombol + Add Note) -->
+        <!-- Quick Memo Card -->
         <div class="col-12 col-lg-4 epic-home2-right">
             <div class="card rounded-0 border border-dark p-3 p-md-4 h-100 bg-light custom-brutalist-card d-flex flex-column">
                 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -104,7 +105,7 @@
 
                 <!-- Tombol + Add Note -->
                 <div class="mt-auto">
-                    <a href="#" class="btn btn-outline-dark rounded-0 w-100 fw-bold btn-epic-effect-outline py-2">
+                    <a href="{% url 'notes' %}" class="btn btn-outline-dark rounded-0 w-100 fw-bold btn-epic-effect-outline py-2">
                         + Add Note
                     </a>
                 </div>
@@ -137,6 +138,12 @@
 </script>
 
 <style>
+    /* Pengaturan Utama Desktop & Umum agar Mepet -30px ke atas */
+    .edit-reading-epic-wrapper {
+        margin-top: -30px !important; 
+        padding-top: 0 !important;
+    }
+
     /* 1. Main Card Animation */
     @keyframes epicCardIntro {
         0% {
@@ -213,6 +220,22 @@
     @media (max-width: 575.98px) {
         .w-sm-auto {
             width: 100% !important;
+        }
+    }
+
+    /* Pengaturan Tambahan Khusus Mobile */
+    @media (max-width: 767.98px) {
+        .mobile-breadcrumb {
+            padding-top: 0 !important;
+            margin-bottom: 0.2rem !important;
+        }
+
+        .mobile-cover-img {
+            max-width: 150px !important;
+            width: 100% !important;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
         }
     }
 </style>
