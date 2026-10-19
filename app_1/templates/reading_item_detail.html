@@ -7,58 +7,66 @@
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-<div class="container py-2 detail-epic-wrapper">
+<div class="container-fluid px-3 px-md-4 pt-0 mt-0 detail-epic-wrapper">
     
-    <nav aria-label="breadcrumb" class="mb-4 detail-anim-1">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Reading List</a></li>
-            <li class="breadcrumb-item active fw-bold" aria-current="page">{{ item.title }}</li>
+    <!-- Breadcrumb disesuaikan agar teks panjang tidak turun berantakan -->
+    <nav aria-label="breadcrumb" class="mb-3 detail-anim-1 pt-2 mobile-breadcrumb">
+        <ol class="breadcrumb" style="flex-wrap: nowrap; overflow: hidden;">
+            <li class="breadcrumb-item flex-shrink-0"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Reading List</a></li>
+            <li class="breadcrumb-item active fw-bold text-truncate" aria-current="page" style="min-width: 0;">{{ item.title }}</li>
         </ol>
     </nav>
 
-    <div class="row g-5">
-        <div class="col-md-3 detail-anim-2">
-            <!-- Kontainer ini diatur agar cover tetap sticky tapi tombol di bawahnya tidak terpengaruh z-index -->
-            <div class="cover-container mb-3">
+    <!-- Diubah menjadi col-12 di mobile agar tidak sempit, dan kembali col-3/col-9 di desktop -->
+    <div class="row g-4">
+        <div class="col-12 col-md-3 detail-anim-2">
+            <div class="cover-container mb-3 text-center text-md-start">
                 {% if item.image %}
-                    <img src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm" style="aspect-ratio: 3/4; object-fit: cover; width: 100%;" alt="{{ item.title }}">
+                    <img src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm mobile-cover-img" style="aspect-ratio: 3/4; object-fit: cover;" alt="{{ item.title }}">
                 {% else %}
-                    <div class="bg-light d-flex align-items-center justify-content-center border border-dark shadow-sm" style="aspect-ratio: 3/4; width: 100%;">
+                    <div class="bg-light d-flex align-items-center justify-content-center border border-dark shadow-sm mobile-cover-img" style="aspect-ratio: 3/4;">
                         <span class="text-muted small">No Cover</span>
                     </div>
                 {% endif %}
             </div>
 
-            <!-- Tombol Favorit sekarang berada di luar div yang mungkin memiliki efek sticky, sehingga aman dari tumpang tindih -->
-            <form action="{% url 'toggle_favorite' item.id %}" method="POST">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-dark rounded-0 w-100 d-flex align-items-center justify-content-center gap-2 btn-epic-effect" 
-                        style="border-width: 1px;">
-                    {% if item.favorit %}
-                        <span style="color: #ffc107; font-size: 1.2rem;">★</span> 
-                        <span class="fw-bold">Favorited</span>
-                    {% else %}
-                        <span style="font-size: 1.2rem;">☆</span> 
-                        <span>Add to Favorites</span>
-                    {% endif %}
-                </button>
-            </form>
+            <!-- Tombol Aksi: Sejajar di mobile, ke bawah di desktop -->
+            <div class="d-flex flex-row flex-md-column gap-2 action-buttons-container mb-1 mb-md-0">
+                <form action="{% url 'toggle_favorite' item.id %}" method="POST" class="flex-fill m-0 p-0">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-dark rounded-0 w-100 d-flex align-items-center justify-content-center gap-1 btn-epic-effect py-1 py-md-2" 
+                            style="border: 1px solid #000; font-size: 0.85rem; box-sizing: border-box; min-height: 36px;">
+                        {% if item.favorit %}
+                            <span style="color: #ffc107; font-size: 1rem; line-height: 1;">★</span> 
+                            <span class="fw-bold">Favorited</span>
+                        {% else %}
+                            <span style="font-size: 1rem; line-height: 1;">☆</span> 
+                            <span>Favorite</span>
+                        {% endif %}
+                    </button>
+                </form>
+
+                <a href="http://127.0.0.1:8000/reading/dashboard/" class="btn btn-dark rounded-0 w-100 d-flex align-items-center justify-content-center gap-1 btn-epic-effect py-1 py-md-2 flex-fill text-decoration-none" 
+                style="border: 1px solid #000; font-size: 0.85rem; box-sizing: border-box; min-height: 36px;">
+                    <span>Dashboard</span>
+                </a>
+            </div>
         </div>
 
-        <div class="col-md-9">
+        <div class="col-12 col-md-9">
             <div class="mb-4 pb-3 border-bottom border-dark detail-anim-3">
                 <!-- Judul dengan Ikon Copy -->
                 <div class="d-flex align-items-center gap-2 mb-2">
-                    <h1 class="fw-bold mb-0" style="letter-spacing: -1px;" id="itemTitle">{{ item.title }}</h1>
+                    <h1 class="fw-bold mb-0 fs-2 fs-md-1" style="letter-spacing: -1px; word-break: break-word; overflow-wrap: anywhere;" id="itemTitle">{{ item.title }}</h1>
                     
-                    <button type="button" class="btn btn-sm btn-outline-secondary border-0 p-1 btn-epic-effect" 
+                    <button type="button" class="btn btn-sm btn-outline-secondary border-0 p-1 btn-epic-effect flex-shrink-0" 
                             onclick="copyTitle()" title="Copy Title" 
                             style="cursor: pointer; line-height: 1;">
                         <i class="bi bi-files" style="font-size: 1.25rem;"></i>
                     </button>
                 </div>
 
-                <!-- Metadata Boxes (Status, Type, ID) dengan gaya kotak seperti Readers -->
+                <!-- Metadata Boxes (Status, Type, ID) -->
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     {% if item.status and item.status.name %}
                         <div class="bg-light border border-dark px-3 py-1 small fw-bold d-flex align-items-center gap-1">
@@ -76,7 +84,7 @@
                 </div>
             </div>
 
-            <!-- Tags Container diposisikan di atas Synopsis -->
+            <!-- Tags Container -->
             {% if item.tags.all %}
                 <div class="d-flex flex-wrap gap-1 mb-4 detail-anim-3-5">
                     {% for tag in item.tags.all %}
@@ -93,18 +101,18 @@
                     {% else %}
                         No synopsis is currently available for this title.
                     {% endif %}
-                </p>
+                </div>
             </div>
 
             <div class="row mb-5 detail-anim-5">
                 <div class="col-12">
-                    <table class="table border-dark">
+                    <table class="table border-dark table-layout-fixed">
                         <tbody>
-                            <tr><th class="bg-light" style="width: 200px;">Chapters</th><td>{{ item.chapters|default:"Not specified" }}</td></tr>
+                            <tr><th class="bg-light" style="width: 200px;">Chapters</th><td class="break-long-text">{{ item.chapters|default:"Not specified" }}</td></tr>
                             {% if item.season and item.season != "-" %}
-                                <tr><th class="bg-light">Season</th><td>{{ item.season }}</td></tr>
+                                <tr><th class="bg-light">Season</th><td class="break-long-text">{{ item.season }}</td></tr>
                             {% endif %}
-                            <tr><th class="bg-light">Rating</th><td class="fw-bold">{{ item.rating|default:"-" }}</td></tr>
+                            <tr><th class="bg-light">Rating</th><td class="fw-bold break-long-text">{{ item.rating|default:"-" }}</td></tr>
                             <tr><th class="bg-light">Added</th><td>{{ item.created_at|date:"d M Y" }}</td></tr>
                             <tr>
                                 <th class="bg-light">Last Edited</th>
@@ -130,7 +138,7 @@
                 {% endif %}
             </div>
 
-            <div class="d-flex gap-2 detail-anim-7">
+            <div class="d-flex gap-2 detail-anim-7 pb-4">
                 <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 btn-pro btn-outline-pro btn-epic-effect">Back</a>
                 <a href="{% url 'reading_edit' item.id %}" class="btn btn-dark rounded-0 px-4 btn-pro btn-dark-pro btn-epic-effect">Edit Entry</a>
             </div>
@@ -138,7 +146,6 @@
     </div>
 </div>
 
-<!-- Styling Animasi Baris per Baris (Staggered Animation) dengan Tempo Konsisten -->
 <style>
     @keyframes itemSlideUp {
         from {
@@ -155,7 +162,6 @@
         animation: itemSlideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    /* Mengatur kemunculan satu per satu secara berurutan dengan delay berbeda */
     .detail-anim-1 { opacity: 0; animation: itemSlideUp 0.4s ease 0.1s forwards; }
     .detail-anim-2 { opacity: 0; animation: itemSlideUp 0.4s ease 0.18s forwards; }
     .detail-anim-3 { opacity: 0; animation: itemSlideUp 0.4s ease 0.26s forwards; }
@@ -165,7 +171,6 @@
     .detail-anim-6 { opacity: 0; animation: itemSlideUp 0.4s ease 0.50s forwards; }
     .detail-anim-7 { opacity: 0; animation: itemSlideUp 0.4s ease 0.58s forwards; }
 
-    /* Efek interaktif tombol yang selaras */
     .btn-epic-effect {
         transition: all 0.3s ease;
     }
@@ -177,15 +182,55 @@
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
     }
 
-    /* CSS Pemaksa Teks Agar Tidak Over / Meluber */
+    /* Penanganan teks panjang tanpa spasi agar turun baris dengan aman tanpa merusak layout */
     .break-long-text, 
     .break-long-text p, 
-    .break-long-text span {
-        word-break: break-all !important;
-        overflow-wrap: break-word !important;
+    .break-long-text span,
+    .table td {
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
         white-space: normal !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
+    }
+
+    /* Pengaturan Responsif Khusus Mobile */
+    @media (max-width: 767.98px) {
+        /* Menarik jarak atas konten agar sangat dekat/mepet ke navbar */
+        .detail-epic-wrapper {
+            margin-top: -30px !important;
+            padding-top: 0 !important;
+        }
+
+        .mobile-breadcrumb {
+            padding-top: 0 !important;
+            margin-bottom: 0.2rem !important;
+        }
+
+        .mobile-cover-img {
+            max-width: 150px !important;
+            width: 100% !important;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        .action-buttons-container button,
+        .action-buttons-container a {
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+            font-size: 0.8rem !important;
+        }
+
+        /* Merapatkan jarak di bawah kontainer tombol agar dekat dengan Title */
+        .action-buttons-container {
+            margin-bottom: 0.5rem !important; 
+        }
+
+        /* Merapatkan jarak bagian atas box judul utama */
+        .col-12.col-md-9 > div:first-child {
+            margin-top: -10px !important; 
+        }
     }
 </style>
 
