@@ -7,15 +7,15 @@
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
-<!-- Kontainer dibuat selebar layar dengan padding responsif -->
-<div class="container-fluid py-3 px-4 edit-reading-epic-wrapper">
+<!-- Kontainer menggunakan container-fluid px-3 px-md-4 pt-0 mt-0 -->
+<div class="container-fluid px-3 px-md-4 pt-0 mt-0 edit-reading-epic-wrapper">
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         
-        <nav aria-label="breadcrumb" class="mb-2 anim-row delay-1">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Library</a></li>
-                <li class="breadcrumb-item active fw-bold" aria-current="page">Editing: {{ item.title }}</li>
+        <nav aria-label="breadcrumb" class="mb-2 anim-row delay-1 mobile-breadcrumb">
+            <ol class="breadcrumb" style="flex-wrap: nowrap; overflow: hidden;">
+                <li class="breadcrumb-item flex-shrink-0"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Library</a></li>
+                <li class="breadcrumb-item active fw-bold text-truncate" aria-current="page" style="min-width: 0;">Editing: {{ item.title }}</li>
             </ol>
         </nav>
 
@@ -24,10 +24,10 @@
             <div class="col-lg-3 col-md-4">
                 <div class="text-center anim-row delay-2">
                     {% if item.image %}
-                        <img id="img-preview" src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm" style="aspect-ratio: 3/4; object-fit: cover; width: 100%;" alt="{{ item.title }}">
+                        <img id="img-preview" src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm mobile-cover-img" style="aspect-ratio: 3/4; object-fit: cover; width: 100%;" alt="{{ item.title }}">
                     {% else %}
-                        <img id="img-preview" src="#" class="img-fluid border border-dark shadow-sm d-none" alt="Preview" style="aspect-ratio: 3/4; width: 100%;">
-                        <div id="no-img-placeholder" class="bg-light d-flex align-items-center justify-content-center border border-dark" style="aspect-ratio: 3/4; width: 100%;">
+                        <img id="img-preview" src="#" class="img-fluid border border-dark shadow-sm d-none mobile-cover-img" alt="Preview" style="aspect-ratio: 3/4; width: 100%;">
+                        <div id="no-img-placeholder" class="bg-light d-flex align-items-center justify-content-center border border-dark mobile-cover-img" style="aspect-ratio: 3/4; width: 100%;">
                             <span class="text-muted small">No Cover</span>
                         </div>
                     {% endif %}
@@ -42,7 +42,7 @@
             <div class="col-lg-9 col-md-8">
                 <div class="mb-3 anim-row delay-1">
                     <label for="title" class="form-label fw-bold text-dark small text-uppercase">Title</label>
-                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="title" name="title" value="{{ item.title|default_if_none:'' }}" placeholder="Enter title here..." required>
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100 break-long-text" id="title" name="title" value="{{ item.title|default_if_none:'' }}" placeholder="Enter title here..." required>
                 </div>
 
                 <!-- Chapters (Baris Sendiri & Lebar Penuh) -->
@@ -61,7 +61,7 @@
                 <!-- Season / Volume (Baris Sendiri & Lebar Penuh) -->
                 <div class="mb-3 anim-row delay-3">
                     <label for="season" class="form-label fw-bold text-dark small text-uppercase">Season / Volume</label>
-                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="season" name="season" value="{{ item.season|default:'' }}" placeholder="None" style="height: 40px;">
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100 break-long-text" id="season" name="season" value="{{ item.season|default:'' }}" placeholder="None" style="height: 40px;">
                 </div>
 
                 <div class="mb-3 anim-row delay-4">
@@ -76,15 +76,22 @@
                 <div class="mb-3 anim-row delay-5">
                     <label class="form-label fw-bold text-dark small text-uppercase">Rating</label>
                     <input type="hidden" id="rating" name="rating" value="{{ item.rating|default:'-' }}">
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <div class="d-flex gap-1">
+                    
+                    <div class="rating-container d-flex align-items-center gap-2">
+                        <!-- Group Tombol Panah Kiri -->
+                        <div class="d-flex gap-1 flex-shrink-0">
                             <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↑" style="width: 40px; height: 40px;">↑</button>
                             <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↓" style="width: 40px; height: 40px;">↓</button>
                             <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="→" style="width: 40px; height: 40px;">→</button>
                         </div>
-                        <div class="ms-auto d-flex align-items-center gap-1">
+
+                        <!-- Garis Pembatas Panjang di Tengah -->
+                        <div class="rating-divider flex-grow-1 border-bottom border-dark mx-2"></div>
+
+                        <!-- Group Tombol Plus/Minus & Display Kanan -->
+                        <div class="d-flex align-items-center gap-1 flex-shrink-0">
                             <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">-</button>
-                            <div id="rating-display" class="d-flex align-items-center justify-content-center border border-dark fw-bold" style="width: 60px; height: 40px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
+                            <div id="rating-display" class="d-flex align-items-center justify-content-center border border-dark fw-bold break-long-text" style="width: 60px; height: 40px; background: #f8f9fa;">{{ item.rating|default:"-" }}</div>
                             <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">+</button>
                         </div>
                     </div>
@@ -112,7 +119,6 @@
                                 <div class="d-flex flex-wrap gap-3">
                                     {% for tag in tags %}
                                         {% if tag.id != 1 %}
-                                            <!-- Garis kotak sudah dihapus, tetap nyaman diklik dan tidak bisa diblok biru -->
                                             <div class="form-check px-2 py-1" style="cursor: pointer; user-select: none;">
                                                 <input class="form-check-input rounded-0 border-dark" type="checkbox" name="tags" value="{{ tag.id }}" id="tag_{{ tag.id }}" {% if tag in item.tags.all %}checked{% endif %} style="cursor: pointer;">
                                                 <label class="form-check-label small fw-bold text-dark" for="tag_{{ tag.id }}" style="cursor: pointer; user-select: none;">
@@ -131,24 +137,24 @@
 
                 <div class="mb-3 anim-row delay-7">
                     <label for="synopsis" class="form-label fw-bold text-dark small text-uppercase">Synopsis</label>
-                    <textarea class="form-control rounded-0 border-dark input-epic-effect w-100" id="synopsis" name="synopsis" rows="4" placeholder="Enter synopsis...">{{ item.synopsis|default_if_none:"" }}</textarea>
+                    <textarea class="form-control rounded-0 border-dark input-epic-effect w-100 break-long-text" id="synopsis" name="synopsis" rows="4" placeholder="Enter synopsis...">{{ item.synopsis|default_if_none:"" }}</textarea>
                 </div>
 
                 <div class="mb-4 anim-row delay-8">
                     <label for="notes" class="form-label fw-bold text-dark small text-uppercase">Notes</label>
-                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="notes" name="notes" value="{{ item.notes|default_if_none:'' }}" placeholder="Short notes...">
+                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100 break-long-text" id="notes" name="notes" value="{{ item.notes|default_if_none:'' }}" placeholder="Short notes...">
                 </div>
 
                 <div class="d-flex gap-2 anim-row delay-9">
                     <button type="submit" class="btn btn-dark rounded-0 px-4 w-100 btn-pro btn-epic-effect">Save Changes</button>
-                    <a href="{% url 'reading_item_detail' item.id %}" class="btn btn-outline-dark rounded-0 px-4 w-100 btn-epic-effect">Cancel</a>
+                    <a href="{% url 'reading_item_detail' item.id %}" class="btn btn-outline-dark rounded-0 px-4 w-100 btn-epic-effect text-decoration-none d-flex align-items-center justify-content-center">Cancel</a>
                 </div>
             </div>
         </div>
     </form>
 </div>
 
-<!-- Styling Animasi dan Penyesuaian Lebar Penuh -->
+<!-- Styling Animasi dan Penyesuaian Mobile -30px -->
 <style>
     @keyframes itemSlideUp {
         from {
@@ -206,6 +212,57 @@
     .btn-epic-effect:active {
         transform: translateY(-1px);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Penanganan teks panjang agar aman dari overflow/meluber */
+    .break-long-text {
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Pengaturan Garis Pembatas Rating di Desktop */
+    .rating-divider {
+        height: 0;
+        border-bottom: 2px solid #000 !important;
+    }
+
+    /* Pengaturan Responsif Khusus Mobile */
+    @media (max-width: 767.98px) {
+        /* Memosisikan container rating ke tengah layar di mobile */
+        .rating-container {
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 12px !important;
+        }
+
+        /* Sembunyikan garis pembatas saat di mobile agar tampilan rapi & rapat */
+        .rating-divider {
+            display: none !important;
+        }
+    }
+
+    /* Pengaturan Responsif Khusus Mobile agar Mepet -30px */
+    @media (max-width: 767.98px) {
+        .edit-reading-epic-wrapper {
+            margin-top: -30px !important; /* Ditarik mepet -30px ke atas */
+            padding-top: 0 !important;
+        }
+
+        .mobile-breadcrumb {
+            padding-top: 0 !important;
+            margin-bottom: 0.2rem !important;
+        }
+
+        .mobile-cover-img {
+            max-width: 150px !important;
+            width: 100% !important;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
     }
 </style>
 

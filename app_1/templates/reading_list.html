@@ -179,10 +179,22 @@
     .group-header-row.highlight-active td {
         animation: thinDarkGlow 1.6s ease-in-out;
     }
+
+    /* Pengaturan jarak atas khusus mobile */
+    @media (max-width: 767.98px) {
+        .reading-list-epic-wrapper {
+            margin-top: -30px !important; /* Ditarik mepet -30px ke atas */
+            padding-top: 0 !important;
+        }
+
+        .reading-list-epic-wrapper .py-0 {
+            padding-top: 0 !important;
+        }
+    }
 </style>
 
-<div class="py-2 animate-fade-up">
-    <div class="py-2" style="top: 0; z-index: 1000; background-color: #ffffff; padding-top: 10px; padding-bottom: 10px;">
+<div class="py-2 animate-fade-up reading-list-epic-wrapper">
+    <div class="py-0" style="top: 0; z-index: 1000; background-color: #ffffff; padding-top: 10px; padding-bottom: 10px;">
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
             <div>
                 <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">My Reading List</h3>
