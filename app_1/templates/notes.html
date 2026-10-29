@@ -2,265 +2,1180 @@
 {% load static %}
 
 {% block content %}
-<!-- Pembungkus Utama -->
-<div class="container-fluid px-2 px-md-4 edit-reading-epic-wrapper">
-    
-    <!-- HEADER SECTION -->
-    <div class="row mb-4 fade-up-1">
-        <div class="col-12">
-            <div class="border border-dark bg-white p-3 p-md-4 rounded-0 position-relative custom-brutalist-card">
-                <span class="d-inline-block border border-dark bg-dark text-white rounded-0 px-3 py-1 mb-2 text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">
-                    Personal Space
-                </span>
-                <h1 class="fw-bold text-dark mb-1 fs-3 fs-md-2">My Reading Notes</h1>
-                <p class="text-muted mb-0 small">Catat ide, pemikiran, atau target bacaan harianmu di sini.</p>
+<div class="reading-notes-page">
+
+    <!-- Header -->
+    <header class="reading-header">
+        <div class="reading-header-label">
+            <span class="status-dot"></span>
+            PERSONAL SPACE
+        </div>
+
+        <div class="reading-header-main">
+            <div>
+                <h1>My Reading Notes</h1>
+                <p>Simpan ide, pemikiran, dan catatan bacaanmu dalam satu tempat.</p>
+            </div>
+
+            <div class="reading-header-meta">
+                <span>PERSONAL NOTES</span>
+                <span>LOCAL STORAGE</span>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- MAIN CONTENT: FORM & LIST NOTES -->
-    <div class="row g-4 align-items-start">
-        
-        <!-- KOLOM KIRI: FORM TAMBAH NOTE -->
-        <div class="col-12 col-lg-4 fade-up-2">
-            <div class="card rounded-0 border border-dark p-3 p-md-4 bg-light custom-brutalist-card">
-                <h5 class="fw-bold text-dark mb-3 border-bottom border-dark pb-2">Tambah Catatan Baru</h5>
-                
+    <!-- Main Content -->
+    <div class="row reading-layout">
+
+        <!-- Form -->
+        <div class="col-12 col-lg-4">
+            <section class="reading-card add-note-card">
+                <div class="section-heading">
+                    <div>
+                        <span class="section-index">01 / CREATE</span>
+                        <h2>Tambah Catatan</h2>
+                    </div>
+                    <span class="heading-icon">+</span>
+                </div>
+
                 <form id="note-form">
-                    <div class="mb-3">
-                        <label for="note-title" class="form-label small fw-bold text-uppercase">Judul Catatan</label>
-                        <input type="text" class="form-control rounded-0 border-dark shadow-none" id="note-title" placeholder="Contoh: Target Minggu Ini" required>
+                    <div class="form-field">
+                        <label for="note-title">JUDUL CATATAN</label>
+                        <input
+                            type="text"
+                            id="note-title"
+                            class="form-control"
+                            placeholder="Masukkan judul catatan..."
+                            maxlength="150"
+                            required
+                        >
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="note-content" class="form-label small fw-bold text-uppercase">Isi Catatan</label>
-                        <textarea class="form-control rounded-0 border-dark shadow-none" id="note-content" rows="4" placeholder="Tulis catatan atau kutipan di sini..." required></textarea>
+
+                    <div class="form-field">
+                        <label for="note-content">ISI CATATAN</label>
+                        <textarea
+                            id="note-content"
+                            class="form-control"
+                            rows="7"
+                            placeholder="Tuliskan ide atau catatanmu di sini..."
+                            required
+                        ></textarea>
                     </div>
-                    
-                    <button type="submit" class="btn btn-dark rounded-0 w-100 fw-bold btn-epic-effect py-2" style="letter-spacing: 1px;">
-                        SIMPAN CATATAN
+
+                    <button type="submit" class="btn-save-note">
+                        <span>Simpan Catatan</span>
+                        <span class="button-arrow">&rarr;</span>
                     </button>
+
+                    <p class="form-footnote">
+                        Catatan tersimpan secara lokal di browser ini.
+                    </p>
                 </form>
-            </div>
+            </section>
         </div>
 
-        <!-- KOLOM KANAN: DAFTAR NOTES -->
-        <div class="col-12 col-lg-8 fade-up-3">
-            <div class="card rounded-0 border border-dark p-3 p-md-4 bg-white custom-brutalist-card">
-                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark pb-2">
-                    <h5 class="fw-bold text-dark mb-0">Daftar Catatan (<span id="note-count">0</span>)</h5>
-                    <button id="clear-all-trigger" class="btn btn-sm btn-outline-danger rounded-0 fw-bold" style="font-size: 0.75rem;">Hapus Semua</button>
-                </div>
+        <!-- Notes List -->
+        <div class="col-12 col-lg-8">
+            <section class="reading-card notes-list-card">
 
-                <!-- Container List Note -->
-                <div id="notes-container" class="row g-3">
-                    <div class="col-12" id="empty-state">
-                        <div class="text-center py-5 border border-dark bg-light">
-                            <p class="text-muted mb-0 small">Belum ada catatan yang tersimpan. Yuk, buat catatan pertamamu!</p>
-                        </div>
+                <div class="section-heading notes-heading">
+                    <div>
+                        <span class="section-index">02 / COLLECTION</span>
+                        <h2>Koleksi Catatan</h2>
+                    </div>
+
+                    <div class="notes-heading-actions">
+                        <span class="note-count-badge">
+                            <span id="note-count">0</span> CATATAN
+                        </span>
+
+                        <button
+                            type="button"
+                            id="clear-all-trigger"
+                            class="btn-clear-notes"
+                        >
+                            Hapus Semua
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
 
-    </div>
-</div>
+                <div class="notes-divider"></div>
 
-<!-- MODAL KONFIRMASI HAPUS SATU CATATAN -->
-<div class="modal fade" id="deleteSingleModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-0 border border-dark shadow-none">
-            <div class="modal-header rounded-0 border-bottom border-dark bg-light py-2">
-                <h6 class="modal-title fw-bold text-uppercase text-dark mb-0">Konfirmasi Hapus</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-4">
-                <p class="mb-0 text-dark">Apakah Anda yakin ingin menghapus catatan ini?</p>
-            </div>
-            <div class="modal-footer rounded-0 border-top border-dark pt-2 pb-2">
-                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 fw-bold px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="confirm-delete-single" class="btn btn-sm btn-danger rounded-0 fw-bold px-3">Hapus</button>
-            </div>
-        </div>
-    </div>
-</div>
+                <div id="notes-container" class="notes-grid">
 
-<!-- MODAL KONFIRMASI HAPUS SEMUA CATATAN -->
-<div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-0 border border-dark shadow-none">
-            <div class="modal-header rounded-0 border-bottom border-dark bg-light py-2">
-                <h6 class="modal-title fw-bold text-uppercase text-dark mb-0">Hapus Semua Catatan</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-4">
-                <p class="mb-0 text-dark">Apakah Anda yakin ingin menghapus <strong>seluruh catatan</strong>? Tindakan ini tidak dapat dibatalkan.</p>
-            </div>
-            <div class="modal-footer rounded-0 border-top border-dark pt-2 pb-2">
-                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 fw-bold px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="confirm-delete-all" class="btn btn-sm btn-danger rounded-0 fw-bold px-3">Hapus Semua</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- SCRIPT INTERAKTIF -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const form = document.getElementById("note-form");
-        const titleInput = document.getElementById("note-title");
-        const contentInput = document.getElementById("note-content");
-        const notesContainer = document.getElementById("notes-container");
-        const noteCount = document.getElementById("note-count");
-        const clearAllTrigger = document.getElementById("clear-all-trigger");
-        
-        // Modal Instances (Bootstrap)
-        const deleteSingleModal = new bootstrap.Modal(document.getElementById('deleteSingleModal'));
-        const deleteAllModal = new bootstrap.Modal(document.getElementById('deleteAllModal'));
-        
-        let noteIdToDelete = null;
-
-        // Ambil data dari LocalStorage
-        let notes = JSON.parse(localStorage.getItem("my_reading_notes")) || [];
-        renderNotes();
-
-        form.addEventListener("submit", function(e) {
-            e.preventDefault();
-            
-            const newNote = {
-                id: Date.now(),
-                title: titleInput.value.trim(),
-                content: contentInput.value.trim(),
-                date: new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })
-            };
-
-            notes.unshift(newNote);
-            localStorage.setItem("my_reading_notes", JSON.stringify(notes));
-
-            titleInput.value = "";
-            contentInput.value = "";
-            renderNotes();
-        });
-
-        function renderNotes() {
-            notesContainer.innerHTML = "";
-            noteCount.innerText = notes.length;
-
-            if (notes.length === 0) {
-                notesContainer.innerHTML = `
-                    <div class="col-12" id="empty-state">
-                        <div class="text-center py-5 border border-dark bg-light">
-                            <p class="text-muted mb-0 small">Belum ada catatan yang tersimpan. Yuk, buat catatan pertamamu!</p>
+                    <!-- Empty State -->
+                    <div class="empty-notes-state" id="empty-notes-state">
+                        <div class="empty-state-icon">
+                            <svg
+                                width="27"
+                                height="27"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.4"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <path d="M14 2v6h6"/>
+                                <path d="M8 13h8"/>
+                                <path d="M8 17h8"/>
+                            </svg>
                         </div>
+
+                        <h3>Belum Ada Catatan</h3>
+                        <p>Catatan yang kamu simpan akan muncul di sini.</p>
                     </div>
-                `;
-                return;
-            }
 
-            notes.forEach((note) => {
-                const col = document.createElement("div");
-                col.className = "col-12 col-md-6 fade-up-item";
-                col.innerHTML = `
-                    <div class="border border-dark p-3 h-100 bg-light position-relative d-flex flex-column justify-content-between custom-brutalist-card">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 80%;">${escapeHtml(note.title)}</h6>
-                                <button onclick="openDeleteModal(${note.id})" class="btn btn-sm p-0 text-muted hover-danger" title="Hapus" style="line-height: 1; font-size: 0.8rem; font-weight: bold;">DEL</button>
-                            </div>
-                            <p class="text-muted small mb-3" style="white-space: pre-wrap; word-break: break-word;">${escapeHtml(note.content)}</p>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center border-top border-dark pt-2 mt-auto">
-                            <span class="text-muted" style="font-size: 0.65rem;">${note.date}</span>
-                            <span class="badge bg-dark text-white rounded-0" style="font-size: 0.6rem; letter-spacing: 0.5px;">NOTE</span>
-                        </div>
-                    </div>
-                `;
-                notesContainer.appendChild(col);
-            });
-        }
+                </div>
 
-        // Buka Modal Hapus 1 Catatan
-        window.openDeleteModal = function(id) {
-            noteIdToDelete = id;
-            deleteSingleModal.show();
-        };
+                <div class="notes-footer">
+                    <span>MY READING NOTES</span>
+                    <span>END OF COLLECTION</span>
+                </div>
+            </section>
+        </div>
 
-        // Konfirmasi Hapus 1 Catatan
-        document.getElementById("confirm-delete-single").addEventListener("click", function() {
-            if (noteIdToDelete !== null) {
-                notes = notes.filter(note => note.id !== noteIdToDelete);
-                localStorage.setItem("my_reading_notes", JSON.stringify(notes));
-                renderNotes();
-                noteIdToDelete = null;
-                deleteSingleModal.hide();
-            }
-        });
+    </div>
+</div>
 
-        // Buka Modal Hapus Semua
-        clearAllTrigger.addEventListener("click", function() {
-            if (notes.length > 0) {
-                deleteAllModal.show();
-            }
-        });
+<!-- Modal: Delete Single Note -->
+<div
+    class="modal fade reading-notes-modal"
+    id="deleteSingleModal"
+    tabindex="-1"
+    aria-labelledby="deleteSingleModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
 
-        // Konfirmasi Hapus Semua Catatan
-        document.getElementById("confirm-delete-all").addEventListener("click", function() {
-            notes = [];
-            localStorage.removeItem("my_reading_notes");
-            renderNotes();
-            deleteAllModal.hide();
-        });
+            <div class="modal-header">
+                <div>
+                    <span class="modal-eyebrow">CONFIRMATION / 01</span>
+                    <h5 class="modal-title" id="deleteSingleModalLabel">
+                        Hapus Catatan?
+                    </h5>
+                </div>
 
-        function escapeHtml(text) {
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
-    });
-</script>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Tutup"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+                Catatan ini akan dihapus secara permanen dari daftar catatan lokalmu.
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn-modal-cancel"
+                    data-bs-dismiss="modal"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="button"
+                    id="confirm-delete-single"
+                    class="btn-modal-delete"
+                >
+                    Ya, Hapus
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Delete All Notes -->
+<div
+    class="modal fade reading-notes-modal"
+    id="deleteAllModal"
+    tabindex="-1"
+    aria-labelledby="deleteAllModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div>
+                    <span class="modal-eyebrow">CONFIRMATION / 02</span>
+                    <h5 class="modal-title" id="deleteAllModalLabel">
+                        Hapus Semua Catatan?
+                    </h5>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Tutup"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+                Semua catatan yang tersimpan di browser ini akan dihapus. Tindakan ini tidak dapat dibatalkan.
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn-modal-cancel"
+                    data-bs-dismiss="modal"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="button"
+                    id="confirm-delete-all"
+                    class="btn-modal-delete"
+                >
+                    Hapus Semua
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <style>
-    /* Pengaturan Utama Mepet Ke Atas */
-    .edit-reading-epic-wrapper {
-        margin-top: -30px !important; 
-        padding-top: 0 !important;
+    /* ========================================
+       FULL WIDTH READING NOTES
+    ======================================== */
+
+    .reading-notes-page,
+    .reading-notes-page *,
+    .reading-notes-modal,
+    .reading-notes-modal * {
+        box-sizing: border-box;
     }
 
-    /* Animasi Fade Up */
-    @keyframes fadeUpAnim {
+    .reading-notes-page {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin: 0;
+        padding: 12px 16px 24px;
+        color: #171717;
+        font-family: inherit;
+        font-size: 12px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        animation: readingFadeIn 0.35s ease both;
+    }
+
+    /*
+       Jangan membatasi lebar dengan max-width.
+       Wrapper mengambil seluruh lebar area content
+       yang disediakan oleh base template.
+    */
+
+    .reading-notes-page .row {
+        --bs-gutter-x: 12px;
+        --bs-gutter-y: 12px;
+        min-width: 0;
+    }
+
+    .reading-notes-page [class*="col-"] {
+        min-width: 0;
+    }
+
+    @keyframes readingFadeIn {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(5px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
-    .fade-up-1 { opacity: 0; animation: fadeUpAnim 0.5s ease 0.05s forwards; }
-    .fade-up-2 { opacity: 0; animation: fadeUpAnim 0.5s ease 0.15s forwards; }
-    .fade-up-3 { opacity: 0; animation: fadeUpAnim 0.5s ease 0.25s forwards; }
-    .fade-up-item { animation: fadeUpAnim 0.4s ease forwards; }
+    /* ========================================
+       HEADER
+    ======================================== */
 
-    /* Custom Brutalist Card & Hover Effects */
-    .custom-brutalist-card {
+    .reading-header {
+        width: 100%;
+        margin-bottom: 14px;
+        padding: 13px 15px 15px;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 4px;
+    }
+
+    .reading-header-label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 10px;
+        color: #777;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        flex: 0 0 6px;
+        background: #171717;
+        border-radius: 50%;
+    }
+
+    .reading-header-main {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        min-width: 0;
+    }
+
+    .reading-header-main > div:first-child {
+        min-width: 0;
+    }
+
+    .reading-header h1 {
+        margin: 0;
+        color: #111;
+        font-size: clamp(19px, 2vw, 23px);
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: -0.7px;
+    }
+
+    .reading-header p {
+        margin: 6px 0 0;
+        color: #777;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .reading-header-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .reading-header-meta span {
+        color: #888;
+        font-size: 8px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        white-space: nowrap;
+    }
+
+    /* ========================================
+       CARDS
+    ======================================== */
+
+    .reading-card {
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        padding: 13px;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 4px;
+        transition: border-color 0.2s ease;
+    }
+
+    .reading-card:hover {
+        border-color: #c8c8c8;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 15px;
+        min-width: 0;
+    }
+
+    .section-heading > div:first-child {
+        min-width: 0;
+    }
+
+    .section-index {
+        display: block;
+        margin-bottom: 4px;
+        color: #888;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 1.3px;
+    }
+
+    .section-heading h2 {
+        margin: 0;
+        color: #171717;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+    }
+
+    .heading-icon {
+        display: flex;
+        width: 27px;
+        height: 27px;
+        flex: 0 0 27px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        color: #171717;
+        font-size: 17px;
+        line-height: 1;
+    }
+
+    /* ========================================
+       FORM
+    ======================================== */
+
+    .form-field {
+        margin-bottom: 13px;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 6px;
+        color: #666;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+    }
+
+    .reading-notes-page .form-control {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        padding: 9px 10px;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        color: #171717;
+        font-family: inherit;
+        font-size: 11px;
+        line-height: 1.6;
+        box-shadow: none;
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .reading-notes-page .form-control::placeholder {
+        color: #aaa;
+        opacity: 1;
+    }
+
+    .reading-notes-page .form-control:focus {
+        background: #fff;
+        border-color: #333;
+        outline: none;
+        box-shadow: 0 0 0 2px rgb(0 0 0 / 5%);
+    }
+
+    .reading-notes-page textarea.form-control {
+        min-height: 145px;
+        resize: vertical;
+    }
+
+    .btn-save-note {
+        display: flex;
+        width: 100%;
+        min-height: 36px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 9px 11px;
+        background: #171717;
+        border: 1px solid #171717;
+        border-radius: 3px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+            background 0.2s ease,
+            color 0.2s ease;
+    }
+
+    .btn-save-note:hover {
+        background: #333;
+        border-color: #333;
+    }
+
+    .button-arrow {
+        font-size: 16px;
+        line-height: 1;
         transition: transform 0.2s ease;
     }
-    .custom-brutalist-card:hover {
-        transform: translateY(-2px);
+
+    .btn-save-note:hover .button-arrow {
+        transform: translateX(3px);
     }
 
-    .btn-epic-effect {
-        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    .form-footnote {
+        margin: 9px 0 0;
+        color: #999;
+        font-size: 9px;
+        line-height: 1.6;
     }
-    .btn-epic-effect:hover {
-        background-color: #000;
+
+    /* ========================================
+       NOTES HEADER
+    ======================================== */
+
+    .notes-heading {
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .notes-heading-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    .note-count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 7px;
+        background: #f7f7f7;
+        border: 1px solid #e6e6e6;
+        border-radius: 3px;
+        color: #777;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .note-count-badge #note-count {
+        color: #171717;
+        font-size: 10px;
+    }
+
+    .btn-clear-notes {
+        padding: 5px 8px;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        color: #777;
+        font-family: inherit;
+        font-size: 10px;
+        cursor: pointer;
+        transition:
+            color 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .btn-clear-notes:hover {
+        color: #b42318;
+        border-color: #b42318;
+    }
+
+    .notes-divider {
+        width: 100%;
+        height: 1px;
+        margin-bottom: 12px;
+        background: #ededed;
+    }
+
+    /* ========================================
+       NOTES GRID AND NOTE CARDS
+    ======================================== */
+
+    .notes-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        width: 100%;
+        min-width: 0;
+        align-content: start;
+    }
+
+    .note-item {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 11px;
+        background: #fff;
+        border: 1px solid #e2e2e2;
+        border-radius: 3px;
+        transition:
+            border-color 0.2s ease,
+            background 0.2s ease;
+        animation: readingFadeIn 0.25s ease both;
+    }
+
+    .note-item:hover {
+        background: #fdfdfd;
+        border-color: #bdbdbd;
+    }
+
+    .note-item-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .note-item-title {
+        min-width: 0;
+        margin: 0;
+        color: #171717;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .note-delete-btn {
+        display: inline-flex;
+        width: 25px;
+        height: 25px;
+        flex: 0 0 25px;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 3px;
+        color: #777;
+        font-size: 14px;
+        cursor: pointer;
+        transition:
+            color 0.2s ease,
+            border-color 0.2s ease,
+            background 0.2s ease;
+    }
+
+    .note-delete-btn:hover {
+        background: #fff5f5;
+        border-color: #e4b5b5;
+        color: #b42318;
+    }
+
+    .note-item-date {
+        margin-top: 5px;
+        color: #999;
+        font-size: 9px;
+    }
+
+    .note-item-divider {
+        width: 100%;
+        height: 1px;
+        margin: 10px 0;
+        background: #ededed;
+    }
+
+    .note-item-content {
+        margin: 0;
+        color: #555;
+        font-size: 11px;
+        line-height: 1.75;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: pre-wrap;
+    }
+
+    /* ========================================
+       EMPTY STATE
+    ======================================== */
+
+    .empty-notes-state {
+        display: flex;
+        grid-column: 1 / -1;
+        width: 100%;
+        min-width: 0;
+        min-height: 210px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 25px 15px;
+        border: 1px dashed #d9d9d9;
+        border-radius: 3px;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        display: flex;
+        width: 48px;
+        height: 48px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        background: #f8f8f8;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+        color: #777;
+    }
+
+    .empty-notes-state h3 {
+        margin: 0 0 5px;
+        color: #333;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .empty-notes-state p {
+        max-width: 100%;
+        margin: 0;
+        color: #999;
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+
+    .notes-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 13px;
+        padding-top: 10px;
+        border-top: 1px solid #ededed;
+        color: #aaa;
+        font-size: 8px;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+    }
+
+    /* ========================================
+       MODALS
+    ======================================== */
+
+    .reading-notes-modal .modal-dialog {
+        width: calc(100% - 24px);
+        max-width: 400px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    .reading-notes-modal .modal-content {
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 4px;
+        box-shadow: 0 12px 40px rgb(0 0 0 / 10%);
+    }
+
+    .reading-notes-modal .modal-header {
+        align-items: flex-start;
+        padding: 15px;
+        border-bottom: 1px solid #ededed;
+    }
+
+    .modal-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #888;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+    }
+
+    .reading-notes-modal .modal-title {
+        color: #171717;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .reading-notes-modal .modal-body {
+        padding: 15px;
+        color: #666;
+        font-size: 11px;
+        line-height: 1.8;
+    }
+
+    .reading-notes-modal .modal-footer {
+        display: flex;
+        gap: 8px;
+        padding: 12px 15px;
+        border-top: 1px solid #ededed;
+    }
+
+    .btn-modal-cancel,
+    .btn-modal-delete {
+        min-height: 33px;
+        padding: 7px 12px;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .btn-modal-cancel {
+        background: #fff;
+        color: #555;
+    }
+
+    .btn-modal-cancel:hover {
+        background: #f5f5f5;
+    }
+
+    .btn-modal-delete {
+        background: #171717;
+        border-color: #171717;
         color: #fff;
-        transform: translateY(-1px);
     }
 
-    .hover-danger:hover {
-        color: #dc3545 !important;
+    .btn-modal-delete:hover {
+        background: #333;
+    }
+
+    /* ========================================
+       RESPONSIVE: TABLET
+    ======================================== */
+
+    @media (max-width: 991.98px) {
+        .reading-notes-page {
+            padding: 10px 12px 20px;
+        }
+
+        .reading-notes-page .row {
+            --bs-gutter-x: 10px;
+            --bs-gutter-y: 10px;
+        }
+
+        .reading-card {
+            height: auto;
+        }
+
+        .reading-notes-page textarea.form-control {
+            min-height: 115px;
+        }
+    }
+
+    /* ========================================
+       RESPONSIVE: MOBILE
+    ======================================== */
+
+    @media (max-width: 575.98px) {
+        .reading-notes-page {
+            padding: 8px 9px 16px;
+            font-size: 11px;
+        }
+
+        .reading-notes-page .row {
+            --bs-gutter-x: 8px;
+            --bs-gutter-y: 8px;
+        }
+
+        .reading-header {
+            margin-bottom: 9px;
+            padding: 12px;
+        }
+
+        .reading-header-label {
+            margin-bottom: 8px;
+            font-size: 8px;
+        }
+
+        .reading-header-main {
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .reading-header h1 {
+            font-size: 20px;
+        }
+
+        .reading-header p {
+            font-size: 10px;
+        }
+
+        .reading-header-meta {
+            display: none;
+        }
+
+        .reading-card {
+            padding: 11px;
+        }
+
+        .section-heading {
+            margin-bottom: 12px;
+        }
+
+        .section-heading h2 {
+            font-size: 13px;
+        }
+
+        .notes-heading {
+            align-items: flex-start;
+        }
+
+        .notes-heading-actions {
+            gap: 5px;
+        }
+
+        .note-count-badge {
+            padding: 4px 5px;
+            font-size: 7px;
+        }
+
+        .btn-clear-notes {
+            padding: 5px 6px;
+            font-size: 9px;
+        }
+
+        .notes-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 8px;
+        }
+
+        .note-item {
+            padding: 10px;
+        }
+
+        .empty-notes-state {
+            min-height: 175px;
+            padding: 20px 12px;
+        }
+
+        .notes-footer {
+            font-size: 7px;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .reading-notes-page {
+            padding-right: 6px;
+            padding-left: 6px;
+        }
+
+        .reading-card {
+            padding: 9px;
+        }
+
+        .notes-heading-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .notes-footer {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 3px;
+        }
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const STORAGE_KEY = 'my_reading_notes';
+
+    const noteForm = document.getElementById('note-form');
+    const noteTitleInput = document.getElementById('note-title');
+    const noteContentInput = document.getElementById('note-content');
+    const notesContainer = document.getElementById('notes-container');
+    const noteCount = document.getElementById('note-count');
+    const clearAllTrigger = document.getElementById('clear-all-trigger');
+
+    const singleModalElement = document.getElementById('deleteSingleModal');
+    const allModalElement = document.getElementById('deleteAllModal');
+
+    const singleModal = bootstrap.Modal.getOrCreateInstance(singleModalElement);
+    const allModal = bootstrap.Modal.getOrCreateInstance(allModalElement);
+
+    let notes = [];
+    let noteIdToDelete = null;
+
+    try {
+        const storedNotes = localStorage.getItem(STORAGE_KEY);
+        notes = storedNotes ? JSON.parse(storedNotes) : [];
+
+        if (!Array.isArray(notes)) {
+            notes = [];
+        }
+    } catch (error) {
+        console.error('Gagal membaca catatan dari localStorage:', error);
+        notes = [];
+    }
+
+    function saveNotes() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+        } catch (error) {
+            console.error('Gagal menyimpan catatan:', error);
+            alert('Catatan gagal disimpan. Periksa penyimpanan browser kamu.');
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, function (character) {
+            const entities = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+
+            return entities[character];
+        });
+    }
+
+    function renderNotes() {
+        noteCount.textContent = notes.length;
+        notesContainer.innerHTML = '';
+
+        if (notes.length === 0) {
+            notesContainer.innerHTML = `
+                <div class="empty-notes-state" id="empty-notes-state">
+                    <div class="empty-state-icon">
+                        <svg
+                            width="27"
+                            height="27"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <path d="M14 2v6h6"/>
+                            <path d="M8 13h8"/>
+                            <path d="M8 17h8"/>
+                        </svg>
+                    </div>
+                    <h3>Belum Ada Catatan</h3>
+                    <p>Catatan yang kamu simpan akan muncul di sini.</p>
+                </div>
+            `;
+            return;
+        }
+
+        notes.slice().reverse().forEach(function (note) {
+            const noteElement = document.createElement('article');
+            noteElement.className = 'note-item';
+
+            noteElement.innerHTML = `
+                <div class="note-item-header">
+                    <h3 class="note-item-title">${escapeHtml(note.title)}</h3>
+
+                    <button
+                        type="button"
+                        class="note-delete-btn"
+                        aria-label="Hapus catatan"
+                        title="Hapus catatan"
+                        onclick="openDeleteModal('${escapeHtml(note.id)}')"
+                    >
+                        &times;
+                    </button>
+                </div>
+
+                <div class="note-item-date">
+                    ${escapeHtml(note.date)}
+                </div>
+
+                <div class="note-item-divider"></div>
+
+                <p class="note-item-content">${escapeHtml(note.content)}</p>
+            `;
+
+            notesContainer.appendChild(noteElement);
+        });
+    }
+
+    noteForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const title = noteTitleInput.value.trim();
+        const content = noteContentInput.value.trim();
+
+        if (!title || !content) {
+            return;
+        }
+
+        const newNote = {
+            id: Date.now().toString(),
+            title: title,
+            content: content,
+            date: new Date().toLocaleString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        };
+
+        notes.push(newNote);
+        saveNotes();
+        renderNotes();
+
+        noteForm.reset();
+        noteTitleInput.focus();
+    });
+
+    window.openDeleteModal = function (noteId) {
+        noteIdToDelete = String(noteId);
+        singleModal.show();
+    };
+
+    document
+        .getElementById('confirm-delete-single')
+        .addEventListener('click', function () {
+            if (noteIdToDelete === null) {
+                return;
+            }
+
+            notes = notes.filter(function (note) {
+                return String(note.id) !== noteIdToDelete;
+            });
+
+            saveNotes();
+            renderNotes();
+
+            noteIdToDelete = null;
+            singleModal.hide();
+        });
+
+    clearAllTrigger.addEventListener('click', function () {
+        if (notes.length > 0) {
+            allModal.show();
+        }
+    });
+
+    document
+        .getElementById('confirm-delete-all')
+        .addEventListener('click', function () {
+            notes = [];
+            saveNotes();
+            renderNotes();
+            allModal.hide();
+        });
+
+    renderNotes();
+});
+</script>
+
 {% endblock %}

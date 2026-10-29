@@ -1,169 +1,488 @@
+
 {% extends 'base/base.html' %}
 
 {% block content %}
-<div class="container d-flex justify-content-center">
-    <!-- Card dengan animasi Bounce & Zoom-in yang konsisten -->
-    <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 register-card-epic" style="max-width: 450px;">
-        <h2 class="fw-bold mb-4 epic-title" style="letter-spacing: -1px;">REGISTRASI</h2>
-        
-        <form method="POST">
+<div class="register-page">
+    <div class="register-card">
+        <h2 class="register-title">Create Account</h2>
+        <p class="register-description">Create an account to get started.</p>
+
+        <form method="POST" class="register-form">
             {% csrf_token %}
-            <div class="form-group-mono">
-                <!-- Render field satu per satu secara looping -->
-                {% for field in form %}
-                    <div class="epic-field-item" style="--stagger-index: {{ forloop.counter }};">
-                        <label class="small fw-bold text-uppercase d-block mb-1">{{ field.label }}</label>
-                        {{ field }}
-                        
-                        {% if field.help_text %}
-                            <div class="helptext">{{ field.help_text|safe }}</div>
-                        {% endif %}
-                        
-                        {% for error in field.errors %}
-                            <div class="text-danger small mb-2" style="color: #721c24; margin-top: -5px; margin-bottom: 10px;">
-                                • {{ error }}
-                            </div>
-                        {% endfor %}
-                    </div>
+
+            {% if form.non_field_errors %}
+                <div class="register-alert">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Username -->
+            <div class="register-field">
+                <label for="id_username">Username</label>
+                <input
+                    type="text"
+                    id="id_username"
+                    name="username"
+                    placeholder="Enter your username"
+                    value="{{ form.username.value|default_if_none:'' }}"
+                    autocomplete="username"
+                    required
+                >
+
+                {% for error in form.username.errors %}
+                    <small class="register-error">{{ error }}</small>
                 {% endfor %}
             </div>
-            
-            <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mt-3 btn-epic-effect epic-btn">DAFTAR AKUN</button>
+
+            <!-- Email -->
+            <div class="register-field">
+                <label for="id_email">Email Address</label>
+                <input
+                    type="email"
+                    id="id_email"
+                    name="email"
+                    placeholder="Enter your email address"
+                    value="{{ form.email.value|default_if_none:'' }}"
+                    autocomplete="email"
+                    required
+                >
+
+                {% for error in form.email.errors %}
+                    <small class="register-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <!-- Password -->
+            <div class="register-field">
+                <label for="id_password1">Password</label>
+                <div class="register-password-wrapper">
+                    <input
+                        type="password"
+                        id="id_password1"
+                        name="password1"
+                        placeholder="Create a password"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="register-password-toggle"
+                        data-target="id_password1"
+                        aria-label="Show password"
+                    >
+                        <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                {% for error in form.password1.errors %}
+                    <small class="register-error">{{ error }}</small>
+                {% endfor %}
+
+                {% if form.password1.help_text %}
+                    <div class="register-helptext">
+                        {{ form.password1.help_text|safe }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="register-field">
+                <label for="id_password2">Confirm Password</label>
+                <div class="register-password-wrapper">
+                    <input
+                        type="password"
+                        id="id_password2"
+                        name="password2"
+                        placeholder="Confirm your password"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="register-password-toggle"
+                        data-target="id_password2"
+                        aria-label="Show password"
+                    >
+                        <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                {% for error in form.password2.errors %}
+                    <small class="register-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="register-submit">
+                Create Account
+            </button>
         </form>
-        
-        <p class="small text-center text-muted mt-3 epic-footer">
-            Sudah punya akun? <a href="{% url 'login' %}" class="text-dark fw-bold link-epic">Login di sini</a>
+
+        <p class="register-footer">
+            Already have an account?
+            <a href="{% url 'login' %}">Sign in</a>
         </p>
     </div>
 </div>
 
-<!-- Styling Animasi Urut Per Bar dengan Tombol Lebih Cepat -->
 <style>
-    /* 1. Animasi Utama Card: Zoom-in dengan efek pantulan (bounce) */
-    @keyframes epicCardIntro {
-        0% {
-            opacity: 0;
-            transform: scale(0.7) translateY(50px);
-        }
-        60% {
-            opacity: 1;
-            transform: scale(1.03) translateY(-10px);
-        }
-        80% {
-            transform: scale(0.97) translateY(5px);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
+/* PAGE */
+.register-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 65vh;
+    padding: 32px 16px;
+    box-sizing: border-box;
+}
 
-    .register-card-epic {
-        animation: epicCardIntro 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
+.register-card {
+    width: 100%;
+    max-width: 430px;
+    padding: 32px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid #dedede;
+}
 
-    /* 2. Animasi Masuk Berurutan (Staggered Fade & Slide per Bar) */
-    @keyframes itemSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(25px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+/* HEADER */
+.register-title {
+    margin: 0 0 6px;
+    color: #000;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    animation: registerEnter 0.45s ease-out both;
+}
 
-    .epic-title {
+.register-description {
+    margin: 0 0 28px;
+    color: #6c757d;
+    font-size: 13px;
+    animation: registerEnter 0.45s ease-out 0.08s both;
+}
+
+/* FORM */
+.register-form {
+    width: 100%;
+}
+
+.register-field {
+    min-width: 0;
+    margin-bottom: 20px;
+    animation: registerEnter 0.45s ease-out both;
+}
+
+.register-field:nth-of-type(1) { animation-delay: 0.12s; }
+.register-field:nth-of-type(2) { animation-delay: 0.18s; }
+.register-field:nth-of-type(3) { animation-delay: 0.24s; }
+.register-field:nth-of-type(4) { animation-delay: 0.30s; }
+
+.register-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #111;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* INPUTS */
+.register-field input {
+    display: block;
+    width: 100%;
+    height: 46px;
+    padding: 0 12px;
+    box-sizing: border-box;
+
+    border: 1px solid #b8b8b8;
+    border-radius: 0;
+
+    background: #fff;
+    color: #000;
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+    box-shadow: none;
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.register-field input::placeholder {
+    color: #999;
+    opacity: 1;
+}
+
+/* HOVER */
+.register-field input:hover {
+    border-color: #666;
+    background: #fafafa;
+}
+
+/* FOCUS */
+.register-field input:focus {
+    border-color: #000;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.register-field input:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+/* PASSWORD */
+.register-password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.register-password-wrapper input {
+    padding-right: 46px;
+}
+
+.register-password-toggle {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 42px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #666;
+
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.register-password-toggle:hover {
+    background: #f2f2f2;
+    color: #000;
+}
+
+.register-password-toggle:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: -3px;
+}
+
+.register-password-toggle i {
+    font-size: 17px;
+}
+
+/* HELP TEXT & ERRORS */
+.register-helptext {
+    margin-top: 7px;
+    color: #6c757d;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.register-helptext ul {
+    margin: 5px 0 0;
+    padding-left: 18px;
+}
+
+.register-error {
+    display: block;
+    margin-top: 7px;
+    color: #b42318;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.register-alert {
+    margin-bottom: 18px;
+    padding: 12px;
+    border: 1px solid #b42318;
+    background: #fff;
+    color: #b42318;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.register-alert p {
+    margin: 0;
+}
+
+
+/* ========================================
+   SUBMIT BUTTON
+======================================== */
+.register-submit {
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    margin-top: 8px;
+    padding: 12px;
+
+    border: 1px solid #000;
+    border-radius: 0;
+
+    background: #000;
+    color: #fff;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    /* Entrance animation */
+    opacity: 0;
+    animation: registerEnter 0.45s ease-out 0.36s both;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.register-submit:hover {
+    border-color: #000;
+    background: #fff;
+    color: #000;
+}
+
+.register-submit:active {
+    transform: scale(0.985);
+}
+
+.register-submit:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 3px;
+}
+
+/* FOOTER */
+.register-footer {
+    margin: 24px 0 0;
+    color: #6c757d;
+    font-size: 12px;
+    line-height: 1.8;
+    text-align: center;
+    animation: registerEnter 0.45s ease-out 0.35s both;
+}
+
+.register-footer a {
+    color: #000;
+    font-weight: 600;
+    text-decoration: none;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+}
+
+.register-footer a:hover {
+    color: #666;
+    text-decoration: underline;
+}
+
+/* ANIMATION */
+@keyframes registerEnter {
+    from {
         opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.15s forwards;
+        transform: translateY(16px);
     }
 
-    /* Jeda antar input dibuat lebih rapat (0.08s per baris) */
-    .epic-field-item {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease calc(0.15s + (var(--stagger-index) * 0.08s)) forwards;
-        margin-bottom: 1rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* RESPONSIVE */
+@media (max-width: 575.98px) {
+    .register-page {
+        min-height: auto;
+        padding: 28px 8px;
     }
 
-    /* Tombol dipercepat agar langsung muncul tanpa jeda panjang setelah input terakhir */
-    .epic-btn {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.48s forwards;
+    .register-card {
+        max-width: 100%;
+        padding: 26px 20px;
     }
 
-    .epic-footer {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.56s forwards;
+    .register-title {
+        font-size: 25px;
     }
 
-    /* 3. Penyesuaian Form Bawaan Django agar Sinkron dengan Desain */
-    .form-group-mono input, 
-    .form-group-mono select, 
-    .form-group-mono textarea {
-        width: 100%;
-        padding: 0.6rem;
-        border: 1px solid #000;
-        border-radius: 0px;
-        outline: none;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    .register-field input {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 360px) {
+    .register-page {
+        padding: 20px 6px;
     }
 
-    /* 4. Efek Interaktif Heboh pada Input saat Fokus (Brutalist Hard Shadow) */
-    .form-group-mono input:focus, 
-    .form-group-mono select:focus, 
-    .form-group-mono textarea:focus {
-        background-color: #fff;
-        border-color: #000 !important;
-        box-shadow: 4px 4px 0px #000 !important;
-        transform: translateY(-3px);
+    .register-card {
+        padding: 24px 16px;
     }
 
-    .helptext {
-        font-size: 0.7rem;
-        color: #6c757d;
-        display: block;
-        margin-top: 0.2rem;
-        margin-bottom: 0.5rem;
+    .register-title {
+        font-size: 23px;
+    }
+}
+
+
+/* REDUCED MOTION */
+@media (prefers-reduced-motion: reduce) {
+    .register-title,
+    .register-description,
+    .register-field,
+    .register-submit,
+    .register-footer {
+        animation: none !important;
+        opacity: 1;
+        transform: none;
     }
 
-    /* 5. Efek Heboh pada Tombol (Glow & Lift) */
-    .btn-epic-effect {
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+    .register-field input,
+    .register-password-toggle,
+    .register-submit,
+    .register-footer a {
+        transition: none !important;
     }
-    .btn-epic-effect:hover {
-        background-color: #000;
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-    .btn-epic-effect:active {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
+}
 
-    /* 6. Efek Link Berdenyut/Animasi Garis Bawah */
-    .link-epic {
-        position: relative;
-        text-decoration: none;
-    }
-    .link-epic::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: -2px;
-        left: 0;
-        background-color: #000;
-        transition: width 0.3s ease-in-out;
-    }
-    .link-epic:hover::after {
-        width: 100%;
-    }
-
-    /* Styling tambahan untuk alert pesan */
-    .alert-success { background-color: #d4edda; color: #155724; }
-    .alert-danger { background-color: #f8d7da; color: #721c24; }
 </style>
+
+<script>
+document.querySelectorAll('.register-password-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.target);
+        const icon = button.querySelector('i');
+
+        if (!input || !icon) return;
+
+        const showPassword = input.type === 'password';
+
+        input.type = showPassword ? 'text' : 'password';
+        button.setAttribute(
+            'aria-label',
+            showPassword ? 'Hide password' : 'Show password'
+        );
+
+        icon.classList.toggle('bi-eye', !showPassword);
+        icon.classList.toggle('bi-eye-slash', showPassword);
+    });
+});
+</script>
 {% endblock %}

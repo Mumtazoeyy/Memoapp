@@ -1,232 +1,625 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="google-site-verification" content="HtLb1lrNPosk2VQi6f68z2RZvvipk7dUxpvDK9ibwWs" />
+    <meta name="google-site-verification" content="HtLb1lrNPosk2VQi6f68z2RZvvipk7dUxpvDK9ibwWs">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{% block title %}kagataudah{% endblock %}</title>
 
-    <!-- Pengaturan Nama Tampilan Web di Pencarian Google -->
+    <!-- SEO and Social Metadata -->
     <meta property="og:site_name" content="kagataudah">
     <meta name="twitter:title" content="kagataudah">
+    <meta name="theme-color" content="#ffffff">
 
-    <!-- Struktur Data JSON-LD agar Google Mendeteksi Nama Situs -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "kagataudah",
-      "url": "https://mintchocolatte.pythonanywhere.com/"
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "kagataudah",
+        "url": "https://mintchocolatte.pythonanywhere.com/"
     }
     </script>
 
-    <!-- Pengaturan Foto / Logo Icon agar Muncul di Pencarian Google -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'images/logo_1.png' %}">
 
-
+    <!-- Stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{% static 'css/navbar.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
     <style>
-        html, body { height: 100%; }
+        /* ========================================
+           GLOBAL LAYOUT
+        ======================================== */
+        :root {
+            --color-black: #000;
+            --color-white: #fff;
+            --color-gray: #6c757d;
+            --color-border: #dedede;
+            --shadow-hard: 5px 5px 0 var(--color-black);
+            --content-width: 1320px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            scroll-behavior: auto;
+            scroll-padding-top: 90px;
+        }
+
         body {
+            min-height: 100vh;
+            margin: 0;
             display: flex;
             flex-direction: column;
-            background-color: #ffffff;
-            color: #000000;
+            background: var(--color-white);
+            color: var(--color-black);
+            font-family: Arial, Helvetica, sans-serif;
+            overflow-wrap: break-word;
         }
-        .content-wrapper { flex: 1 0 auto; }
 
-        /* Notifikasi Pop-up */
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a {
+            transition: color 0.2s ease;
+        }
+
+        .content-wrapper {
+            flex: 1 0 auto;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .content-wrapper > .container {
+            width: 100%;
+            max-width: var(--content-width);
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+        /* ========================================
+           NOTIFICATION TOASTS
+        ======================================== */
         .toast-container-custom {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1055;
-            width: 300px;
+            top: 90px;
+            right: 24px;
+            z-index: 1080;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: min(360px, calc(100vw - 32px));
+            pointer-events: none;
         }
 
         .custom-alert {
-            border: 2px solid #000000 !important;
+            position: relative;
+            margin: 0;
+            padding: 16px 44px 16px 16px;
+            border: 1px solid var(--color-black) !important;
             border-radius: 0 !important;
-            background-color: #ffffff !important;
-            color: #000000 !important;
-            font-weight: 600;
+            background: var(--color-white) !important;
+            color: var(--color-black) !important;
             font-size: 0.9rem;
-            padding: 15px;
-            box-shadow: 5px 5px 0px #000000;
+            font-weight: 600;
+            line-height: 1.6;
+            box-shadow: var(--shadow-hard);
+            pointer-events: auto;
+            overflow-wrap: anywhere;
+            animation: toastEnter 0.3s ease both;
         }
 
-        /* Styling dasar */
+        .custom-alert .btn-close {
+            position: absolute;
+            top: 16px;
+            right: 12px;
+            padding: 5px;
+        }
+
+        .custom-alert.alert-success {
+            border-left: 5px solid #198754 !important;
+        }
+
+        .custom-alert.alert-danger,
+        .custom-alert.alert-error {
+            border-left: 5px solid #dc3545 !important;
+        }
+
+        .custom-alert.alert-warning {
+            border-left: 5px solid #ffc107 !important;
+        }
+
+        .custom-alert.alert-info {
+            border-left: 5px solid #0d6efd !important;
+        }
+
+        @keyframes toastEnter {
+            from {
+                opacity: 0;
+                transform: translateX(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ========================================
+           SEARCH COMPONENTS
+        ======================================== */
         .search-box-group {
             display: flex;
-            align-items: center;
-            gap: 0;
+            align-items: stretch;
+            width: 100%;
+            max-width: 320px;
+            min-width: 0;
         }
 
         .search-input {
-            border: 1px solid #000;
-            height: 42px;
-            padding: 0 15px;
-            width: 200px;
-            color: #000;
-            border-right: none;
+            flex: 1;
+            min-width: 0;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid var(--color-black);
+            border-right: 0;
+            border-radius: 0;
             outline: none;
-            box-sizing: border-box;
+            background: var(--color-white);
+            color: var(--color-black);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: inset 0 0 0 1px var(--color-black);
         }
 
         .search-btn {
-            border: 1px solid #000;
-            height: 42px;
-            width: 42px;
-            background-color: #fff;
-            color: #000;
-            cursor: pointer;
-            display: flex;
+            flex: 0 0 44px;
+            width: 44px;
+            min-height: 44px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            padding: 0;
+            border: 1px solid var(--color-black);
+            border-radius: 0;
+            background: var(--color-white);
+            color: var(--color-black);
+            cursor: pointer;
+            font-size: 1.15rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .search-btn:hover,
+        .search-btn:focus-visible {
+            background: var(--color-black);
+            color: var(--color-white);
+        }
+
+        /* ========================================
+           DELETE CONFIRMATION MODAL
+        ======================================== */
+        #deleteModal .modal-content {
+            border: 1px solid var(--color-black);
+            border-radius: 0;
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.12);
+        }
+
+        #deleteModal .modal-header,
+        #deleteModal .modal-footer {
+            padding: 20px 24px;
+        }
+
+        #deleteModal .modal-body {
+            padding: 8px 24px 24px;
+            line-height: 1.7;
+        }
+
+        #deleteModal .modal-title {
             font-size: 1.2rem;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
+            letter-spacing: -0.4px;
         }
 
-        .search-btn:hover {
-            background-color: #000;
-            color: #fff;
+        #deleteModal .btn {
+            min-height: 42px;
+            padding: 10px 18px;
+            border-radius: 0;
+            font-weight: 600;
         }
 
+        /* ========================================
+           FLOATING SCROLL NAVIGATION
+        ======================================== */
+        .nav-buttons {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 1040;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-circle {
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 1px solid var(--color-black);
+            border-radius: 50%;
+            background: var(--color-white);
+            color: var(--color-black);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            font-size: 1.1rem;
+            transition: transform 0.2s ease, background-color 0.2s ease,
+                        color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-circle:hover {
+            transform: translateY(-3px);
+            background: var(--color-black);
+            color: var(--color-white);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+        }
+
+        .btn-circle:active {
+            transform: translateY(0);
+        }
+
+        .btn-circle:focus-visible,
+        .search-btn:focus-visible,
+        a:focus-visible {
+            outline: 2px solid #555;
+            outline-offset: 3px;
+        }
+
+        /* ========================================
+           TABLET
+        ======================================== */
+        @media (max-width: 991.98px) {
+            .content-wrapper > .container {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .toast-container-custom {
+                top: 78px;
+                right: 18px;
+            }
+
+            .nav-buttons {
+                right: 18px;
+                bottom: 18px;
+            }
+        }
+
+        /* ========================================
+           MOBILE
+        ======================================== */
+        @media (max-width: 575.98px) {
+            html {
+                scroll-padding-top: 72px;
+            }
+
+            .content-wrapper > .container {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .toast-container-custom {
+                top: 72px;
+                left: 12px;
+                right: 12px;
+                width: auto;
+                gap: 10px;
+            }
+
+            .custom-alert {
+                padding: 13px 40px 13px 13px;
+                font-size: 0.84rem;
+                box-shadow: 3px 3px 0 var(--color-black);
+            }
+
+            .custom-alert .btn-close {
+                top: 13px;
+                right: 9px;
+            }
+
+            .search-box-group {
+                max-width: 100%;
+            }
+
+            .search-input {
+                height: 42px;
+                padding: 0 10px;
+                font-size: 0.9rem;
+            }
+
+            .search-btn {
+                flex-basis: 42px;
+                width: 42px;
+                min-height: 42px;
+            }
+
+            .nav-buttons {
+                right: 14px;
+                bottom: 14px;
+                gap: 8px;
+            }
+
+            .btn-circle {
+                width: 42px;
+                height: 42px;
+                font-size: 1rem;
+            }
+
+            #deleteModal .modal-dialog {
+                margin: 16px;
+            }
+
+            #deleteModal .modal-header,
+            #deleteModal .modal-footer {
+                padding: 16px;
+            }
+
+            #deleteModal .modal-body {
+                padding: 8px 16px 20px;
+                font-size: 0.92rem;
+            }
+
+            #deleteModal .modal-footer {
+                gap: 8px;
+            }
+
+            #deleteModal .modal-footer .btn {
+                flex: 1;
+                margin: 0;
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* ========================================
+           REDUCED MOTION ACCESSIBILITY
+        ======================================== */
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 
     {% block ekstra_css %}{% endblock %}
 </head>
-<body>
 
+<body>
     <div class="content-wrapper">
         {% include 'base/navbar.html' %}
 
-        <div class="toast-container-custom">
+        <!-- Django Message Notifications -->
+        <div class="toast-container-custom" aria-live="polite" aria-atomic="false">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-dismissible fade show custom-alert" role="alert">
+                    <div
+                        class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show custom-alert"
+                        role="alert"
+                    >
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
                     </div>
                 {% endfor %}
             {% endif %}
         </div>
 
-        <div class="container mb-5">
+        <!-- Main Page Content -->
+        <main class="container">
             {% block content %}
             {% endblock %}
-        </div>
+        </main>
     </div>
 
     {% include 'base/footer.html' %}
 
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1"
+         aria-labelledby="deleteModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-dark rounded-0">
+            <div class="modal-content">
                 <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title fw-bold">Delete Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title fw-bold" id="deleteModalTitle">
+                        Delete Item
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
                 </div>
+
                 <div class="modal-body" id="modal-body-text">
                     Are you sure you want to delete this item? This action cannot be undone.
                 </div>
+
                 <div class="modal-footer border-top-0">
-                    <button type="button" class="btn btn-outline-dark rounded-0" data-bs-dismiss="modal">Cancel</button>
-                    <a href="#" id="confirmDeleteBtn" class="btn btn-dark rounded-0">Delete</a>
+                    <button
+                        type="button"
+                        class="btn btn-outline-dark"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancel
+                    </button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-dark">
+                        Delete
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Auto-close notifikasi
-        setTimeout(function() {
-            let alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                let bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+        document.addEventListener('DOMContentLoaded', function () {
+            /* Auto-dismiss Notifications */
+            const alerts = document.querySelectorAll('.toast-container-custom .alert');
+
+            alerts.forEach(function (alert) {
+                window.setTimeout(function () {
+                    if (alert.isConnected && typeof bootstrap !== 'undefined') {
+                        bootstrap.Alert.getOrCreateInstance(alert).close();
+                    }
+                }, 4000);
             });
-        }, 3500);
 
-        // Logic Modal Hapus (Sentralisasi di base.html)
-        const deleteModal = document.getElementById('deleteModal');
+            /* Centralized Delete Modal */
+            const deleteModal = document.getElementById('deleteModal');
 
-        deleteModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const deleteUrl = button.getAttribute('data-url');
-            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
 
-            // Reset status tombol confirm
-            resetConfirmBtn(confirmBtn);
+                    if (!button) {
+                        return;
+                    }
 
-            if (deleteUrl) {
-                // Mode Hapus Satuan
-                confirmBtn.setAttribute('href', deleteUrl);
-            } else {
-                // Mode Hapus Massal
-                confirmBtn.onclick = function() {
-                    document.getElementById('bulk-delete-form').submit();
-                };
+                    const deleteUrl = button.getAttribute('data-url');
+                    const confirmBtn = document.getElementById('confirmDeleteBtn');
+
+                    if (!confirmBtn) {
+                        return;
+                    }
+
+                    resetConfirmBtn(confirmBtn);
+
+                    if (deleteUrl) {
+                        /* Single Item Deletion */
+                        confirmBtn.setAttribute('href', deleteUrl);
+                    } else {
+                        /* Bulk Deletion */
+                        confirmBtn.setAttribute('href', '#');
+                        confirmBtn.onclick = function (clickEvent) {
+                            clickEvent.preventDefault();
+
+                            const bulkDeleteForm = document.getElementById('bulk-delete-form');
+
+                            if (bulkDeleteForm) {
+                                bulkDeleteForm.requestSubmit();
+                            }
+                        };
+                    }
+                });
+
+                deleteModal.addEventListener('hidden.bs.modal', function () {
+                    const confirmBtn = document.getElementById('confirmDeleteBtn');
+
+                    if (confirmBtn) {
+                        resetConfirmBtn(confirmBtn);
+                    }
+                });
+            }
+
+            function resetConfirmBtn(button) {
+                button.removeAttribute('href');
+                button.onclick = null;
+            }
+
+            /* Smooth Scroll Controls */
+            const scrollTopButton = document.getElementById('scrollTopButton');
+            const scrollBottomButton = document.getElementById('scrollBottomButton');
+
+            if (scrollTopButton) {
+                scrollTopButton.addEventListener('click', function () {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            if (scrollBottomButton) {
+                scrollBottomButton.addEventListener('click', function () {
+                    window.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                });
             }
         });
-
-        // Helper untuk membersihkan aksi tombol
-        function resetConfirmBtn(btn) {
-            btn.removeAttribute('href');
-            btn.removeAttribute('onclick');
-            btn.onclick = null;
-        }
     </script>
 
-{% if request.resolver_match.url_name != 'about' %}
-<style>
-    .nav-buttons {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        z-index: 1050;
-    }
-    .btn-circle {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        background-color: white;
-        color: black;
-        border: 1px solid #ddd;
-        transition: all 0.3s ease;
-    }
-    .btn-circle:hover {
-        background-color: black;
-        color: white;
-        border-color: black;
-    }
-</style>
+    <script>
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
 
-<div class="nav-buttons">
-    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="btn btn-circle">
-        <i class="bi bi-arrow-up"></i>
-    </button>
-    <button onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})" class="btn btn-circle">
-        <i class="bi bi-arrow-down"></i>
-    </button>
-</div>
-{% endif %}
+        window.addEventListener('beforeunload', function () {
+            window.scrollTo(0, 0);
+        });
+    </script>
+
+    {% if request.resolver_match.url_name != 'about' %}
+        <div class="nav-buttons" aria-label="Page navigation">
+            <button
+                type="button"
+                id="scrollTopButton"
+                class="btn btn-circle"
+                aria-label="Scroll to top"
+                title="Scroll to top"
+            >
+                <i class="bi bi-arrow-up" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="scrollBottomButton"
+                class="btn btn-circle"
+                aria-label="Scroll to bottom"
+                title="Scroll to bottom"
+            >
+                <i class="bi bi-arrow-down" aria-hidden="true"></i>
+            </button>
+        </div>
+    {% endif %}
 </body>
 </html>

@@ -1,241 +1,791 @@
+
 {% load static %}
+
 <head>
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_home.css' %}">
 </head>
 
-<!-- Pembungkus utama dengan class edit-reading-epic-wrapper -->
-<div class="container-fluid px-2 px-md-4 edit-reading-epic-wrapper">
-    <!-- SECTION 1: HERO DASHBOARD (HOME 1) -->
-    <div class="dashboard-card py-4 py-md-5 my-3 my-md-4 border border-dark rounded-0 position-relative home-card-epic w-100">
-        <div class="position-absolute top-0 start-0 w-100 border-top border-dark" style="border-width: 1px !important;"></div>
+<div class="reading-page">
+    <div class="reading-wrapper">
 
-        <div class="text-center px-2 px-md-4 mt-3">
-            <span class="d-inline-block border border-dark bg-white text-dark rounded-0 px-3 py-1 mb-3 mb-md-4 text-uppercase fw-bold epic-badge mobile-breadcrumb" style="font-size: 0.75rem; letter-spacing: 1px;">
-                Library Space
-            </span>
+        <!-- HERO SECTION -->
+        <section class="reading-hero">
 
-            <h1 class="fw-bold text-dark mb-3 fs-3 fs-md-1 display-6 epic-title" style="letter-spacing: -1px;">
-                <span id="dynamic-greeting">Hello</span>, Let's Continue Reading.
-            </h1>
-            
-            <p class="text-muted fs-6 fs-md-5 mb-4 mb-md-5 mx-auto epic-desc" style="max-width: 600px; line-height: 1.6;">
-                Your reading space. Keep track of chapters, organize your favorite series, and manage your comics or manga collection easily.
-            </p>
+            <div class="reading-hero-content">
 
-            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-5 mx-auto epic-buttons" style="max-width: 500px;">
-                <a href="{% url 'library' %}" class="btn btn-dark btn-pro rounded-0 px-4 py-3 fw-bold w-100 btn-epic-effect" style="letter-spacing: 1px;">
-                    + ADD NEW
-                </a>
-                <a href="{% url 'reading_list' %}" class="btn btn-outline-dark btn-pro rounded-0 px-4 py-3 fw-bold w-100 btn-epic-effect-outline" style="letter-spacing: 1px;">
-                    MY COLLECTION
-                </a>
-            </div>
-
-            <div class="row text-center mx-auto gy-4 epic-stats" style="max-width: 650px;">
-                <div class="col-12 col-md-4 position-relative stat-item">
-                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Reading Progress</span>
-                    <span class="fw-bold fs-5">Track Chapters</span>
-                    <hr class="d-md-none border-dark opacity-25 w-25 mx-auto mt-4 mb-0">
-                    <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y border-end border-dark opacity-50" style="height: 50%;"></div>
+                <div class="reading-label reading-animate delay-1">
+                    <span class="reading-label-line"></span>
+                    <span>Library Space</span>
+                    <span class="reading-label-line"></span>
                 </div>
-                
-                <div class="col-12 col-md-4 position-relative stat-item">
-                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Organization</span>
-                    <span class="fw-bold fs-5">Manage Books</span>
-                    <hr class="d-md-none border-dark opacity-25 w-25 mx-auto mt-4 mb-0">
-                    <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y border-end border-dark opacity-50" style="height: 50%;"></div>
-                </div>
-                
-                <div class="col-12 col-md-4 stat-item">
-                    <span class="stat-title d-block text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Your Thoughts</span>
-                    <span class="fw-bold fs-5">Rate & Review</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- SECTION 2: DAILY INSPIRATION & QUICK NOTES (HOME 2) -->
-    <div class="row g-3 g-md-4 align-items-stretch mb-5">
-        
-        <!-- Spotlight Card -->
-        <div class="col-12 col-lg-8 epic-home2-left">
-            <div class="card rounded-0 border border-dark p-3 p-md-5 h-100 bg-white position-relative custom-brutalist-card">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="badge bg-dark text-white rounded-0 px-3 py-1 text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1px;">
-                        Analytics Overview
-                    </span>
-                    <span class="text-muted small fw-bold">Live Statistics</span>
-                </div>
-                
-                <h3 class="fw-black text-dark mb-3 fs-4 fs-md-2" style="letter-spacing: -0.5px;">
-                    Track your reading streaks, category breakdown, and recent chapter updates.
-                </h3>
-                
-                <p class="text-muted mb-4" style="line-height: 1.6; max-width: 600px;">
-                    Check out your overall reading history, monitor weekly updates, view category distribution (Manhwa, Manhua, Manga), and manage your top favorites directly on the dashboard.
+                <h1 class="reading-title reading-animate delay-2">
+                    <span id="dynamic-greeting">Hello</span>, Let's Continue Reading.
+                </h1>
+
+                <p class="reading-description reading-animate delay-3">
+                    Your personal reading space. Keep track of chapters, organize your favorite
+                    series, and manage your comics or manga collection easily.
                 </p>
 
-                <div class="mt-auto d-flex flex-wrap gap-3">
-                    <a href="http://127.0.0.1:8000/reading/dashboard/" class="btn btn-dark rounded-0 px-4 py-2 fw-bold btn-epic-effect w-100 w-sm-auto">
-                        Open Reading Dashboard →
+                <div class="reading-actions reading-animate delay-4">
+                    <a href="{% url 'library' %}" class="reading-button">
+                        + Add New
+                    </a>
+
+                    <a href="{% url 'reading_list' %}" class="reading-button">
+                        My Collection
+                        <span class="reading-button-arrow">↗</span>
                     </a>
                 </div>
-            </div>
-        </div>
 
-        <!-- Quick Memo Card -->
-        <div class="col-12 col-lg-4 epic-home2-right">
-            <div class="card rounded-0 border border-dark p-3 p-md-4 h-100 bg-light custom-brutalist-card d-flex flex-column">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="badge border border-dark bg-white text-dark rounded-0 px-2 py-1 text-uppercase fw-bold" style="font-size: 0.65rem;">
-                        Quick Reminder
+                <!-- FEATURE SUMMARY -->
+                <div class="reading-stats reading-animate delay-5">
+
+                    <div class="reading-stat">
+                        <span class="reading-stat-number">01</span>
+                        <div>
+                            <span class="reading-stat-label">Reading Progress</span>
+                            <p>Track Chapters</p>
+                        </div>
+                    </div>
+
+                    <div class="reading-stat">
+                        <span class="reading-stat-number">02</span>
+                        <div>
+                            <span class="reading-stat-label">Organization</span>
+                            <p>Manage Books</p>
+                        </div>
+                    </div>
+
+                    <div class="reading-stat">
+                        <span class="reading-stat-number">03</span>
+                        <div>
+                            <span class="reading-stat-label">Your Thoughts</span>
+                            <p>Rate &amp; Review</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- LOWER CONTENT -->
+        <section class="reading-content">
+
+            <!-- ANALYTICS -->
+            <article class="reading-panel reading-animate delay-6">
+
+                <div class="reading-panel-header">
+                    <span class="reading-eyebrow">Overview</span>
+
+                    <span class="reading-status">
+                        <span class="reading-status-dot"></span>
+                        Your Reading Space
                     </span>
-                    <span class="text-muted small">Personal Note</span>
                 </div>
 
-                <h5 class="fw-bold mb-2 text-dark">Reading Goals</h5>
-                <p class="text-muted small mb-3">Keep up your reading pace this week. Don't forget to mark completed series!</p>
+                <h2 class="reading-panel-title">
+                    Your reading journey,<br class="desktop-break">
+                    organized in one place.
+                </h2>
 
-                <div class="bg-white border border-dark p-3 rounded-0 mb-3 flex-grow-1">
-                    <p class="mb-0 small text-dark fw-semibold">
-                        📌 "Finish current story arc before starting a new series."
+                <p class="reading-panel-description">
+                    Track your reading streaks, review recent chapter updates, explore your
+                    Manhwa, Manhua, and Manga categories, and keep your favorite series organized.
+                </p>
+
+                <div class="reading-panel-footer">
+                    <span class="reading-footer-note">Reading overview</span>
+
+                    <a href="http://127.0.0.1:8000/reading/dashboard/"
+                       class="reading-button reading-dashboard-button">
+                        Open Dashboard <span>↗</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- QUICK NOTE -->
+            <article class="reading-note reading-animate delay-7">
+
+                <div class="reading-panel-header">
+                    <span class="reading-eyebrow">Quick Reminder</span>
+                    <span class="reading-note-icon">✳</span>
+                </div>
+
+                <h2 class="reading-note-title">Reading Goals</h2>
+
+                <p class="reading-note-description">
+                    Keep up your reading pace this week. Remember to mark completed series.
+                </p>
+
+                <div class="reading-note-paper">
+                    <span class="reading-note-mark">“</span>
+                    <p>
+                        Finish the current story arc before starting a new series.
                     </p>
                 </div>
 
-                <!-- Tombol + Add Note -->
-                <div class="mt-auto">
-                    <a href="{% url 'notes' %}" class="btn btn-outline-dark rounded-0 w-100 fw-bold btn-epic-effect-outline py-2">
-                        + Add Note
-                    </a>
-                </div>
-            </div>
-        </div>
+                <a href="{% url 'notes' %}" class="reading-button reading-note-button">
+                    + Add Note
+                </a>
+
+            </article>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="reading-footer reading-animate delay-7">
+            <span>Your Personal Library</span>
+            <span>Read at your own pace.</span>
+        </footer>
 
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const hour = new Date().getHours();
-        let greetingText = "Hello";
-        
-        if (hour >= 4 && hour < 11) {
-            greetingText = "Good Morning";
-        } else if (hour >= 11 && hour < 15) {
-            greetingText = "Good Afternoon";
-        } else if (hour >= 15 && hour < 18) {
-            greetingText = "Good Evening";
-        } else {
-            greetingText = "Good Night";
-        }
-        
-        const greetingElement = document.getElementById("dynamic-greeting");
-        if (greetingElement) {
-            greetingElement.innerText = greetingText;
-        }
-    });
+document.addEventListener("DOMContentLoaded", function () {
+    const hour = new Date().getHours();
+    let greetingText = "Hello";
+
+    if (hour >= 4 && hour < 11) {
+        greetingText = "Good Morning";
+    } else if (hour >= 11 && hour < 15) {
+        greetingText = "Good Afternoon";
+    } else if (hour >= 15 && hour < 18) {
+        greetingText = "Good Evening";
+    } else {
+        greetingText = "Good Night";
+    }
+
+    const greetingElement = document.getElementById("dynamic-greeting");
+
+    if (greetingElement) {
+        greetingElement.textContent = greetingText;
+    }
+});
 </script>
 
 <style>
-    /* Pengaturan Utama Desktop & Umum agar Mepet -30px ke atas */
-    .edit-reading-epic-wrapper {
-        margin-top: -30px !important; 
-        padding-top: 0 !important;
+/* =====================================
+   PAGE FOUNDATION
+===================================== */
+
+.reading-page {
+    --reading-black: #000;
+    --reading-white: #fff;
+    --reading-text: #111;
+    --reading-muted: #737373;
+    --reading-border: #dedede;
+    --reading-soft: #f8f8f8;
+    --reading-radius: 4px;
+
+    width: 100%;
+    padding: 28px 20px 40px;
+    background: #fff;
+    color: var(--reading-text);
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.reading-page *,
+.reading-page *::before,
+.reading-page *::after {
+    box-sizing: border-box;
+}
+
+.reading-wrapper {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+/* =====================================
+   ENTRANCE ANIMATION
+===================================== */
+
+@keyframes readingEnter {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
     }
 
-    /* 1. Main Card Animation */
-    @keyframes epicCardIntro {
-        0% {
-            opacity: 0;
-            transform: scale(0.7) translateY(50px);
-        }
-        60% {
-            opacity: 1;
-            transform: scale(1.03) translateY(-10px);
-        }
-        80% {
-            transform: scale(0.97) translateY(5px);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reading-animate {
+    opacity: 0;
+    animation: readingEnter 0.5s ease-out forwards;
+}
+
+.reading-animate.delay-1 { animation-delay: 0.08s; }
+.reading-animate.delay-2 { animation-delay: 0.14s; }
+.reading-animate.delay-3 { animation-delay: 0.20s; }
+.reading-animate.delay-4 { animation-delay: 0.26s; }
+.reading-animate.delay-5 { animation-delay: 0.32s; }
+.reading-animate.delay-6 { animation-delay: 0.38s; }
+.reading-animate.delay-7 { animation-delay: 0.44s; }
+
+/* =====================================
+   HERO SECTION
+===================================== */
+
+.reading-hero {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    padding: 58px 50px 40px;
+    border: 1px solid var(--reading-border);
+    border-radius: var(--reading-radius);
+    background: var(--reading-white);
+}
+
+.reading-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--reading-black);
+}
+
+.reading-hero-content {
+    max-width: 850px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* =====================================
+   LIBRARY SPACE LABEL
+===================================== */
+
+.reading-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: fit-content;
+    margin: 0 auto 25px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--reading-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+.reading-label-line {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: #bdbdbd;
+}
+
+/* =====================================
+   TITLE AND DESCRIPTION
+===================================== */
+
+.reading-title {
+    margin: 0 auto 16px;
+    color: var(--reading-black);
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -1.8px;
+}
+
+.reading-description {
+    max-width: 590px;
+    margin: 0 auto;
+    color: var(--reading-muted);
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+/* =====================================
+   UNIFIED BUTTON STYLE
+===================================== */
+
+.reading-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 45px;
+    padding: 12px 20px;
+    border: 1px solid #d0d0d0;
+    border-radius: var(--reading-radius);
+    background: #fff;
+    color: #111;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.reading-button:hover {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.reading-button:active {
+    transform: scale(0.985);
+}
+
+.reading-button:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+}
+
+.reading-button-arrow,
+.reading-dashboard-button span {
+    font-size: 14px;
+    font-weight: 400;
+    transition: transform 0.2s ease;
+}
+
+.reading-button:hover .reading-button-arrow,
+.reading-dashboard-button:hover span {
+    transform: translate(2px, -2px);
+}
+
+/* HERO BUTTONS */
+
+.reading-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 30px auto 0;
+}
+
+.reading-actions .reading-button {
+    min-width: 170px;
+}
+
+/* =====================================
+   READING STATS
+===================================== */
+
+.reading-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 45px;
+    padding-top: 25px;
+    border-top: 1px solid var(--reading-border);
+    text-align: left;
+}
+
+.reading-stat {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    min-width: 0;
+    padding: 0 22px;
+    transition: transform 0.2s ease;
+}
+
+.reading-stat:hover {
+    transform: translateY(-2px);
+}
+
+.reading-stat:first-child {
+    padding-left: 0;
+}
+
+.reading-stat + .reading-stat {
+    border-left: 1px solid var(--reading-border);
+}
+
+.reading-stat-number {
+    color: #a0a0a0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.reading-stat-label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--reading-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+.reading-stat p {
+    margin: 0;
+    color: #111;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* =====================================
+   CONTENT GRID
+===================================== */
+
+.reading-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+    gap: 20px;
+    margin-top: 22px;
+}
+
+.reading-panel,
+.reading-note {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 28px;
+    border: 1px solid var(--reading-border);
+    border-radius: var(--reading-radius);
+    background: #fff;
+    transition: border-color 0.2s ease;
+}
+
+.reading-panel:hover,
+.reading-note:hover {
+    border-color: #bdbdbd;
+}
+
+/* =====================================
+   PANEL HEADER
+===================================== */
+
+.reading-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.reading-eyebrow {
+    color: #111;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.reading-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--reading-muted);
+    font-size: 11px;
+}
+
+.reading-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #111;
+}
+
+/* =====================================
+   ANALYTICS PANEL
+===================================== */
+
+.reading-panel-title {
+    margin: 0 0 15px;
+    color: #000;
+    font-size: clamp(24px, 2.6vw, 32px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.9px;
+}
+
+.reading-panel-description {
+    max-width: 560px;
+    margin: 0 0 30px;
+    color: var(--reading-muted);
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.reading-panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--reading-border);
+}
+
+.reading-footer-note {
+    color: var(--reading-muted);
+    font-size: 11px;
+}
+
+.reading-dashboard-button {
+    align-self: flex-start;
+}
+
+/* =====================================
+   QUICK NOTE
+===================================== */
+
+.reading-note {
+    background: #fafafa;
+}
+
+.reading-note .reading-panel-header {
+    margin-bottom: 25px;
+}
+
+.reading-note-icon {
+    color: #111;
+    font-size: 17px;
+}
+
+.reading-note-title {
+    margin: 0 0 10px;
+    color: #000;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.reading-note-description {
+    margin: 0 0 22px;
+    color: var(--reading-muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.reading-note-paper {
+    position: relative;
+    flex-grow: 1;
+    margin-bottom: 24px;
+    padding: 19px;
+    border: 1px solid var(--reading-border);
+    border-radius: var(--reading-radius);
+    background: #fff;
+    transition: border-color 0.2s ease;
+}
+
+.reading-note-paper:hover {
+    border-color: #bdbdbd;
+}
+
+.reading-note-mark {
+    display: block;
+    margin-bottom: 4px;
+    color: #999;
+    font-size: 27px;
+    line-height: 1;
+}
+
+.reading-note-paper p {
+    margin: 0;
+    color: #222;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.8;
+}
+
+.reading-note-button {
+    width: 100%;
+}
+
+/* =====================================
+   FOOTER
+===================================== */
+
+.reading-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--reading-border);
+    color: #888;
+    font-size: 9px;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+}
+
+.reading-footer span:first-child {
+    font-weight: 700;
+}
+
+/* =====================================
+   RESPONSIVE TABLET
+===================================== */
+
+@media (max-width: 767.98px) {
+    .reading-page {
+        padding: 20px 14px 30px;
     }
 
-    .home-card-epic {
-        animation: epicCardIntro 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    .reading-hero {
+        padding: 42px 24px 30px;
     }
 
-    /* 2. Staggered Fade & Slide Animation */
-    @keyframes itemSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(25px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .reading-title {
+        font-size: clamp(28px, 6vw, 38px);
+        letter-spacing: -1.1px;
     }
 
-    .epic-badge { opacity: 0; animation: itemSlideUp 0.4s ease 0.15s forwards; }
-    .epic-title { opacity: 0; animation: itemSlideUp 0.4s ease 0.23s forwards; }
-    .epic-desc { opacity: 0; animation: itemSlideUp 0.4s ease 0.31s forwards; }
-    .epic-buttons { opacity: 0; animation: itemSlideUp 0.4s ease 0.39s forwards; }
-    .epic-stats { opacity: 0; animation: itemSlideUp 0.4s ease 0.47s forwards; }
-    .epic-home2-left { opacity: 0; animation: itemSlideUp 0.4s ease 0.55s forwards; }
-    .epic-home2-right { opacity: 0; animation: itemSlideUp 0.4s ease 0.63s forwards; }
-
-    /* 3. Brutalist Button Hover Effect */
-    .btn-epic-effect {
-        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-    }
-    .btn-epic-effect:hover {
-        background-color: #000;
-        color: #fff;
-        transform: translateY(-3px);
-    }
-    .btn-epic-effect:active { transform: translateY(0); }
-
-    /* 4. Outline Button Effect */
-    .btn-epic-effect-outline {
-        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-    }
-    .btn-epic-effect-outline:hover {
-        background-color: #000;
-        color: #fff !important;
-        transform: translateY(-3px);
-    }
-    .btn-epic-effect-outline:active { transform: translateY(0); }
-
-    /* 5. Custom Card Hover Effect */
-    .custom-brutalist-card {
-        transition: transform 0.25s ease;
-    }
-    .custom-brutalist-card:hover {
-        transform: translateY(-3px);
+    .reading-description {
+        font-size: 13px;
     }
 
-    @media (max-width: 575.98px) {
-        .w-sm-auto {
-            width: 100% !important;
-        }
+    .reading-stats {
+        grid-template-columns: 1fr;
+        gap: 0;
+        margin-top: 35px;
+        padding-top: 10px;
     }
 
-    /* Pengaturan Tambahan Khusus Mobile */
-    @media (max-width: 767.98px) {
-        .mobile-breadcrumb {
-            padding-top: 0 !important;
-            margin-bottom: 0.2rem !important;
-        }
-
-        .mobile-cover-img {
-            max-width: 150px !important;
-            width: 100% !important;
-            margin-left: auto;
-            margin-right: auto;
-            display: block;
-        }
+    .reading-stat,
+    .reading-stat:first-child {
+        padding: 17px 0;
     }
+
+    .reading-stat + .reading-stat {
+        border-top: 1px solid var(--reading-border);
+        border-left: 0;
+    }
+
+    .reading-content {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 16px;
+    }
+
+    .reading-panel,
+    .reading-note {
+        padding: 24px;
+    }
+
+    .reading-panel-header {
+        margin-bottom: 22px;
+    }
+
+    .reading-panel-title {
+        font-size: 27px;
+    }
+
+    .reading-panel-description {
+        margin-bottom: 24px;
+    }
+}
+
+/* =====================================
+   RESPONSIVE MOBILE
+===================================== */
+
+@media (max-width: 480px) {
+    .reading-page {
+        padding: 14px 10px 24px;
+    }
+
+    .reading-hero {
+        padding: 34px 18px 24px;
+    }
+
+    .reading-label {
+        gap: 9px;
+        margin-bottom: 20px;
+        font-size: 9px;
+        letter-spacing: 1.4px;
+    }
+
+    .reading-label-line {
+        width: 17px;
+    }
+
+    .reading-title {
+        font-size: 29px;
+        line-height: 1.22;
+        letter-spacing: -0.9px;
+    }
+
+    .reading-description {
+        font-size: 12px;
+        line-height: 1.8;
+    }
+
+    .reading-actions {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .reading-actions .reading-button,
+    .reading-dashboard-button,
+    .reading-note-button {
+        width: 100%;
+    }
+
+    .reading-stats {
+        margin-top: 28px;
+    }
+
+    .reading-panel,
+    .reading-note {
+        padding: 20px;
+    }
+
+    .reading-panel-title {
+        font-size: 24px;
+    }
+
+    .reading-panel-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .reading-footer {
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .desktop-break {
+        display: none;
+    }
+}
+
+/* =====================================
+   ACCESSIBILITY: REDUCED MOTION
+===================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .reading-page *,
+    .reading-page *::before,
+    .reading-page *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .reading-animate {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
 </style>

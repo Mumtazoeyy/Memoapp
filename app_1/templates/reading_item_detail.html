@@ -7,150 +7,451 @@
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-<div class="container-fluid px-3 px-md-4 pt-0 mt-0 detail-epic-wrapper">
-    
-    <!-- Breadcrumb disesuaikan agar teks panjang tidak turun berantakan -->
-    <nav aria-label="breadcrumb" class="mb-3 detail-anim-1 pt-2 mobile-breadcrumb">
-        <ol class="breadcrumb" style="flex-wrap: nowrap; overflow: hidden;">
-            <li class="breadcrumb-item flex-shrink-0"><a href="{% url 'reading_list' %}" class="text-decoration-none text-dark">Reading List</a></li>
-            <li class="breadcrumb-item active fw-bold text-truncate" aria-current="page" style="min-width: 0;">{{ item.title }}</li>
-        </ol>
-    </nav>
-
-    <!-- Diubah menjadi col-12 di mobile agar tidak sempit, dan kembali col-3/col-9 di desktop -->
-    <div class="row g-4">
-        <div class="col-12 col-md-3 detail-anim-2">
-            <div class="cover-container mb-3 text-center text-md-start">
-                {% if item.image %}
-                    <img src="{{ item.image.url }}" class="img-fluid border border-dark shadow-sm mobile-cover-img" style="aspect-ratio: 3/4; object-fit: cover;" alt="{{ item.title }}">
-                {% else %}
-                    <div class="bg-light d-flex align-items-center justify-content-center border border-dark shadow-sm mobile-cover-img" style="aspect-ratio: 3/4;">
-                        <span class="text-muted small">No Cover</span>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- Tombol Aksi: Sejajar di mobile, ke bawah di desktop -->
-            <div class="d-flex flex-row flex-md-column gap-2 action-buttons-container mb-1 mb-md-0">
-                <form action="{% url 'toggle_favorite' item.id %}" method="POST" class="flex-fill m-0 p-0">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-dark rounded-0 w-100 d-flex align-items-center justify-content-center gap-1 btn-epic-effect py-1 py-md-2" 
-                            style="border: 1px solid #000; font-size: 0.85rem; box-sizing: border-box; min-height: 36px;">
-                        {% if item.favorit %}
-                            <span style="color: #ffc107; font-size: 1rem; line-height: 1;">★</span> 
-                            <span class="fw-bold">Favorited</span>
-                        {% else %}
-                            <span style="font-size: 1rem; line-height: 1;">☆</span> 
-                            <span>Favorite</span>
-                        {% endif %}
-                    </button>
-                </form>
-
-                <a href="http://127.0.0.1:8000/reading/dashboard/" class="btn btn-dark rounded-0 w-100 d-flex align-items-center justify-content-center gap-1 btn-epic-effect py-1 py-md-2 flex-fill text-decoration-none" 
-                style="border: 1px solid #000; font-size: 0.85rem; box-sizing: border-box; min-height: 36px;">
-                    <span>Dashboard</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-9">
-            <div class="mb-4 pb-3 border-bottom border-dark detail-anim-3">
-                <!-- Judul dengan Ikon Copy -->
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <h1 class="fw-bold mb-0 fs-2 fs-md-1" style="letter-spacing: -1px; word-break: break-word; overflow-wrap: anywhere;" id="itemTitle">{{ item.title }}</h1>
-                    
-                    <button type="button" class="btn btn-sm btn-outline-secondary border-0 p-1 btn-epic-effect flex-shrink-0" 
-                            onclick="copyTitle()" title="Copy Title" 
-                            style="cursor: pointer; line-height: 1;">
-                        <i class="bi bi-files" style="font-size: 1.25rem;"></i>
-                    </button>
-                </div>
-
-                <!-- Metadata Boxes (Status, Type, ID) -->
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    {% if item.status and item.status.name %}
-                        <div class="bg-light border border-dark px-3 py-1 small fw-bold d-flex align-items-center gap-1">
-                            <span>Status:</span> <span>{{ item.status.name }}</span>
-                        </div>
-                    {% endif %}
-                    {% if item.Type and item.Type.name %}
-                        <div class="bg-light border border-dark px-3 py-1 small fw-bold d-flex align-items-center gap-1">
-                            <span>Type:</span> <span>{{ item.Type.name }}</span>
-                        </div>
-                    {% endif %}
-                    <div class="bg-light border border-dark px-3 py-1 small fw-bold font-monospace d-flex align-items-center gap-1">
-                        <span>ID:</span> <span>#{{ item.id }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tags Container -->
-            {% if item.tags.all %}
-                <div class="d-flex flex-wrap gap-1 mb-4 detail-anim-3-5">
-                    {% for tag in item.tags.all %}
-                        <span class="badge border border-dark bg-light text-dark rounded-0 px-2 py-1 small">{{ tag.name }}</span>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <div class="mb-4 detail-anim-4">
-                <h6 class="fw-bold text-uppercase mb-2">Synopsis</h6>
-                <div class="text-secondary break-long-text" style="line-height: 1.6;">
-                    {% if item.synopsis and item.synopsis != '-' %}
-                        {{ item.synopsis|linebreaks }}
-                    {% else %}
-                        No synopsis is currently available for this title.
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="row mb-5 detail-anim-5">
-                <div class="col-12">
-                    <table class="table border-dark table-layout-fixed">
-                        <tbody>
-                            <tr><th class="bg-light" style="width: 200px;">Chapters</th><td class="break-long-text">{{ item.chapters|default:"Not specified" }}</td></tr>
-                            {% if item.season and item.season != "-" %}
-                                <tr><th class="bg-light">Season</th><td class="break-long-text">{{ item.season }}</td></tr>
-                            {% endif %}
-                            <tr><th class="bg-light">Rating</th><td class="fw-bold break-long-text">{{ item.rating|default:"-" }}</td></tr>
-                            <tr><th class="bg-light">Added</th><td>{{ item.created_at|date:"d M Y" }}</td></tr>
-                            <tr>
-                                <th class="bg-light">Last Edited</th>
-                                <td>
-                                    {% if item.last_edited_at %}
-                                        {{ item.last_edited_at|date:"d M Y, H:i" }}
-                                    {% else %}
-                                        Never edited
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="mb-5 p-3 border border-dark bg-light detail-anim-6">
-                <h6 class="fw-bold text-uppercase mb-2">Notes</h6>
-                {% if item.notes and item.notes != "-" %}
-                    <div class="mb-0 text-dark break-long-text">{{ item.notes|safe }}</div>
-                {% else %}
-                    <p class="mb-0 text-muted fst-italic">No additional notes.</p>
-                {% endif %}
-            </div>
-
-            <div class="d-flex gap-2 detail-anim-7 pb-4">
-                <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 btn-pro btn-outline-pro btn-epic-effect">Back</a>
-                <a href="{% url 'reading_edit' item.id %}" class="btn btn-dark rounded-0 px-4 btn-pro btn-dark-pro btn-epic-effect">Edit Entry</a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-    @keyframes itemSlideUp {
+    /* =====================================
+       READING ITEM DETAIL - UNIFIED DESIGN
+    ===================================== */
+
+    .detail-epic-wrapper {
+        --detail-black: #111;
+        --detail-white: #fff;
+        --detail-muted: #737373;
+        --detail-border: #d0d0d0;
+        --detail-soft: #f8f8f8;
+        --detail-radius: 4px;
+
+        color: var(--detail-black);
+        animation: itemSlideUp .6s ease forwards;
+    }
+
+    .detail-epic-wrapper *,
+    .detail-epic-wrapper *::before,
+    .detail-epic-wrapper *::after {
+        box-sizing: border-box;
+    }
+
+    /* =====================================
+       BREADCRUMB
+    ===================================== */
+
+    .mobile-breadcrumb {
+        min-width: 0;
+    }
+
+    .detail-epic-wrapper .breadcrumb {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        margin-bottom: 0;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .detail-epic-wrapper .breadcrumb-item {
+        min-width: 0;
+    }
+
+    .detail-epic-wrapper .breadcrumb-item a {
+        color: #737373 !important;
+        text-decoration: none;
+        transition: color .2s ease;
+    }
+
+    .detail-epic-wrapper .breadcrumb-item a:hover {
+        color: #111 !important;
+    }
+
+    .detail-epic-wrapper .breadcrumb-item.active {
+        overflow: hidden;
+        color: #111;
+        text-overflow: ellipsis;
+    }
+
+    /* =====================================
+       COVER
+    ===================================== */
+
+    .cover-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--detail-border);
+        border-radius: var(--detail-radius);
+        background: var(--detail-soft);
+        transition: border-color .2s ease;
+    }
+
+    .cover-container:hover {
+        border-color: #999;
+    }
+
+    .mobile-cover-img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* =====================================
+       BUTTONS
+    ===================================== */
+
+    .detail-epic-wrapper .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 9px 14px;
+        border: 1px solid var(--detail-border) !important;
+        border-radius: var(--detail-radius) !important;
+        background: #fff;
+        color: #111;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .35px;
+        line-height: 1.4;
+        text-align: center;
+        text-decoration: none;
+        transition: background-color .2s ease, color .2s ease,
+                    border-color .2s ease, transform .2s ease;
+    }
+
+    .detail-epic-wrapper .btn:hover {
+        border-color: #111 !important;
+        background: #111 !important;
+        color: #fff !important;
+    }
+
+    .detail-epic-wrapper .btn:active {
+        transform: scale(.985);
+    }
+
+    .detail-epic-wrapper .btn:focus-visible {
+        outline: 2px solid #111;
+        outline-offset: 3px;
+    }
+
+    .detail-epic-wrapper .btn-dark {
+        border-color: #111 !important;
+        background: #111 !important;
+        color: #fff !important;
+    }
+
+    .detail-epic-wrapper .btn-dark:hover {
+        border-color: #333 !important;
+        background: #333 !important;
+        color: #fff !important;
+    }
+
+    .detail-epic-wrapper .action-buttons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .detail-epic-wrapper .action-buttons-container .btn {
+        width: 100%;
+        min-height: 40px;
+    }
+
+    .detail-epic-wrapper .btn-copy-title {
+        flex-shrink: 0;
+        min-height: 34px;
+        padding: 5px 8px;
+        border-color: transparent !important;
+        background: transparent;
+    }
+
+    .detail-epic-wrapper .btn-copy-title:hover {
+        border-color: #111 !important;
+        background: #111 !important;
+        color: #fff !important;
+    }
+
+    /* Favorite star */
+    .favorite-star {
+        color: #d4a000;
+        font-size: 17px;
+        line-height: 1;
+    }
+
+    /* =====================================
+       TITLE AND METADATA
+    ===================================== */
+
+    .detail-title-divider {
+        border-color: var(--detail-border) !important;
+    }
+
+    .detail-epic-wrapper #itemTitle {
+        min-width: 0;
+        color: #111;
+        font-size: clamp(24px, 3vw, 36px);
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -.8px;
+        overflow-wrap: anywhere;
+    }
+
+    .detail-epic-wrapper .metadata-box {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-height: 32px;
+        padding: 6px 10px;
+        border: 1px solid var(--detail-border);
+        border-radius: var(--detail-radius);
+        background: #fff;
+        color: #111;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        transition: border-color .2s ease;
+    }
+
+    .detail-epic-wrapper .metadata-box:hover {
+        border-color: #999;
+    }
+
+    /* =====================================
+       ALTERNATIVE TITLES
+    ===================================== */
+
+    .detail-alternative-title {
+        margin-top: 12px;
+        color: #737373;
+        font-size: 13px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    .detail-alternative-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #111;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .detail-alternative-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .detail-alternative-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        max-width: 100%;
+        padding: 5px 9px;
+        border: 1px solid var(--detail-border);
+        border-radius: var(--detail-radius);
+        background: #fff;
+        color: #555;
+        font-size: 11px;
+        transition: background-color .2s ease, color .2s ease,
+                    border-color .2s ease;
+    }
+
+    .detail-alternative-item:hover {
+        border-color: #111;
+        background: #111;
+        color: #fff;
+    }
+
+    .detail-alternative-text {
+        min-width: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .detail-alternative-copy {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    .detail-alternative-copy:hover {
+        opacity: .7;
+    }
+
+    .detail-alternative-copy:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+
+    .detail-alternative-empty {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 12px;
+        border: 1px dashed var(--detail-border);
+        border-radius: var(--detail-radius);
+        background: #fafafa;
+        color: #737373;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    .detail-alternative-empty i {
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    /* =====================================
+       TAGS
+    ===================================== */
+
+    .detail-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 6px 10px;
+        border: 1px solid var(--detail-border);
+        border-radius: var(--detail-radius);
+        background: #fff;
+        color: #111;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .2px;
+        overflow-wrap: anywhere;
+        transition: background-color .2s ease, color .2s ease,
+                    border-color .2s ease;
+    }
+
+    .detail-tag:hover {
+        border-color: #111;
+        background: #111;
+        color: #fff;
+    }
+
+    /* =====================================
+       SECTION TITLES AND SYNOPSIS
+    ===================================== */
+
+    .detail-section-title {
+        margin-bottom: 12px;
+        color: #111;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .detail-synopsis {
+        color: #737373;
+        font-size: 13px;
+        line-height: 1.9;
+    }
+
+    .detail-synopsis p {
+        margin-bottom: 10px;
+    }
+
+    /* =====================================
+       INFORMATION TABLE
+    ===================================== */
+
+    .detail-info-table {
+        width: 100%;
+        margin-bottom: 0;
+        border: 1px solid var(--detail-border);
+        border-collapse: collapse;
+        table-layout: fixed;
+        color: #111;
+        font-size: 12px;
+    }
+
+    .detail-info-table th,
+    .detail-info-table td {
+        padding: 12px 14px;
+        border: 1px solid var(--detail-border);
+        vertical-align: top;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .detail-info-table th {
+        width: 200px;
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+
+    .detail-info-table td {
+        background: #fff;
+    }
+
+    /* =====================================
+       NOTES
+    ===================================== */
+
+    .detail-notes-box {
+        padding: 20px !important;
+        border: 1px solid var(--detail-border) !important;
+        border-radius: var(--detail-radius) !important;
+        background: #fff !important;
+        transition: border-color .2s ease;
+    }
+
+    .detail-notes-box:hover {
+        border-color: #999 !important;
+    }
+
+    .detail-notes-content {
+        color: #333;
+        font-size: 13px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .detail-notes-content p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* =====================================
+       COPY NOTIFICATION
+    ===================================== */
+
+    .detail-copy-toast {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 1090;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        max-width: calc(100vw - 40px);
+        padding: 12px 16px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        background: #111;
+        color: #fff;
+        font-size: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, .15);
+        animation: toastAppear .2s ease;
+    }
+
+    @keyframes toastAppear {
         from {
             opacity: 0;
-            transform: translateY(25px);
+            transform: translateY(8px);
         }
         to {
             opacity: 1;
@@ -158,108 +459,621 @@
         }
     }
 
-    .detail-epic-wrapper {
-        animation: itemSlideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    /* =====================================
+       ANIMATIONS
+    ===================================== */
+
+    @keyframes itemSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    .detail-anim-1 { opacity: 0; animation: itemSlideUp 0.4s ease 0.1s forwards; }
-    .detail-anim-2 { opacity: 0; animation: itemSlideUp 0.4s ease 0.18s forwards; }
-    .detail-anim-3 { opacity: 0; animation: itemSlideUp 0.4s ease 0.26s forwards; }
-    .detail-anim-3-5 { opacity: 0; animation: itemSlideUp 0.4s ease 0.30s forwards; }
-    .detail-anim-4 { opacity: 0; animation: itemSlideUp 0.4s ease 0.34s forwards; }
-    .detail-anim-5 { opacity: 0; animation: itemSlideUp 0.4s ease 0.42s forwards; }
-    .detail-anim-6 { opacity: 0; animation: itemSlideUp 0.4s ease 0.50s forwards; }
-    .detail-anim-7 { opacity: 0; animation: itemSlideUp 0.4s ease 0.58s forwards; }
-
-    .btn-epic-effect {
-        transition: all 0.3s ease;
-    }
-    .btn-epic-effect:hover {
-        background-color: #000;
-        color: #fff !important;
-        border-color: #000 !important;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    .detail-anim-1 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .1s forwards;
     }
 
-    /* Penanganan teks panjang tanpa spasi agar turun baris dengan aman tanpa merusak layout */
-    .break-long-text, 
-    .break-long-text p, 
-    .break-long-text span,
-    .table td {
-        word-break: break-word !important;
-        overflow-wrap: anywhere !important;
-        white-space: normal !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
+    .detail-anim-2 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .18s forwards;
     }
 
-    /* Pengaturan Responsif Khusus Mobile */
+    .detail-anim-3 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .26s forwards;
+    }
+
+    .detail-anim-3-5 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .30s forwards;
+    }
+
+    .detail-anim-4 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .34s forwards;
+    }
+
+    .detail-anim-5 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .42s forwards;
+    }
+
+    .detail-anim-6 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .50s forwards;
+    }
+
+    .detail-anim-7 {
+        opacity: 0;
+        animation: itemSlideUp .4s ease .58s forwards;
+    }
+
+    /* =====================================
+       RESPONSIVE
+    ===================================== */
+
     @media (max-width: 767.98px) {
-        /* Menarik jarak atas konten agar sangat dekat/mepet ke navbar */
         .detail-epic-wrapper {
-            margin-top: -30px !important;
+            margin-top: 0 !important;
             padding-top: 0 !important;
         }
 
         .mobile-breadcrumb {
-            padding-top: 0 !important;
-            margin-bottom: 0.2rem !important;
+            padding-top: 4px !important;
+            margin-top: 0 !important;
+            margin-bottom: .5rem !important;
+        }
+
+        .detail-epic-wrapper .row.g-4 {
+            --bs-gutter-y: 1rem;
+        }
+
+        .detail-epic-wrapper .cover-container {
+            margin-bottom: 10px !important;
         }
 
         .mobile-cover-img {
-            max-width: 150px !important;
-            width: 100% !important;
-            margin-left: auto;
+            width: 150px !important;
+            max-width: 100%;
             margin-right: auto;
-            display: block;
+            margin-left: auto;
         }
 
-        .action-buttons-container button,
-        .action-buttons-container a {
-            padding-top: 5px !important;
-            padding-bottom: 5px !important;
-            font-size: 0.8rem !important;
+        /* Tombol horizontal khusus mobile */
+        .detail-epic-wrapper .action-buttons-container {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: .5rem !important;
         }
 
-        /* Merapatkan jarak di bawah kontainer tombol agar dekat dengan Title */
-        .action-buttons-container {
-            margin-bottom: 0.5rem !important; 
+        .detail-epic-wrapper .action-buttons-container form,
+        .detail-epic-wrapper .action-buttons-container > a {
+            flex: 1 1 0;
+            min-width: 0;
+            margin: 0;
         }
 
-        /* Merapatkan jarak bagian atas box judul utama */
-        .col-12.col-md-9 > div:first-child {
-            margin-top: -10px !important; 
+        .detail-epic-wrapper .action-buttons-container .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+            min-height: 38px;
+            padding: 6px 8px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        /* Beri jarak setelah Alternative Titles di mobile */
+        #mobileActionButtonsTarget .action-buttons-container {
+            margin-top: 12px;
+            margin-bottom: 16px !important;
+        }
+
+        .detail-epic-wrapper #itemTitle {
+            font-size: 27px;
+        }
+
+        .detail-epic-wrapper .detail-title-divider {
+            margin-top: 0 !important;
+            margin-bottom: 1.25rem !important;
+        }
+
+        .detail-info-table th {
+            width: 36%;
+        }
+
+        .detail-info-table th,
+        .detail-info-table td {
+            padding: 10px;
+            font-size: 11px;
+        }
+
+        .detail-notes-box {
+            padding: 16px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .detail-epic-wrapper #itemTitle {
+            font-size: 24px;
+            letter-spacing: -.6px;
+        }
+
+        .detail-epic-wrapper .metadata-box {
+            padding: 6px 8px;
+            font-size: 10px;
+        }
+
+        .detail-info-table th,
+        .detail-info-table td {
+            padding: 9px 8px;
+            font-size: 10px;
+        }
+
+        .detail-alternative-item {
+            font-size: 10px;
+        }
+
+        .detail-copy-toast {
+            right: 12px;
+            bottom: 12px;
+        }
+
+        .detail-epic-wrapper .detail-bottom-actions {
+            gap: 8px !important;
+        }
+
+        .detail-epic-wrapper .detail-bottom-actions .btn {
+            flex: 1;
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .detail-epic-wrapper,
+        .detail-epic-wrapper *,
+        .detail-copy-toast {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        .detail-anim-1,
+        .detail-anim-2,
+        .detail-anim-3,
+        .detail-anim-3-5,
+        .detail-anim-4,
+        .detail-anim-5,
+        .detail-anim-6,
+        .detail-anim-7 {
+            opacity: 1 !important;
         }
     }
 </style>
 
+<div class="container-fluid px-3 px-md-4 pt-0 mt-0 detail-epic-wrapper">
+
+    <!-- BREADCRUMB -->
+    <nav aria-label="breadcrumb" class="mb-3 detail-anim-1 pt-2 mobile-breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item flex-shrink-0">
+                <a href="{% url 'reading_list' %}">Reading List</a>
+            </li>
+            <li class="breadcrumb-item active fw-bold" aria-current="page">
+                {{ item.title }}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- COVER DAN TOMBOL -->
+        <div class="col-12 col-md-3 detail-anim-2" id="coverColumn">
+
+            <div class="cover-container mb-3 text-center">
+                {% if item.image %}
+                    <img
+                        src="{{ item.image.url }}"
+                        class="mobile-cover-img"
+                        alt="{{ item.title }}"
+                    >
+                {% else %}
+                    <div class="mobile-cover-img d-flex align-items-center justify-content-center">
+                        <span class="text-muted small">No Cover Available</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="action-buttons-container mb-1" id="actionButtons">
+
+                <form action="{% url 'toggle_favorite' item.id %}" method="POST" class="m-0 p-0">
+                    {% csrf_token %}
+
+                    <button type="submit" class="btn btn-outline-dark w-100">
+                        {% if item.favorit %}
+                            <span class="favorite-star">★</span>
+                            <span>Favorited</span>
+                        {% else %}
+                            <span style="font-size:17px;line-height:1;">☆</span>
+                            <span>Favorite</span>
+                        {% endif %}
+                    </button>
+                </form>
+
+                <a href="{% url 'dashboard' %}" class="btn btn-dark w-100">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- ITEM DETAILS -->
+        <div class="col-12 col-md-9">
+
+            <!-- TITLE, ALTERNATIVE TITLES, METADATA -->
+            <div class="mb-4 pb-3 border-bottom detail-title-divider detail-anim-3">
+
+                <!-- MAIN TITLE -->
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h1 class="mb-0" id="itemTitle">{{ item.title }}</h1>
+
+                    <button
+                        type="button"
+                        class="btn btn-copy-title"
+                        onclick="copyTitle()"
+                        title="Copy Title"
+                        aria-label="Copy title"
+                    >
+                        <i class="bi bi-files" style="font-size:1.15rem;"></i>
+                    </button>
+                </div>
+
+                <!-- ALTERNATIVE TITLES -->
+                <div class="detail-alternative-title">
+
+                    <span class="detail-alternative-label">
+                        Alternative Titles
+                    </span>
+
+                    {% if alternative_titles %}
+                        <div class="detail-alternative-list">
+                            {% for alternative in alternative_titles %}
+                                {% if alternative %}
+                                    <span class="detail-alternative-item">
+                                        <span class="detail-alternative-text">{{ alternative }}</span>
+
+                                        <button
+                                            type="button"
+                                            class="detail-alternative-copy"
+                                            onclick="copyAlternativeTitle(this)"
+                                            data-title="{{ alternative }}"
+                                            title="Copy alternative title"
+                                            aria-label="Copy alternative title"
+                                        >
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="detail-alternative-empty">
+                            <i class="bi bi-info-circle"></i>
+                            <span>No alternative titles available for this item.</span>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <!-- TARGET KHUSUS PEMINDAHAN TOMBOL DI MOBILE -->
+                <div id="mobileActionButtonsTarget"></div>
+
+                <!-- STATUS, TYPE, ID -->
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+
+                    {% if item.status and item.status.name %}
+                        <div class="metadata-box">
+                            <span>Status:</span>
+                            <span>{{ item.status.name }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if item.Type and item.Type.name %}
+                        <div class="metadata-box">
+                            <span>Type:</span>
+                            <span>{{ item.Type.name }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="metadata-box font-monospace">
+                        <span>ID:</span>
+                        <span>#{{ item.id }}</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAGS -->
+            {% if item.tags.all %}
+                <div class="d-flex flex-wrap gap-2 mb-4 detail-anim-3-5">
+                    {% for tag in item.tags.all %}
+                        <span class="detail-tag">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- SYNOPSIS -->
+            <div class="mb-4 detail-anim-4">
+                <h6 class="detail-section-title">Synopsis</h6>
+
+                <div class="detail-synopsis">
+                    {% if item.synopsis and item.synopsis != '-' %}
+                        {{ item.synopsis|linebreaks }}
+                    {% else %}
+                        <p>No synopsis is currently available for this title.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- PERSONAL READING INFORMATION -->
+            <div class="row mb-5 detail-anim-5">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="detail-info-table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Chapters</th>
+                                    <td>
+                                        {% if item.chapters != None %}
+                                            {{ item.chapters }}
+                                        {% else %}
+                                            Not specified
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                {% if item.season and item.season != "-" %}
+                                    <tr>
+                                        <th scope="row">Season</th>
+                                        <td>{{ item.season }}</td>
+                                    </tr>
+                                {% endif %}
+
+                                <tr>
+                                    <th scope="row">Rating</th>
+                                    <td class="fw-bold">
+                                        {% if item.rating and item.rating != "-" %}
+                                            {{ item.rating }}
+                                        {% else %}
+                                            Not rated
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th scope="row">Added</th>
+                                    <td>
+                                        {% if item.created_at %}
+                                            {{ item.created_at|date:"d M Y" }}
+                                        {% else %}
+                                            Not available
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th scope="row">Last Edited</th>
+                                    <td>
+                                        {% if item.last_edited_at %}
+                                            {{ item.last_edited_at|date:"d M Y, H:i" }}
+                                        {% else %}
+                                            Never edited
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTES -->
+            <div class="mb-5 detail-notes-box detail-anim-6">
+                <h6 class="detail-section-title">Notes</h6>
+
+                {% if item.notes and item.notes != "-" %}
+                    <div class="detail-notes-content">{{ item.notes|safe }}</div>
+                {% else %}
+                    <div class="detail-alternative-empty">
+                        <i class="bi bi-journal-text"></i>
+                        <span>No additional notes have been added to this entry.</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- BOTTOM ACTIONS -->
+            <div class="d-flex flex-wrap gap-2 detail-bottom-actions detail-anim-7 pb-4">
+
+                <a
+                    href="{% url 'reading_list' %}"
+                    class="btn"
+                >
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+
+                <a
+                    href="{% url 'reading_edit' item.id %}"
+                    class="btn btn-dark"
+                >
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit Entry</span>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script>
-    function copyTitle() {
-        const titleText = document.getElementById("itemTitle").innerText;
+    /* =====================================
+       PINDAHKAN ACTION BUTTONS KHUSUS MOBILE
+    ===================================== */
 
-        navigator.clipboard.writeText(titleText).then(() => {
-            const container = document.querySelector('.toast-container-custom');
-            if (!container) return;
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-dismissible fade show custom-alert';
-            alertDiv.setAttribute('role', 'alert');
-            
-            alertDiv.innerHTML = `
-                Title copied!
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButtons = document.getElementById('actionButtons');
+        const mobileTarget = document.getElementById('mobileActionButtonsTarget');
+        const coverColumn = document.getElementById('coverColumn');
 
-            container.appendChild(alertDiv);
+        if (!actionButtons || !mobileTarget || !coverColumn) return;
 
-            setTimeout(function() {
-                let bsAlert = new bootstrap.Alert(alertDiv);
-                bsAlert.close();
-            }, 3500);
-        }).catch(err => {
-            console.error('Gagal menyalin: ', err);
-        });
+        // Simpan posisi awal agar tombol dapat dikembalikan ke desktop.
+        const originalParent = coverColumn;
+        const originalNextSibling = actionButtons.nextSibling;
+        const mobileQuery = window.matchMedia('(max-width: 767.98px)');
+
+        function moveActionButtons() {
+            if (mobileQuery.matches) {
+                // Mobile: letakkan setelah Alternative Titles.
+                mobileTarget.appendChild(actionButtons);
+            } else if (actionButtons.parentElement !== originalParent) {
+                // Desktop: kembalikan tombol ke bawah cover.
+                if (
+                    originalNextSibling &&
+                    originalNextSibling.parentNode === originalParent
+                ) {
+                    originalParent.insertBefore(actionButtons, originalNextSibling);
+                } else {
+                    originalParent.appendChild(actionButtons);
+                }
+            }
+        }
+
+        moveActionButtons();
+        mobileQuery.addEventListener('change', moveActionButtons);
+    });
+
+    /* =====================================
+       COPY NOTIFICATION
+    ===================================== */
+
+    function showCopyToast(message) {
+        const oldToast = document.querySelector('.detail-copy-toast');
+
+        if (oldToast) {
+            oldToast.remove();
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'detail-copy-toast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-check-circle';
+
+        const messageElement = document.createElement('span');
+        messageElement.textContent = message;
+
+        toast.appendChild(icon);
+        toast.appendChild(messageElement);
+        document.body.appendChild(toast);
+
+        window.setTimeout(() => {
+            toast.remove();
+        }, 2500);
+    }
+
+    /* =====================================
+       CLIPBOARD HELPER
+    ===================================== */
+
+    async function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        const copied = document.execCommand('copy');
+        textarea.remove();
+
+        if (!copied) {
+            throw new Error('Clipboard copy failed.');
+        }
+    }
+
+    /* =====================================
+       COPY MAIN TITLE
+    ===================================== */
+
+    async function copyTitle() {
+        const titleElement = document.getElementById('itemTitle');
+
+        if (!titleElement) return;
+
+        try {
+            await copyText(titleElement.innerText.trim());
+            showCopyToast('Title copied!');
+        } catch (error) {
+            console.error('Gagal menyalin judul:', error);
+            showCopyToast('Unable to copy title.');
+        }
+    }
+
+    /* =====================================
+       COPY ALTERNATIVE TITLE
+    ===================================== */
+
+    async function copyAlternativeTitle(button) {
+        const titleText = button.dataset.title || '';
+
+        if (!titleText.trim()) {
+            showCopyToast('Alternative title is empty.');
+            return;
+        }
+
+        try {
+            await copyText(titleText);
+
+            const originalIcon = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-check2"></i>';
+
+            showCopyToast('Alternative title copied!');
+
+            window.setTimeout(() => {
+                if (button.isConnected) {
+                    button.innerHTML = originalIcon;
+                }
+            }, 1200);
+
+        } catch (error) {
+            console.error('Gagal menyalin judul alternatif:', error);
+            showCopyToast('Unable to copy alternative title.');
+        }
     }
 </script>
+
 {% endblock %}

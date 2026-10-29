@@ -1,3 +1,4 @@
+
 {% extends 'base/base.html' %}
 {% load static %}
 
@@ -9,259 +10,1263 @@
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
 <style>
-    /* ==========================================================================
-       DESKTOP RESPONSIVE (Mencegah Scroll Horizontal & Pas Panjang Layar)
-       ========================================================================== */
-    @media (min-width: 768px) {
-        .custom-table-mono {
-            width: 100% !important;
-            table-layout: fixed !important; /* KUNCI: Memaksa tabel patuh pada lebar 100% layar */
-        }
+/* =====================================================
+   READING LIST — MINIMALIST THEME
+===================================================== */
 
-        /* Berikan alokasi lebar statis untuk kolom kecil agar sisa ruang diberikan ke Title */
-        .custom-table-mono th:nth-child(1), .custom-table-mono td:nth-child(1) { width: 60px; } /* No. */
-        .custom-table-mono th:nth-child(3), .custom-table-mono td:nth-child(3) { width: 100px; } /* Chapters */
-        .custom-table-mono th:nth-child(4), .custom-table-mono td:nth-child(4) { width: 80px; }  /* Season */
-        .custom-table-mono th:nth-child(5), .custom-table-mono td:nth-child(5) { width: 110px; } /* Status */
-        .custom-table-mono th:nth-child(6), .custom-table-mono td:nth-child(6) { width: 80px; }  /* Rating */
-        .custom-table-mono th:nth-child(7), .custom-table-mono td:nth-child(7) { width: 90px; }  /* Type */
-        .custom-table-mono th:nth-child(8), .custom-table-mono td:nth-child(8) { width: 150px; } /* Notes */
-        .custom-table-mono th:nth-child(9), .custom-table-mono td:nth-child(9) { width: 40px; }  /* Checkbox */
+.reading-list-epic-wrapper {
+    --rl-black: #171717;
+    --rl-muted: #777;
+    --rl-line: #e7e7e7;
+    --rl-soft: #f7f7f7;
 
-        /* Kolom Title (Kolom ke-2): Mengambil sisa space, jika kepanjangan akan otomatis terpotong (...) */
-        .custom-table-mono td.col-title {
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-        }
-        .custom-table-mono td.col-title a {
-            display: inline-block;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-        .custom-table-mono td.col-notes {
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            max-width: 150px !important;
-        }
+    width: 100%;
+    min-width: 0;
+    padding: 16px 20px 30px;
+    color: var(--rl-black);
+    box-sizing: border-box;
+}
+
+.reading-list-epic-wrapper *,
+.reading-list-epic-wrapper *::before,
+.reading-list-epic-wrapper *::after {
+    box-sizing: border-box;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.rl-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    margin: 0 0 2px;
+    padding: 4px 0;
+}
+
+.rl-toolbar {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.rl-heading h3 {
+    margin: 0 0 5px;
+    color: var(--rl-black);
+    font-size: 1.35rem;
+    font-weight: 750;
+    letter-spacing: -0.6px;
+}
+
+.rl-heading p {
+    margin: 0;
+    color: var(--rl-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.rl-control-left {
+    display: flex;
+    align-items: center;
+    flex: 0 1 360px;
+    min-width: 0;
+}
+
+.rl-search {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 360px;
+    min-width: 0;
+    height: 36px;
+    margin: 0;
+}
+
+.rl-search .search-input {
+    box-sizing: border-box;
+    flex: 1 1 180px;
+    width: 180px;
+    min-width: 0;
+    height: 36px;
+    min-height: 36px;
+    margin: 0;
+    padding: 0 10px;
+    border: 1px solid #dedede;
+    border-radius: 4px 0 0 4px;
+    background: #fff;
+    color: var(--rl-black);
+    font-family: inherit;
+    font-size: 0.8rem;
+    line-height: normal;
+    box-shadow: none;
+    outline: none;
+}
+
+.rl-search .search-input:focus {
+    position: relative;
+    z-index: 1;
+    border-color: #777;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.04);
+}
+
+.rl-search select.search-input {
+    box-sizing: border-box;
+    flex: 0 0 100px;
+    width: 100px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0 6px;
+    border-left: 0;
+    border-radius: 0;
+    font-size: 0.76rem;
+    cursor: pointer;
+}
+
+.rl-search .search-btn {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #dedede;
+    border-left: 0;
+    border-radius: 0 4px 4px 0;
+    background: #fff;
+    color: var(--rl-black);
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.rl-search .search-btn i {
+    font-size: 14px;
+}
+
+.rl-search .search-btn svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+}
+
+.rl-search .search-btn:hover {
+    background: var(--rl-black);
+    color: #fff;
+}
+
+/* =====================================================
+   ACTION BUTTONS
+===================================================== */
+
+.rl-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    margin: 0 0 2px;
+    padding: 0;
+    border: none;
+}
+
+.rl-bulk-actions,
+.rl-primary-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+}
+
+.rl-bulk-actions:empty {
+    display: none;
+}
+
+.rl-action-row .rl-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+
+    padding: 0 9px !important;
+    margin: 0;
+
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background: #fff;
+    color: #111;
+
+    font-family: inherit;
+    font-size: 10px !important;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    line-height: 1 !important;
+
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.rl-action-row .rl-button:hover {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.rl-action-row .rl-button:active {
+    transform: scale(0.985);
+}
+
+.rl-action-row .rl-button:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+}
+
+.rl-action-row .rl-button-danger {
+    border-color: #d0d0d0;
+    background: #fff;
+    color: #111;
+}
+
+.rl-action-row .rl-button-danger:hover {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.rl-action-row .rl-button i {
+    font-size: 12px;
+}
+
+.rl-action-row .rl-button svg {
+    display: block;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+    .rl-header-row {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 2px;
+        padding-bottom: 0;
     }
 
-    /* ==========================================================================
-       MOBILE RESPONSIVE (Tetap Mempertahankan Scroll Sesuai Kode Lama Anda)
-       ========================================================================== */
-    @media (max-width: 767px) {
-        .table-responsive {
-            display: block !important;
-            width: 100% !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-        }
-
-        .custom-table-mono {
-            width: auto !important;      
-            min-width: 100% !important;  
-            table-layout: auto !important; 
-            border-collapse: collapse !important;
-        }
-
-        .custom-table-mono th, 
-        .custom-table-mono td {
-            white-space: nowrap !important;
-            padding-right: 25px !important; 
-            width: auto !important;
-        }
-
-        .custom-table-mono tr td:nth-child(2) {
-            max-width: 200px !important; 
-            overflow: hidden !important;
-        }
-
-        .custom-table-mono tr td:nth-child(2) a {
-            display: block !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-        }
-        .custom-table-mono tr td:nth-child(8) {
-            max-width: 120px !important;
-            overflow: hidden !important;
-            white-space: nowrap !important;
-            text-overflow: ellipsis !important;
-        }
+    .rl-control-left {
+        flex: 1 1 auto;
+        width: 100%;
     }
 
-    .fade-transition {
-        transition: opacity 0.3s ease-in-out;
+    .rl-search {
+        max-width: 100%;
     }
 
-    .slide-transition {
-        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    .rl-action-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
     }
 
-    #details-area {
-        max-height: 0;
-        opacity: 0;
+    .rl-action-row,
+    .rl-bulk-actions,
+    .rl-primary-actions {
+        justify-content: flex-start;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 420px) {
+    .rl-search select.search-input {
+        flex-basis: 90px;
+        width: 90px;
+    }
+
+    .rl-search .search-btn {
+        flex-basis: 36px;
+        width: 36px;
+        min-width: 36px;
+    }
+
+    .rl-action-row .rl-button {
+        padding: 0 8px !important;
+        font-size: 9px !important;
+    }
+}
+
+/* =====================================================
+   ALPHABET NAVIGATION
+===================================================== */
+
+.alphabet-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 4px;
+    padding: 6px 0 6px;
+    border-bottom: 1px solid var(--rl-line);
+}
+
+.alphabet-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    border: 1px solid transparent;
+    color: #444;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.alphabet-link:hover {
+    background: #171717;
+    color: #fff;
+}
+
+.alphabet-link.disabled {
+    color: #ccc;
+    pointer-events: none;
+}
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.reading-list-epic-wrapper .table-responsive {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--rl-line);
+    -webkit-overflow-scrolling: touch;
+}
+
+.custom-table-mono {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #252525;
+    font-size: 0.82rem;
+}
+
+.custom-table-mono th {
+    padding: 13px 10px;
+    border-bottom: 1px solid #dcdcdc;
+    background: #fff;
+    color: #777;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.custom-table-mono td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #ededed;
+    background: #fff;
+    vertical-align: middle;
+}
+
+.custom-table-mono tbody tr:not(.group-header-row):hover td {
+    background: #fafafa;
+}
+
+/* Column widths */
+
+.custom-table-mono th:nth-child(1),
+.custom-table-mono td:nth-child(1) {
+    width: 60px;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.custom-table-mono th:nth-child(2) {
+    text-align: left;
+}
+
+.custom-table-mono th:nth-child(3),
+.custom-table-mono td:nth-child(3) {
+    width: 95px;
+}
+
+.custom-table-mono th:nth-child(4),
+.custom-table-mono td:nth-child(4) {
+    width: 85px;
+}
+
+.custom-table-mono th:nth-child(5),
+.custom-table-mono td:nth-child(5) {
+    width: 105px;
+}
+
+.custom-table-mono th:nth-child(6),
+.custom-table-mono td:nth-child(6) {
+    width: 75px;
+}
+
+.custom-table-mono th:nth-child(7),
+.custom-table-mono td:nth-child(7) {
+    width: 85px;
+}
+
+.custom-table-mono th:nth-child(8),
+.custom-table-mono td:nth-child(8) {
+    width: 145px;
+}
+
+/* Checkbox column */
+
+.custom-table-mono th:nth-child(9),
+.custom-table-mono td:nth-child(9) {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.custom-table-mono th:nth-child(9) input,
+.custom-table-mono td:nth-child(9) input {
+    display: block;
+    margin: 0 auto;
+    accent-color: #171717;
+    cursor: pointer;
+}
+
+/* Text overflow */
+
+.custom-table-mono .col-title,
+.custom-table-mono .col-season,
+.custom-table-mono .col-notes {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-table-mono .col-title {
+    max-width: 220px;
+}
+
+.custom-table-mono .col-title a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: #171717;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-table-mono .col-title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.custom-table-mono .col-season {
+    max-width: 120px;
+}
+
+.custom-table-mono .col-notes {
+    max-width: 145px;
+}
+
+.custom-table-mono .col-chapters {
+    max-width: 95px;
+    white-space: nowrap;
+}
+
+/* =====================================================
+   ALPHABET GROUP HEADER
+===================================================== */
+
+.group-header-row {
+    scroll-margin-top: 140px;
+}
+
+.custom-table-mono .group-header-row td {
+    position: relative;
+    padding: 10px 48px 10px 10px !important;
+    border-bottom: 1px solid #d7d7d7 !important;
+    background: #f7f7f7 !important;
+    font-weight: 650;
+}
+
+.group-header-row .group-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.group-header-row .group-letter {
+    min-width: 0;
+}
+
+.group-header-row .group-total-text {
+    color: #777;
+    font-size: 0.75rem;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.group-header-row .group-checkbox-wrap {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    min-width: 40px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    transform: translateY(-50%);
+}
+
+.group-header-row input.group-checkbox {
+    display: block;
+    margin: 0;
+    accent-color: #171717;
+    cursor: pointer;
+}
+
+.group-header-row.highlight-active td {
+    animation: thinDarkGlow 1.6s ease-in-out;
+}
+
+@keyframes thinDarkGlow {
+    0%, 100% {
+        box-shadow: inset 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+
+    40% {
+        box-shadow: inset 0 0 8px 1px rgba(0, 0, 0, 0.25);
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* =====================================================
+   EXPORT MODAL — MINIMALIST MONOCHROME
+===================================================== */
+
+#exportModal {
+    --export-black: #171717;
+    --export-muted: #777;
+    --export-border: #e1e1e1;
+    --export-soft: #f7f7f7;
+}
+
+#exportModal .modal-dialog {
+    width: calc(100% - 32px);
+    max-width: 440px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#exportModal .modal-content {
+    overflow: hidden;
+    border: 1px solid var(--export-border) !important;
+    border-radius: 5px !important;
+    background: #fff;
+    color: var(--export-black);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+
+/* Header */
+
+#exportModal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid var(--export-border) !important;
+}
+
+#exportModal .modal-title {
+    margin: 0;
+    color: var(--export-black);
+    font-size: 16px;
+    font-weight: 750;
+    letter-spacing: -0.35px;
+}
+
+#exportModal .btn-close {
+    flex-shrink: 0;
+    padding: 8px;
+    opacity: 0.6;
+    box-shadow: none !important;
+}
+
+#exportModal .btn-close:hover {
+    opacity: 1;
+}
+
+/* Body */
+
+#exportModal .modal-body {
+    padding: 20px 22px;
+}
+
+#exportModal #selection-area > p {
+    margin-bottom: 16px !important;
+    color: var(--export-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* Pilihan format */
+
+#exportModal .export-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 62px;
+    margin: 0 0 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--export-border) !important;
+    border-radius: 4px !important;
+    background: #fff;
+    color: var(--export-black);
+    text-align: left;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+#exportModal .export-option:last-child {
+    margin-bottom: 0;
+}
+
+#exportModal .export-option:hover {
+    border-color: var(--export-black) !important;
+    background: var(--export-black);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+#exportModal .export-option:focus-visible {
+    outline: 2px solid var(--export-black);
+    outline-offset: 3px;
+}
+
+#exportModal .export-option .export-option-title {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+#exportModal .export-option .export-option-description {
+    display: block;
+    margin-top: 3px;
+    color: var(--export-muted);
+    font-size: 10px;
+    font-weight: 400;
+}
+
+#exportModal .export-option:hover .export-option-description {
+    color: #d2d2d2;
+}
+
+#exportModal .export-option .export-option-arrow {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Area detail dengan animasi */
+
+#exportModal #selection-area {
+    max-height: 400px;
+    overflow: hidden;
+    opacity: 1;
+    transition:
+        max-height 0.35s ease,
+        opacity 0.25s ease,
+        padding 0.3s ease;
+}
+
+#exportModal #selection-area.is-hidden {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#exportModal #details-area {
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transition:
+        max-height 0.35s ease,
+        opacity 0.25s ease,
+        padding 0.3s ease;
+}
+
+#exportModal #details-area.is-open {
+    max-height: 500px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    opacity: 1;
+}
+
+/* Judul detail file */
+
+#exportModal #file-title {
+    margin-bottom: 14px !important;
+    color: var(--export-black);
+    font-size: 14px;
+    font-weight: 750;
+}
+
+/* Panel informasi */
+
+#exportModal .export-file-info {
+    margin-bottom: 16px !important;
+    padding: 15px;
+    border: 1px solid var(--export-border) !important;
+    border-radius: 4px;
+    background: var(--export-soft) !important;
+}
+
+#exportModal .export-info-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 12px;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+#exportModal .export-info-row:last-of-type {
+    margin-bottom: 0;
+}
+
+#exportModal .export-info-label {
+    flex: 0 0 70px;
+    color: var(--export-muted);
+    font-weight: 500;
+}
+
+#exportModal .export-info-value {
+    min-width: 0;
+    color: var(--export-black);
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+#exportModal .export-note {
+    margin: 14px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--export-border);
+    color: var(--export-muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+/* Tombol modal */
+
+#exportModal .export-modal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#exportModal .export-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 40px;
+    padding: 10px 12px;
+    border: 1px solid var(--export-border) !important;
+    border-radius: 4px !important;
+    background: #fff;
+    color: var(--export-black);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15px;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+#exportModal .export-modal-btn:hover {
+    border-color: var(--export-black) !important;
+    background: var(--export-black);
+    color: #fff;
+}
+
+#exportModal .export-modal-btn-primary {
+    border-color: var(--export-black) !important;
+    background: var(--export-black);
+    color: #fff;
+}
+
+#exportModal .export-modal-btn-primary:hover {
+    border-color: #444 !important;
+    background: #444;
+    color: #fff;
+}
+
+#exportModal .export-modal-btn:focus-visible {
+    outline: 2px solid var(--export-black);
+    outline-offset: 3px;
+}
+
+/* Responsif */
+
+@media (max-width: 767.98px) {
+    #exportModal .modal-dialog {
+        width: calc(100% - 28px);
+        max-width: 440px;
+        margin: 14px auto;
+    }
+
+    #exportModal .modal-header {
+        padding: 17px 17px 14px;
+    }
+
+    #exportModal .modal-title {
+        font-size: 15px;
+    }
+
+    #exportModal .modal-body {
+        padding: 17px;
+    }
+
+    #exportModal #details-area.is-open {
+        padding-top: 17px;
+        padding-bottom: 17px;
+    }
+
+    #exportModal .export-option {
+        min-height: 58px;
+        padding: 11px 12px;
+    }
+
+    #exportModal .export-file-info {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    #exportModal .export-modal-actions {
+        flex-direction: column;
+    }
+
+    #exportModal .export-modal-btn {
+        width: 100%;
+        min-height: 40px;
+    }
+
+    #exportModal .export-info-label {
+        flex-basis: 58px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #exportModal *,
+    #exportModal *::before,
+    #exportModal *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* =====================================================
+   DESKTOP TABLE
+===================================================== */
+
+@media (min-width: 768px) {
+    .custom-table-mono {
+        table-layout: fixed;
+    }
+
+    .custom-table-mono td.col-title {
+        white-space: nowrap;
         overflow: hidden;
-        transition: max-height 0.4s ease-out, opacity 0.4s ease-in;
+        text-overflow: ellipsis;
     }
-    
-    #details-area.is-open {
-        max-height: 500px; /* Tinggi maksimal yang cukup */
-        opacity: 1;
+}
+
+/* =====================================================
+   TABLET AND MOBILE
+===================================================== */
+
+@media (max-width: 767.98px) {
+    .reading-list-epic-wrapper {
+        margin-top: -20px;
+        padding: 0 10px 24px;
     }
 
-    /* Smooth scroll saat tombol abjad diklik */
-    html {
-        scroll-behavior: smooth;
+    .rl-header-row {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+        padding: 8px 0;
     }
 
-    /* Penyesuaian offset scroll agar header kelompok tidak tertutup sticky header */
-    .group-header-row {
-        scroll-margin-top: 140px;
+    .rl-heading h3 {
+        font-size: 1.2rem;
     }
 
-    /* Container utama navigasi abjad */
+    .rl-heading p {
+        font-size: 0.76rem;
+        line-height: 1.5;
+    }
+
+    .rl-control-left {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    .rl-search {
+        max-width: 100%;
+    }
+
+    .rl-search .search-input {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    .rl-search select.search-input {
+        flex: 0 0 76px;
+        width: 76px;
+    }
+
+    .rl-search .search-btn {
+        flex-basis: 38px;
+        width: 38px;
+    }
+
+    .rl-action-row {
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .rl-bulk-actions,
+    .rl-primary-actions {
+        justify-content: flex-end;
+        width: auto;
+    }
+
+    .rl-action-row .rl-button {
+        padding: 10px 12px;
+    }
+
     .alphabet-nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        padding: 6px 0;
-        border-top: 1px solid #e5e5e5;
+        gap: 3px;
+        padding: 8px 0 12px;
     }
 
-    /* Styling tombol-tombol huruf A-Z */
     .alphabet-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #333;
-        text-decoration: none;
-        border: 1px solid transparent;
-        transition: all 0.2s ease;
+        width: 25px;
+        height: 25px;
+        font-size: 0.75rem;
     }
 
-    /* Efek hover pada tombol abjad */
-    .alphabet-link:hover {
-        background-color: #000;
-        color: #fff;
+    .custom-table-mono {
+        width: max-content;
+        min-width: 100%;
+        table-layout: auto;
     }
 
-    /* Styling opsional jika huruf tidak memiliki item */
-    .alphabet-link.disabled {
-        color: #ccc;
-        cursor: default;
-        pointer-events: none;
+    .custom-table-mono th,
+    .custom-table-mono td {
+        padding: 11px 12px;
+        white-space: nowrap;
     }
 
-    /* Efek indikator gelap blur tipis di dalam kotak saja */
-    @keyframes thinDarkGlow {
-        0% {
-            box-shadow: inset 0 0 0px 0px rgba(0, 0, 0, 0);
-        }
-        40% {
-            /* Indikator tipis samar di tepi dalam kotak */
-            box-shadow: inset 0 0 8px 1px rgba(0, 0, 0, 0.35);
-        }
-        100% {
-            box-shadow: inset 0 0 0px 0px rgba(0, 0, 0, 0);
-        }
+    .custom-table-mono th:nth-child(1),
+    .custom-table-mono td:nth-child(1) {
+        width: 55px;
+        min-width: 55px;
     }
 
-    /* Terapkan hanya pada td di baris header */
-    .group-header-row.highlight-active td {
-        animation: thinDarkGlow 1.6s ease-in-out;
+    .custom-table-mono th:nth-child(2),
+    .custom-table-mono td:nth-child(2) {
+        min-width: 150px;
+        max-width: 200px;
     }
 
-    /* Pengaturan jarak atas khusus mobile */
-    @media (max-width: 767.98px) {
-        .reading-list-epic-wrapper {
-            margin-top: -30px !important; /* Ditarik mepet -30px ke atas */
-            padding-top: 0 !important;
-        }
-
-        .reading-list-epic-wrapper .py-0 {
-            padding-top: 0 !important;
-        }
+    .custom-table-mono td.col-title a {
+        max-width: 180px;
     }
+
+    .custom-table-mono th:nth-child(3),
+    .custom-table-mono td:nth-child(3) {
+        min-width: 90px;
+    }
+
+    .custom-table-mono th:nth-child(4),
+    .custom-table-mono td:nth-child(4) {
+        min-width: 90px;
+    }
+
+    .custom-table-mono th:nth-child(5),
+    .custom-table-mono td:nth-child(5) {
+        min-width: 100px;
+    }
+
+    .custom-table-mono th:nth-child(6),
+    .custom-table-mono td:nth-child(6) {
+        min-width: 75px;
+    }
+
+    .custom-table-mono th:nth-child(7),
+    .custom-table-mono td:nth-child(7) {
+        min-width: 80px;
+    }
+
+    .custom-table-mono th:nth-child(8),
+    .custom-table-mono td:nth-child(8) {
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    .custom-table-mono td.col-notes {
+        max-width: 120px;
+    }
+
+    .custom-table-mono th:nth-child(9),
+    .custom-table-mono td:nth-child(9) {
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    #exportModal .modal-dialog {
+        margin: 12px;
+    }
+
+    #exportModal .modal-body {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rl-header-row {
+        gap: 10px;
+    }
+
+    .rl-action-row {
+        justify-content: flex-start;
+    }
+
+    .rl-bulk-actions,
+    .rl-primary-actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .rl-action-row .rl-button {
+        min-height: 40px;
+        padding: 10px 8px;
+        font-size: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .reading-list-epic-wrapper *,
+    .reading-list-epic-wrapper *::before,
+    .reading-list-epic-wrapper *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
 </style>
 
 <div class="py-2 animate-fade-up reading-list-epic-wrapper">
-    <div class="py-0" style="top: 0; z-index: 1000; background-color: #ffffff; padding-top: 10px; padding-bottom: 10px;">
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
-            <div>
-                <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">My Reading List</h3>
-                <p class="text-muted small mb-0">Personal tracking center for manga, manhwa, and manhua.</p>
+
+    <!-- HEADER: TITLE LEFT, SEARCH RIGHT -->
+    <div class="rl-header-row">
+        <header class="rl-toolbar">
+            <div class="rl-heading">
+                <h3>My Reading List</h3>
+                <p>Personal tracking center for manga, manhwa, and manhua.</p>
             </div>
+        </header>
 
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <form class="search-box-group d-flex" onsubmit="return false;">
-                    <input type="text" name="q" class="search-input rounded-0" placeholder="Search..." style="width: 200px;"
-                        hx-get="{% url 'search' %}?type={{ search_type }}"
-                        hx-target="#tabel-body"
-                        hx-include="closest .search-box-group"
-                        hx-trigger="keyup[keyCode==13]">
+        <div class="rl-control-left">
+            <form class="search-box-group rl-search" onsubmit="return false;">
+                <input
+                    type="text"
+                    name="q"
+                    class="search-input"
+                    placeholder="Search..."
+                    aria-label="Search reading list"
+                    hx-get="{% url 'search' %}?type={{ search_type }}"
+                    hx-target="#tabel-body"
+                    hx-include="closest .search-box-group"
+                    hx-trigger="keyup[keyCode==13]"
+                >
 
-                    {% if search_type == 'reading' %}
-                        <select name="Type" class="search-input rounded-0" style="width: 80px; border-left: none;">
-                            <option value="">All</option>
-                            {% for cat in categories %}
-                                <option value="{{ cat.id }}">{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                    {% endif %}
+                {% if search_type == 'reading' %}
+                <select
+                    name="Type"
+                    class="search-input"
+                    aria-label="Filter category"
+                    hx-get="{% url 'search' %}?type={{ search_type }}"
+                    hx-target="#tabel-body"
+                    hx-include="closest .search-box-group"
+                    hx-trigger="change"
+                >
+                    <option value="">All</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
 
-                    <button type="button" class="search-btn rounded-0" style="border-left: none;"
-                            hx-get="{% url 'search' %}?type={{ search_type }}"
-                            hx-target="#tabel-body"
-                            hx-include="closest .search-box-group"
-                            hx-trigger="click">⌕</button>
-                </form>
-
-                <form action="{% url 'delete_selected' %}" method="POST" id="bulk-delete-form" style="display: none;">
-                    {% csrf_token %}
-                    <input type="hidden" name="selected_ids" id="selected_ids">
-                </form>
-
-                <button type="button" id="btn-edit-bulk" class="btn btn-outline-dark rounded-0 px-3 fw-semibold btn-pro" style="height: 42px; display: none;" onclick="prepareBulkEdit()">
-                    Edit selected
-                </button>
-                <button type="button" id="btn-delete-bulk" class="btn btn-danger rounded-0 px-3 fw-semibold btn-pro" style="height: 42px; display: none;" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="prepareBulkDelete()">
-                    Delete selected
-                </button>
-
-                <a href="{% url 'reading_add' %}" class="btn btn-outline-dark rounded-0 px-3 py-2 small fw-semibold text-decoration-none btn-pro" style="height: 42px;">+ Add New</a>
-                <button type="button" class="btn btn-outline-dark rounded-0 px-3 py-2 small fw-semibold text-decoration-none btn-pro"
-                        style="height: 42px;"
-                        data-bs-toggle="modal"
-                        data-bs-target="#exportModal">
-                    Download List
-                </button>
-            </div>
+                <button
+                    type="button"
+                    class="search-btn"
+                    aria-label="Search"
+                    hx-get="{% url 'search' %}?type={{ search_type }}"
+                    hx-target="#tabel-body"
+                    hx-include="closest .search-box-group"
+                    hx-trigger="click"
+                >⌕</button>
+            </form>
         </div>
     </div>
 
-    <!-- FITUR NAVIGASI ABJAD A-Z -->
-        {% if reading_items %}
-            {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
-            
-            <div class="alphabet-nav mt-2">
-                {% for group in grouped_list %}
-                    <a href="#group-{{ group.grouper }}" class="alphabet-link">{{ group.grouper }}</a>
-                {% endfor %}
-            </div>
-        {% endif %}
+    <!-- HIDDEN BULK DELETE FORM -->
+    <form
+        action="{% url 'delete_selected' %}"
+        method="POST"
+        id="bulk-delete-form"
+        hidden
+    >
+        {% csrf_token %}
+        <input type="hidden" name="selected_ids" id="selected_ids">
+    </form>
 
+    <!-- ACTIONS: ALL BUTTONS GROUPED ON THE RIGHT -->
+    <div class="rl-action-row">
+        <div class="rl-bulk-actions" id="bulk-actions">
+            <button
+                type="button"
+                id="btn-edit-bulk"
+                class="rl-button"
+                style="display:none;"
+                onclick="prepareBulkEdit()"
+            >Edit Selected</button>
+
+            <button
+                type="button"
+                id="btn-delete-bulk"
+                class="rl-button rl-button-danger"
+                style="display:none;"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                onclick="prepareBulkDelete()"
+            >Delete Selected</button>
+        </div>
+
+        <div class="rl-primary-actions">
+            <a href="{% url 'reading_add' %}" class="rl-button">
+                + Add New
+            </a>
+
+            <button
+                type="button"
+                class="rl-button"
+                data-bs-toggle="modal"
+                data-bs-target="#exportModal"
+            >Download List</button>
+        </div>
+    </div>
+
+    <!-- ALPHABET NAVIGATION -->
+    {% if reading_items %}
+        {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
+
+        <nav class="alphabet-nav mt-2" aria-label="Navigate by title">
+            {% for group in grouped_list %}
+            <a href="#group-{{ group.grouper }}" class="alphabet-link">
+                {{ group.grouper }}
+            </a>
+            {% endfor %}
+        </nav>
+    {% endif %}
+
+    <!-- READING LIST TABLE -->
     <div class="table-responsive w-100 d-block animate-fade-up delay-1">
-        <!-- MODIFIKASI: Menghapus inline style width/table-layout agar dikontrol sepenuhnya oleh CSS @media di atas -->
-        <table class="table align-middle custom-table-mono" style="border-collapse: separate; border-spacing: 0;">
+        <table class="table align-middle custom-table-mono">
             <thead>
                 <tr>
                     <th scope="col">No.</th>
@@ -272,66 +1277,126 @@
                     <th scope="col" class="text-end">Rating</th>
                     <th scope="col" class="text-end">Type</th>
                     <th scope="col" class="text-end">Notes</th>
-                    <th scope="col" class="text-center"><input type="checkbox" id="select-all"></th>
+                    <th scope="col" class="text-center">
+                        <input
+                            type="checkbox"
+                            id="select-all"
+                            aria-label="Select all items"
+                        >
+                    </th>
                 </tr>
             </thead>
+
             <tbody id="tabel-body">
                 {% if reading_items %}
                     {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
 
-                    {% with global_counter=0 %}
-                        {% for group in grouped_list %}
-                            <tr id="group-{{ group.grouper }}" class="group-header-row">
-                                <td colspan="9" style="background-color: #f8f9fa; font-weight: bold; padding: 10px; border-bottom: 2px solid #000;">
-                                    <div class="d-flex justify-content-between align-items-center w-100">
-                                        <span class="ps-2">{{ group.grouper }} | ••••</span>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="text-muted small group-total-text">Total: {{ group.list|length }}</span>
-                                            <div style="width: 40px; display: flex; justify-content: center;">
-                                                <input type="checkbox" class="group-checkbox" data-group="{{ group.grouper }}">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                    {% for group in grouped_list %}
+                    <tr id="group-{{ group.grouper }}" class="group-header-row">
+                        <td colspan="9">
+                            <div class="group-info">
+                                <span class="group-letter">
+                                    {{ group.grouper }} | ••••
+                                </span>
 
-                            {% for item in group.list %}
-                            <tr>
-                                <td>
-                                    <div class="d-flex" style="width: 100%; align-items: center;">
-                                        <div class="fw-medium text-muted" style="flex: 1; text-align: center;">
-                                            {{ forloop.counter }}
-                                        </div>
-                                        <div style="width: 20px; text-align: right; color: #ffc107; font-size: 0.8rem;">
-                                            {% if item.favorit %}★{% endif %}
-                                        </div>
-                                    </div>
-                                </td>
-                                <!-- MODIFIKASI: Menambahkan class="col-title" dan menghapus inline style width agar responsive -->
-                                <td class="fw-bold text-dark text-start col-title" style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ item.title }}">
-                                    <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none d-block overflow-hidden text-truncate">
-                                        {{ item.title }}
-                                    </a>
-                                </td>
-                                <td class="text-end px-2 col-chapters" style="max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Ch. {{ item.chapters }}">
-                                    Ch. {{ item.chapters }}
-                                </td>
-                                <td class="text-end px-2 col-season" style="max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{% if item.season %}{{ item.season }}{% else %}-{% endif %}">
-                                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        {% if item.season %}{{ item.season }}{% else %}-{% endif %}
-                                    </div>
-                                </td>
-                                <td class="text-end px-2">{% if item.status and item.status.id != 1 %}{{ item.status.name }}{% else %}-{% endif %}</td>
-                                <td class="text-dark fw-bold text-end px-2">{{ item.rating }}</td>
-                                <td class="text-end px-2">{% if item.Type and item.Type.id != 1 %}{{ item.Type.name }}{% else %}-{% endif %}</td>
-                                <td class="text-end px-2 col-notes" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}">
-                                    {% if item.notes %}{{ item.notes }}{% else %}-{% endif %}
-                                </td>
-                                <td class="text-center"><input type="checkbox" class="item-checkbox" value="{{ item.id }}"></td>
-                            </tr>
-                            {% endfor %}
-                        {% endfor %}
-                    {% endwith %}
+                                <span class="group-total-text">
+                                    Total: {{ group.list|length }}
+                                </span>
+                            </div>
+
+                            <div class="group-checkbox-wrap">
+                                <input
+                                    type="checkbox"
+                                    class="group-checkbox"
+                                    data-group="{{ group.grouper }}"
+                                    aria-label="Select group {{ group.grouper }}"
+                                >
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% for item in group.list %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center w-100">
+                                <div
+                                    class="fw-medium text-muted"
+                                    style="flex:1; text-align:center;"
+                                >
+                                    {{ forloop.counter }}
+                                </div>
+
+                                <div
+                                    style="width:20px; text-align:right; color:#d6a800; font-size:0.8rem;"
+                                    aria-label="{% if item.favorit %}Favorite{% endif %}"
+                                >
+                                    {% if item.favorit %}★{% endif %}
+                                </div>
+                            </div>
+                        </td>
+
+                        <td
+                            class="fw-bold text-dark text-start col-title"
+                            title="{{ item.title }}"
+                        >
+                            <a href="{% url 'reading_item_detail' item.id %}">
+                                {{ item.title }}
+                            </a>
+                        </td>
+
+                        <td
+                            class="text-end col-chapters"
+                            title="Ch. {{ item.chapters }}"
+                        >
+                            Ch. {{ item.chapters }}
+                        </td>
+
+                        <td
+                            class="text-end col-season"
+                            title="{% if item.season %}{{ item.season }}{% else %}-{% endif %}"
+                        >
+                            {% if item.season %}{{ item.season }}{% else %}-{% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            {% if item.status and item.status.id != 1 %}
+                                {{ item.status.name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="text-dark fw-bold text-end">
+                            {{ item.rating }}
+                        </td>
+
+                        <td class="text-end">
+                            {% if item.Type and item.Type.id != 1 %}
+                                {{ item.Type.name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td
+                            class="text-end col-notes"
+                            title="{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}"
+                        >
+                            {% if item.notes %}{{ item.notes }}{% else %}-{% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            <input
+                                type="checkbox"
+                                class="item-checkbox"
+                                value="{{ item.id }}"
+                                aria-label="Select {{ item.title }}"
+                            >
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+
                 {% else %}
                     <tr>
                         <td colspan="9" class="text-center py-5 text-muted">
@@ -344,184 +1409,411 @@
     </div>
 </div>
 
-<!-- Modal Export format -->
-<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+<!-- EXPORT MODAL -->
+<div
+    class="modal fade"
+    id="exportModal"
+    tabindex="-1"
+    aria-labelledby="exportModalTitle"
+    aria-hidden="true"
+>
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-dark rounded-0">
-            <div class="modal-header border-bottom-0">
-                <h5 class="modal-title fw-bold">Pilih Format Export</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content">
+
+            <!-- HEADER -->
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="exportModalTitle">
+                        Export Reading List
+                    </h5>
+                    <p class="small text-muted mb-0 mt-1">
+                        Choose your preferred download format.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
             </div>
-            
-            <!-- Area Pilihan Tetap Ada -->
+
+            <!-- PILIHAN FORMAT -->
             <div id="selection-area" class="modal-body">
-                <p class="small text-muted mb-3">Pilih format file yang ingin Anda unduh:</p>
-                
-                <button type="button" class="btn btn-outline-dark w-100 rounded-0 mb-2 py-2 d-flex justify-content-between align-items-center" 
-                        onclick="showDetails('TXT', '{% url 'export_data' %}', '{{ txt_size }}')">
-                    <span>Export Data (.txt)</span>
-                    <small>Lihat Detail →</small>
+                <p>
+                    Select the file format you want to export.
+                </p>
+
+                <button
+                    type="button"
+                    class="export-option"
+                    onclick="showDetails(
+                        'TXT',
+                        '{% url 'export_data' %}',
+                        '{{ txt_size|escapejs }}'
+                    )"
+                >
+                    <span>
+                        <span class="export-option-title">
+                            Export Data
+                        </span>
+                        <span class="export-option-description">
+                            .TXT · Reading list information
+                        </span>
+                    </span>
+
+                    <span class="export-option-arrow">
+                        View details →
+                    </span>
                 </button>
 
-                <button type="button" class="btn btn-outline-dark w-100 rounded-0 py-2 d-flex justify-content-between align-items-center" 
-                        onclick="showDetails('ZIP', '{% url 'export_full' %}', '{{ zip_size }}')">
-                    <span>Full Backup (.zip)</span>
-                    <small>Lihat Detail →</small>
+                <button
+                    type="button"
+                    class="export-option"
+                    onclick="showDetails(
+                        'ZIP',
+                        '{% url 'export_full' %}',
+                        '{{ zip_size|escapejs }}'
+                    )"
+                >
+                    <span>
+                        <span class="export-option-title">
+                            Full Backup
+                        </span>
+                        <span class="export-option-description">
+                            .ZIP · Database and media files
+                        </span>
+                    </span>
+
+                    <span class="export-option-arrow">
+                        View details →
+                    </span>
                 </button>
             </div>
 
-            <!-- Area Detail Muncul di Bawahnya -->
+            <!-- DETAIL EXPORT -->
             <div id="details-area" class="modal-body">
-                <h6 class="fw-bold mb-3" id="file-title">Nama File</h6>
-                <div class="bg-light p-3 border mb-3">
-                    <p class="small mb-1"><strong>Format:</strong> <span id="file-format">-</span></p>
-                    <p class="small mb-1"><strong>Ukuran:</strong> <span id="file-size">-</span></p>
-                    <p class="small mb-1"><strong>Rincian:</strong> <span id="file-description" class="text-muted">-</span></p>
-                    <p class="small mb-0 mt-2 text-muted"><em>Catatan: Data yang diunduh mencakup konten terbaru dari daftar bacaan Anda.</em></p>
+                <h6 class="fw-bold" id="file-title">
+                    Export Details
+                </h6>
+
+                <div class="export-file-info">
+                    <div class="export-info-row">
+                        <span class="export-info-label">Format</span>
+                        <span
+                            class="export-info-value"
+                            id="file-format"
+                        >-</span>
+                    </div>
+
+                    <div class="export-info-row">
+                        <span class="export-info-label">File size</span>
+                        <span
+                            class="export-info-value"
+                            id="file-size"
+                        >-</span>
+                    </div>
+
+                    <div class="export-info-row">
+                        <span class="export-info-label">Contents</span>
+                        <span
+                            class="export-info-value"
+                            id="file-description"
+                        >-</span>
+                    </div>
+
+                    <p class="export-note">
+                        The downloaded file contains the latest available
+                        data from your reading list.
+                    </p>
                 </div>
-                
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-secondary w-50 rounded-0" onclick="goBack()">Kembali</button>
-                    <a id="download-trigger" href="#" class="btn btn-dark w-50 rounded-0">Konfirmasi Download</a>
+
+                <div class="export-modal-actions">
+                    <button
+                        type="button"
+                        class="export-modal-btn"
+                        onclick="goBack()"
+                    >
+                        ← Back
+                    </button>
+
+                    <a
+                        id="download-trigger"
+                        href="#"
+                        class="export-modal-btn export-modal-btn-primary"
+                    >
+                        Confirm Download →
+                    </a>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 <script>
-    function showDetails(type, url, size) {
-        const detArea = document.getElementById('details-area');
-        const fileTitle = document.getElementById('file-title');
-        const fileFormat = document.getElementById('file-format');
-        const fileSize = document.getElementById('file-size');
-        const fileDescription = document.getElementById('file-description'); 
-        const downloadTrigger = document.getElementById('download-trigger');
+/* =====================================================
+   EXPORT DETAILS
+===================================================== */
 
-        // Update Data
-        if (type === 'TXT') {
-            fileTitle.innerText = "Export Data (.txt)";
-            fileFormat.innerText = "Plain Text";
-            fileDescription.innerText = "Title | Chapters | Season | Status | Rating";
-        } else {
-            fileTitle.innerText = "Full Backup (.zip)";
-            fileFormat.innerText = "Compressed Archive";
-            fileDescription.innerText = "Database (.sqlite) + Folder Media/Gambar";
-        }
-        fileSize.innerText = size;
-        downloadTrigger.href = url;
+function showDetails(type, url, size) {
+    const selectionArea = document.getElementById('selection-area');
+    const detArea = document.getElementById('details-area');
 
-        // Trigger Animasi Buka Tirai
-        detArea.classList.add('is-open');
+    const fileTitle = document.getElementById('file-title');
+    const fileFormat = document.getElementById('file-format');
+    const fileSize = document.getElementById('file-size');
+    const fileDescription = document.getElementById('file-description');
+    const downloadTrigger = document.getElementById('download-trigger');
+
+    if (
+        !selectionArea ||
+        !detArea ||
+        !downloadTrigger
+    ) {
+        return;
     }
 
-    function goBack() {
-        const detArea = document.getElementById('details-area');
-        // Trigger Animasi Tutup Tirai
+    if (type === 'TXT') {
+        fileTitle.textContent = 'Export Data (.txt)';
+        fileFormat.textContent = 'Plain Text (.txt)';
+        fileDescription.textContent =
+            'Title | Chapters | Season | Status | Rating';
+    } else if (type === 'ZIP') {
+        fileTitle.textContent = 'Full Backup (.zip)';
+        fileFormat.textContent = 'Compressed Archive (.zip)';
+        fileDescription.textContent =
+            'Database (.sqlite) + Media / Image Folder';
+    } else {
+        return;
+    }
+
+    fileSize.textContent = size || '-';
+    downloadTrigger.href = url;
+
+    // Sembunyikan pilihan format dan tampilkan detail.
+    selectionArea.classList.add('is-hidden');
+    detArea.classList.add('is-open');
+}
+
+function goBack() {
+    const selectionArea = document.getElementById('selection-area');
+    const detArea = document.getElementById('details-area');
+
+    if (detArea) {
         detArea.classList.remove('is-open');
     }
 
-    const exportModal = document.getElementById('exportModal');
+    if (selectionArea) {
+        selectionArea.classList.remove('is-hidden');
+    }
+}
+
+/* Reset modal ketika ditutup */
+const exportModal = document.getElementById('exportModal');
+
+if (exportModal) {
     exportModal.addEventListener('hidden.bs.modal', function () {
         goBack();
     });
+}
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnDelete = document.getElementById('btn-delete-bulk');
-        const btnEdit = document.getElementById('btn-edit-bulk');
-        const selectAll = document.getElementById('select-all');
+/* =====================================================
+   BULK SELECT, EDIT, AND DELETE
+===================================================== */
 
-        function updateBulkButtons() {
-            const anyChecked = document.querySelectorAll('.item-checkbox:checked').length > 0;
-            if (btnDelete) btnDelete.style.display = anyChecked ? 'inline-block' : 'none';
-            if (btnEdit) btnEdit.style.display = anyChecked ? 'inline-block' : 'none';
+document.addEventListener('DOMContentLoaded', function () {
+    const btnDelete = document.getElementById('btn-delete-bulk');
+    const btnEdit = document.getElementById('btn-edit-bulk');
+    const selectAll = document.getElementById('select-all');
+
+    const getItemCheckboxes = () =>
+        Array.from(document.querySelectorAll('.item-checkbox'));
+
+    function updateBulkButtons() {
+        const itemCheckboxes = getItemCheckboxes();
+        const checkedItems = itemCheckboxes.filter(cb => cb.checked);
+        const anyChecked = checkedItems.length > 0;
+
+        if (btnDelete) {
+            btnDelete.style.display = anyChecked ? 'inline-flex' : 'none';
+        }
+
+        if (btnEdit) {
+            btnEdit.style.display = anyChecked ? 'inline-flex' : 'none';
         }
 
         if (selectAll) {
-            selectAll.addEventListener('click', function(e) {
-                document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
-                document.querySelectorAll('.group-checkbox').forEach(cb => cb.checked = e.target.checked);
-                updateBulkButtons();
-            });
-        }
+            selectAll.checked =
+                itemCheckboxes.length > 0 &&
+                checkedItems.length === itemCheckboxes.length;
 
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('item-checkbox') || e.target.classList.contains('group-checkbox')) {
-                updateBulkButtons();
-            }
-        });
+            selectAll.indeterminate =
+                checkedItems.length > 0 &&
+                checkedItems.length < itemCheckboxes.length;
+        }
 
         document.querySelectorAll('.group-checkbox').forEach(groupCb => {
-            groupCb.addEventListener('change', function() {
-                const row = this.closest('tr');
-                let nextRow = row.nextElementSibling;
-                while (nextRow && !nextRow.querySelector('td[colspan="9"]')) {
-                    const itemCb = nextRow.querySelector('.item-checkbox');
-                    if (itemCb) itemCb.checked = this.checked;
-                    nextRow = nextRow.nextElementSibling;
-                }
-                updateBulkButtons();
+            const groupRow = groupCb.closest('tr');
+            const groupItems = [];
+            let nextRow = groupRow ? groupRow.nextElementSibling : null;
+
+            while (
+                nextRow &&
+                !nextRow.classList.contains('group-header-row')
+            ) {
+                const itemCb = nextRow.querySelector('.item-checkbox');
+
+                if (itemCb) groupItems.push(itemCb);
+
+                nextRow = nextRow.nextElementSibling;
+            }
+
+            const selectedCount =
+                groupItems.filter(cb => cb.checked).length;
+
+            groupCb.checked =
+                groupItems.length > 0 &&
+                selectedCount === groupItems.length;
+
+            groupCb.indeterminate =
+                selectedCount > 0 &&
+                selectedCount < groupItems.length;
+        });
+    }
+
+    /* Select all items */
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            getItemCheckboxes().forEach(cb => {
+                cb.checked = selectAll.checked;
             });
+
+            document.querySelectorAll('.group-checkbox').forEach(cb => {
+                cb.checked = selectAll.checked;
+                cb.indeterminate = false;
+            });
+
+            updateBulkButtons();
+        });
+    }
+
+    /* Select items in one alphabet group */
+    document.querySelectorAll('.group-checkbox').forEach(groupCb => {
+        groupCb.addEventListener('change', function () {
+            const row = this.closest('tr');
+            let nextRow = row ? row.nextElementSibling : null;
+
+            while (
+                nextRow &&
+                !nextRow.classList.contains('group-header-row')
+            ) {
+                const itemCb = nextRow.querySelector('.item-checkbox');
+
+                if (itemCb) itemCb.checked = this.checked;
+
+                nextRow = nextRow.nextElementSibling;
+            }
+
+            updateBulkButtons();
         });
     });
 
-    function prepareBulkEdit() {
-        const selected = document.querySelectorAll('.item-checkbox:checked');
-        const ids = Array.from(selected).map(cb => cb.value).join(',');
-        window.location.href = "{% url 'reading_edit_bulk' %}?ids=" + ids;
-    }
-
-    function prepareBulkDelete() {
-        const selected = document.querySelectorAll('.item-checkbox:checked');
-        const ids = Array.from(selected).map(cb => cb.value).join(',');
-
-        const hiddenInput = document.getElementById('selected_ids');
-        if (hiddenInput) hiddenInput.value = ids;
-
-        const modalBody = document.getElementById('modal-body-text');
-        if (modalBody) {
-            if (selected.length === 1) {
-                const row = selected[0].closest('tr');
-                const title = row ? row.cells[1].innerText.trim() : "Item";
-                modalBody.innerHTML = `Are you sure you want to delete?<br><br><b>"${title}"</b>`;
-            } else {
-                modalBody.innerHTML = `Are you sure you want to delete these ${selected.length} items?`;
-            }
-        }
-    }
-
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('.alphabet-link');
-        if (!link) return;
-
-        e.preventDefault();
-
-        const targetId = link.getAttribute('href');
-        if (!targetId || targetId === '#') return;
-
-        const targetElement = document.querySelector(targetId);
-
-        if (targetElement) {
-            targetElement.classList.remove('highlight-active');
-
-            targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-
-            const onScrollEnd = function() {
-                window.removeEventListener('scrollend', onScrollEnd);
-                
-                void targetElement.offsetWidth; // Reflow
-                targetElement.classList.add('highlight-active');
-            };
-
-            if ('onscrollend' in window) {
-                window.addEventListener('scrollend', onScrollEnd, { once: true });
-            } else {
-                setTimeout(onScrollEnd, 500);
-            }
+    /* Track individual checkbox changes */
+    document.addEventListener('change', function (event) {
+        if (
+            event.target.classList.contains('item-checkbox') ||
+            event.target.classList.contains('group-checkbox')
+        ) {
+            updateBulkButtons();
         }
     });
+
+    updateBulkButtons();
+});
+
+/* =====================================================
+   BULK EDIT
+===================================================== */
+
+function prepareBulkEdit() {
+    const selected = document.querySelectorAll('.item-checkbox:checked');
+    const ids = Array.from(selected).map(cb => cb.value).join(',');
+
+    if (!ids) return;
+
+    window.location.href =
+        "{% url 'reading_edit_bulk' %}?ids=" + encodeURIComponent(ids);
+}
+
+/* =====================================================
+   BULK DELETE
+===================================================== */
+
+function prepareBulkDelete() {
+    const selected = document.querySelectorAll('.item-checkbox:checked');
+    const ids = Array.from(selected).map(cb => cb.value).join(',');
+
+    const hiddenInput = document.getElementById('selected_ids');
+
+    if (hiddenInput) {
+        hiddenInput.value = ids;
+    }
+
+    const modalBody = document.getElementById('modal-body-text');
+
+    if (modalBody) {
+        if (selected.length === 1) {
+            const row = selected[0].closest('tr');
+            const title = row ? row.cells[1].innerText.trim() : 'Item';
+
+            modalBody.textContent =
+                'Are you sure you want to delete "' + title + '"?';
+        } else {
+            modalBody.textContent =
+                'Are you sure you want to delete these ' +
+                selected.length + ' items?';
+        }
+    }
+}
+
+/* =====================================================
+   ALPHABET NAVIGATION AND HIGHLIGHT
+===================================================== */
+
+document.addEventListener('click', function (event) {
+    const link = event.target.closest('.alphabet-link');
+
+    if (!link) return;
+
+    event.preventDefault();
+
+    const targetId = link.getAttribute('href');
+
+    if (!targetId || targetId === '#') return;
+
+    const targetElement = document.querySelector(targetId);
+
+    if (!targetElement) return;
+
+    targetElement.classList.remove('highlight-active');
+
+    targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+
+    const highlight = function () {
+        targetElement.classList.add('highlight-active');
+    };
+
+    if ('onscrollend' in window) {
+        window.addEventListener('scrollend', highlight, { once: true });
+    } else {
+        setTimeout(highlight, 500);
+    }
+});
 </script>
+
 {% endblock %}

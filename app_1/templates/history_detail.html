@@ -1,52 +1,502 @@
+
 {% extends 'base/base.html' %}
 {% load static %}
+
+{% block title %}Import Detail: {{ log.filename }}{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
-<div class="container mt-4 animate-fade-up">
-    <div class="mb-4 d-flex align-items-center justify-content-between">
-        <a href="{% url 'history_list' %}" class="btn btn-outline-dark rounded-0 px-3">← Back to List</a>
-    </div>
-    
-    <div class="mb-4">
-        <h3 class="fw-bold text-dark text-uppercase" style="letter-spacing: -0.5px;">Data Detail: {{ log.filename }}</h3>
-        <p class="text-muted small mb-2">Imported on: {{ log.imported_at|date:"d M Y, H:i" }}</p>
-        
-        <!-- Tambahan: Tombol Download File -->
-        {% if log.file %}
-        <a href="{{ log.file.url }}" download class="btn btn-sm btn-dark rounded-0 px-3">
-            Download Original File
+<style>
+    .history-detail-page {
+        width: 100%;
+        padding: 8px 0 28px;
+        color: #1c1c1c;
+    }
+
+    .history-detail-page .page-header {
+        margin-bottom: 25px;
+    }
+
+    .history-detail-page .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 36px;
+        padding: 8px 12px;
+        border: 1px solid #dedede;
+        background: #fff;
+        color: #1c1c1c;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: .2s ease;
+    }
+
+    .history-detail-page .back-btn:hover {
+        border-color: #1c1c1c;
+        background: #1c1c1c;
+        color: #fff;
+    }
+
+    .history-detail-page .eyebrow {
+        margin-bottom: 7px;
+        color: #888;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
+
+    .history-detail-page .detail-title {
+        margin: 0 0 12px;
+        color: #1c1c1c;
+        font-size: clamp(19px, 2.5vw, 25px);
+        font-weight: 750;
+        letter-spacing: -.5px;
+        overflow-wrap: anywhere;
+    }
+
+    .history-detail-page .detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        color: #777;
+        font-size: 12px;
+    }
+
+    .history-detail-page .meta-separator {
+        color: #ccc;
+    }
+
+    .history-detail-page .status-badge,
+    .history-detail-page .type-badge,
+    .history-detail-page .rating-badge {
+        display: inline-block;
+        padding: 4px 9px;
+        border: 1px solid #e5e5e5;
+        background: #f7f7f7;
+        color: #333;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .history-detail-page .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 9px 13px;
+        border: 1px solid #1c1c1c;
+        background: #1c1c1c;
+        color: #fff;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: .2s ease;
+    }
+
+    .history-detail-page .download-btn:hover {
+        background: #fff;
+        color: #1c1c1c;
+    }
+
+    .history-detail-page .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .history-detail-page .summary-card {
+        min-width: 0;
+        padding: 16px;
+        border: 1px solid #e8e8e8;
+        background: #fff;
+    }
+
+    .history-detail-page .summary-label {
+        margin-bottom: 8px;
+        color: #888;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .history-detail-page .summary-value {
+        color: #1c1c1c;
+        font-size: 21px;
+        font-weight: 750;
+        overflow-wrap: anywhere;
+    }
+
+    .history-detail-page .table-section {
+        margin-top: 30px;
+    }
+
+    .history-detail-page .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 13px;
+    }
+
+    .history-detail-page .section-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .history-detail-page .item-count {
+        color: #777;
+        font-size: 11px;
+    }
+
+    .history-detail-page .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5e5e5;
+        background: #fff;
+    }
+
+    .history-detail-page .detail-table {
+        width: 100%;
+        min-width: 900px;
+        margin: 0;
+        border-collapse: collapse;
+        white-space: nowrap;
+    }
+
+    .history-detail-page .detail-table thead th {
+        padding: 13px 14px;
+        border: none;
+        border-bottom: 1px solid #1c1c1c;
+        background: #1c1c1c;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .6px;
+        text-transform: uppercase;
+    }
+
+    .history-detail-page .detail-table tbody td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #ededed;
+        color: #555;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+
+    .history-detail-page .detail-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .history-detail-page .detail-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .history-detail-page .number-cell {
+        width: 55px;
+        color: #999 !important;
+        text-align: center;
+    }
+
+    .history-detail-page .title-cell {
+        min-width: 220px;
+        color: #1c1c1c !important;
+        font-weight: 650;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .history-detail-page .secondary-title {
+        display: block;
+        max-width: 300px;
+        margin-top: 4px;
+        color: #888;
+        font-size: 10px;
+        font-weight: 400;
+        line-height: 1.5;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .history-detail-page .synopsis-cell {
+        min-width: 220px;
+        max-width: 300px;
+        white-space: normal;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .history-detail-page .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        min-width: 100px;
+        max-width: 220px;
+        white-space: normal;
+    }
+
+    .history-detail-page .tag-badge {
+        display: inline-block;
+        padding: 3px 7px;
+        border: 1px solid #e5e5e5;
+        background: #fafafa;
+        color: #555;
+        font-size: 10px;
+    }
+
+    .history-detail-page .favorite-yes {
+        color: #b7791f;
+        font-weight: 700;
+    }
+
+    .history-detail-page .favorite-no {
+        color: #999;
+    }
+
+    .history-detail-page .empty-state {
+        padding: 42px 16px !important;
+        color: #888 !important;
+        text-align: center;
+        white-space: normal;
+    }
+
+    @media (max-width: 768px) {
+        .history-detail-page .summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .history-detail-page .summary-card:last-child {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .history-detail-page .page-header {
+            margin-bottom: 20px;
+        }
+
+        .history-detail-page .download-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .history-detail-page .summary-grid {
+            gap: 8px;
+        }
+
+        .history-detail-page .summary-card {
+            padding: 12px;
+        }
+
+        .history-detail-page .summary-value {
+            font-size: 18px;
+        }
+
+        .history-detail-page .table-section {
+            margin-top: 23px;
+        }
+
+        .history-detail-page .detail-table thead th,
+        .history-detail-page .detail-table tbody td {
+            padding: 11px 12px;
+        }
+    }
+</style>
+
+<div class="history-detail-page animate-fade-up">
+
+    <!-- Navigation -->
+    <div class="page-header">
+        <a href="{% url 'history_list' %}" class="back-btn">
+            <span aria-hidden="true">←</span>
+            <span>Back to History</span>
         </a>
-        {% endif %}
     </div>
 
-    <div class="table-responsive animate-fade-up delay-1">
-        <table class="table align-middle custom-table-mono" style="white-space: nowrap; width: 100%;">
-            <thead class="bg-dark text-white">
-                <tr>
-                    <th class="text-center" style="width: 60px;">No.</th>
-                    <th class="text-start">Title</th>
-                    <th class="text-end px-2">Chapters</th>
-                    <th class="text-end px-2">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td class="text-center">{{ forloop.counter }}</td>
-                    <td class="fw-bold text-start">{{ item.title }}</td>
-                    <td class="text-end px-2">Ch. {{ item.chapters }}</td>
-                    <td class="text-end px-2">{% if item.status %}{{ item.status }}{% else %}-{% endif %}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center py-5 text-muted">Data tidak ditemukan di database.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <!-- Import Information -->
+    <section class="detail-heading">
+        <div class="eyebrow">Import History / Detail</div>
+
+        <h2 class="detail-title">{{ log.filename }}</h2>
+
+        <p class="detail-meta">
+            <span>Imported on {{ log.imported_at|date:"d M Y, H:i" }}</span>
+            <span class="meta-separator">•</span>
+            <span>{{ log.total_items }} items</span>
+            <span class="meta-separator">•</span>
+            <span class="status-badge">{{ log.status|default:"Unknown" }}</span>
+        </p>
+
+        {% if log.file %}
+            <a href="{{ log.file.url }}" download class="download-btn">
+                <span aria-hidden="true">↓</span>
+                <span>Download Original File</span>
+            </a>
+        {% endif %}
+    </section>
+
+    <!-- Summary -->
+    <section class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-label">Total Imported</div>
+            <div class="summary-value">{{ log.total_items|default:0 }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Displayed Records</div>
+            <div class="summary-value">{{ items|length }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Import Status</div>
+            <div class="summary-value" style="font-size: 16px;">
+                {{ log.status|default:"Unknown" }}
+            </div>
+        </div>
+    </section>
+
+    <!-- Imported Item Data -->
+    <section class="table-section animate-fade-up delay-1">
+
+        <div class="section-heading">
+            <h3 class="section-title">Imported Items</h3>
+            <span class="item-count">
+                {{ items|length }} records displayed
+            </span>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="table detail-table">
+                <thead>
+                    <tr>
+                        <th class="text-center">No.</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th class="text-end">Chapters</th>
+                        <th>Season</th>
+                        <th>Status</th>
+                        <th>Tags</th>
+                        <th>Rating</th>
+                        <th>Favorite</th>
+                        <th>Synopsis</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td class="number-cell">
+                            {{ forloop.counter }}
+                        </td>
+
+                        <td class="title-cell">
+                            {{ item.title|default:"Untitled" }}
+
+                            {% if item.alternative_title %}
+                                <span class="secondary-title">
+                                    Alternative:
+                                    {{ item.alternative_title|truncatechars:120 }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.Type %}
+                                <span class="type-badge">{{ item.Type.name }}</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            {{ item.chapters|default_if_none:0 }}
+                        </td>
+
+                        <td>
+                            {% if item.season and item.season != "-" %}
+                                {{ item.season }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.status %}
+                                <span class="status-badge">
+                                    {{ item.status.name }}
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="tag-list">
+                                {% for tag in item.tags.all %}
+                                    {% if tag.name != "No Tag" %}
+                                        <span class="tag-badge">{{ tag.name }}</span>
+                                    {% endif %}
+                                {% empty %}
+                                    <span class="text-muted">—</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <td>
+                            {% if item.rating %}
+                                {% if item.rating != "-" %}
+                                    <span class="rating-badge">{{ item.rating }}</span>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.favorit %}
+                                <span class="favorite-yes">★ Yes</span>
+                            {% elif item.favorit == False %}
+                                <span class="favorite-no">No</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td class="synopsis-cell">
+                            {% if item.synopsis and item.synopsis != "-" %}
+                                {{ item.synopsis|truncatechars:180 }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="empty-state">
+                            <div class="mb-2" style="font-size: 22px;">—</div>
+                            <div class="fw-semibold mb-1">No data found</div>
+                            <div class="small">
+                                Tidak ada data item yang ditemukan untuk riwayat impor ini.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
 </div>
 {% endblock %}

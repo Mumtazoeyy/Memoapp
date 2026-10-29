@@ -4,167 +4,659 @@
 {% block title %}Add New Reading - MemoApp{% endblock %}
 
 {% block content %}
+
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-<div class="py-2 add-reading-epic-wrapper" style="max-width: 1000px; margin: 0 auto;">
-    <div class="mb-4 text-center text-md-start epic-header">
-        <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Add New Reading</h3>
-        <p class="text-muted small mb-0">Track your new comic or manga entry or import from a file.</p>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-md-8">
-            <form method="POST" class="border border-dark p-4 bg-white shadow-sm" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                <div class="mb-3 anim-row delay-1">
-                    <label for="title" class="form-label fw-bold text-dark small text-uppercase">Title</label>
-                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect" id="title" name="title" placeholder="Enter title here..." required>
-                </div>
-
-                <div class="mb-3 anim-row delay-2">
-                    <label for="image" class="form-label fw-bold text-dark small text-uppercase">Cover Image</label>
-                    <input type="file" class="form-control rounded-0 border-dark input-epic-effect" id="image" name="image" accept="image/*">
-                </div>
-
-                <!-- Chapters (Baris Sendiri & Lebar Penuh) -->
-                <div class="mb-3 anim-row delay-2">
-                    <label for="chapters" class="form-label fw-bold text-dark small text-uppercase">Chapters</label>
-                    <div class="d-flex align-items-center w-100" style="gap: 8px;">
-                        <div class="form-control rounded-0 border-dark d-flex align-items-center input-epic-effect w-100" style="height: 40px; padding: 0 10px;">
-                            <span class="fw-bold text-dark" style="margin-right: 5px;">Ch.</span>
-                            <input type="number" id="chapters" name="chapters" value="{{ item.chapters|default:'0' }}" min="0" required style="border: none; outline: none; width: 100%; background: transparent; font-weight: bold;">
-                        </div>
-                        <button type="button" id="btn-chapter-minus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">-</button>
-                        <button type="button" id="btn-chapter-plus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">+</button>
-                    </div>
-                </div>
-
-                <div class="mb-3 anim-row delay-3">
-                    <label for="season" class="form-label fw-bold text-dark small text-uppercase">Season / Volume</label>
-                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect w-100" id="season" name="season" value="{{ item.season|default:'' }}" placeholder="None" style="height: 40px;">
-                </div>
-
-                <div class="mb-3 anim-row delay-4">
-                    <label for="status" class="form-label fw-bold text-dark small text-uppercase">Status</label>
-                    <select class="form-select rounded-0 border-dark input-epic-effect" id="status" name="status">
-                        {% for stat in statuses %}
-                            <option value="{{ stat.id }}">{{ stat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="mb-3 anim-row delay-5">
-                    <label class="form-label fw-bold text-dark small text-uppercase">Rating</label>
-                    <input type="hidden" id="rating" name="rating" value="-">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↑" style="width: 40px; height: 40px;">↑</button>
-                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="↓" style="width: 40px; height: 40px;">↓</button>
-                            <button type="button" class="btn btn-outline-dark rounded-0 fw-bold type-arrow-btn btn-epic-effect" data-arrow="→" style="width: 40px; height: 40px;">→</button>
-                        </div>
-                        <div class="ms-auto d-flex align-items-center gap-1">
-                            <button type="button" id="btn-rating-minus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">-</button>
-                            <div id="rating-display" class="d-flex align-items-center justify-content-center border border-dark fw-bold" style="width: 60px; height: 40px; background: #f8f9fa;">-</div>
-                            <button type="button" id="btn-rating-plus" class="btn btn-outline-dark rounded-0 fw-bold btn-epic-effect" style="width: 40px; height: 40px;">+</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3 anim-row delay-6">
-                    <label for="Type" class="form-label fw-bold text-dark small text-uppercase">Type</label>
-                    <select class="form-select rounded-0 border-dark input-epic-effect" id="Type" name="Type">
-                        {% for cat in categories %}
-                            <option value="{{ cat.id }}" {% if cat.id == 1 %}selected{% endif %}>{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Fitur Tags / Topics (Lebar Penuh) -->
-                <div class="mb-3 anim-row delay-6-5">
-                    <label class="form-label fw-bold text-dark small text-uppercase">Tags / Topics</label>
-                    <details class="border border-dark bg-white shadow-sm rounded-0 w-100">
-                        <summary class="p-2 px-3 fw-bold small text-dark d-flex justify-content-between align-items-center" style="cursor: pointer; user-select: none; background: #f8f9fa;">
-                            <span>Select Tags / Topics</span>
-                            <span class="small">▼</span>
-                        </summary>
-                        <div class="p-3 border-top border-dark bg-light" style="max-height: 150px; overflow-y: auto;">
-                            {% if tags %}
-                                <div class="d-flex flex-wrap gap-3">
-                                    {% for tag in tags %}
-                                        {% if tag.id != 1 %}
-                                            <div class="form-check px-2 py-1" style="cursor: pointer; user-select: none;">
-                                                <input class="form-check-input rounded-0 border-dark" type="checkbox" name="tags" value="{{ tag.id }}" id="tag_{{ tag.id }}" {% if tag in item.tags.all %}checked{% endif %} style="cursor: pointer;">
-                                                <label class="form-check-label small fw-bold text-dark" for="tag_{{ tag.id }}" style="cursor: pointer; user-select: none;">
-                                                    {{ tag.name }}
-                                                </label>
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <p class="text-muted small mb-0 fst-italic">No tags available.</p>
-                            {% endif %}
-                        </div>
-                    </details>
-                </div>
-
-                <div class="mb-3 anim-row delay-7">
-                    <label for="synopsis" class="form-label fw-bold text-dark small text-uppercase">Synopsis</label>
-                    <textarea class="form-control rounded-0 border-dark input-epic-effect" id="synopsis" name="synopsis" rows="4" placeholder="Enter synopsis..."></textarea>
-                </div>
-
-                <div class="mb-4 anim-row delay-8">
-                    <label for="notes" class="form-label fw-bold text-dark small text-uppercase">Notes</label>
-                    <input type="text" class="form-control rounded-0 border-dark input-epic-effect" id="notes" name="notes" placeholder="Short notes...">
-                </div>
-
-                <div class="d-flex gap-2 anim-row delay-9">
-                    <button type="submit" class="btn btn-dark rounded-0 px-4 w-100 btn-pro btn-epic-effect">Add Item</button>
-                    <a href="{% url 'reading_list' %}" class="btn btn-outline-dark rounded-0 px-4 w-100 btn-epic-effect">Cancel</a>
-                </div>
-            </form>
-        </div>
-
-        <div class="col-md-4">
-            <!-- TXT Import Form -->
-            <form method="POST" action="{% url 'import_data' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm mb-4 anim-row delay-10">
-                {% csrf_token %}
-                <h5 class="fw-bold mb-3 anim-row delay-11">Import Data (TXT)</h5>
-                <div class="mb-3 anim-row delay-12">
-                    <label for="import_file" class="form-label small text-uppercase fw-bold">Upload Text File</label>
-                    <input type="file" class="form-control rounded-0 border-dark input-epic-effect" id="import_file" name="import_file" accept=".txt" required>
-                </div>
-                <div class="anim-row delay-13">
-                    <button type="submit" class="btn btn-dark rounded-0 w-100 btn-epic-effect">Process Import</button>
-                </div>
-                <p class="text-muted small mt-3 anim-row delay-14">Format file TXT: <br><code>» Title | Chapters | Season | Status | Rating</code></p>
-            </form>
-
-            <!-- SQLite Import Form -->
-            <form method="POST" action="{% url 'import_full' %}" enctype="multipart/form-data" class="border border-dark p-4 bg-light shadow-sm anim-row delay-15">
-                {% csrf_token %}
-                <h5 class="fw-bold mb-3 anim-row delay-16">Import Full Backup (ZIP)</h5>
-                <div class="mb-3 anim-row delay-17">
-                    <label for="import_file_zip" class="form-label small text-uppercase fw-bold">Upload ZIP File</label>
-                    <input type="file" class="form-control rounded-0 border-dark input-epic-effect" id="import_file_zip" name="import_file" accept=".zip" required>
-                </div>
-                <div class="anim-row delay-18">
-                    <button type="submit" class="btn btn-dark rounded-0 w-100 btn-epic-effect">Process Full Import</button>
-                </div>
-                <p class="text-muted small mt-3 anim-row delay-19">Select the <code>.zip</code> file you previously downloaded from the Export menu in this app.</p>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Styling Animasi dan Tempo Konsisten -->
 <style>
-    @keyframes itemSlideUp {
+    /* =====================================
+       ADD READING - UNIFIED DESIGN
+       Mengikuti desain halaman Edit Reading
+    ===================================== */
+
+    .add-reading-epic-wrapper {
+        --add-black: #111;
+        --add-white: #fff;
+        --add-muted: #737373;
+        --add-border: #d0d0d0;
+        --add-soft: #f8f8f8;
+        --add-radius: 4px;
+
+        width: 100%;
+        color: var(--add-black);
+        animation: addSlideUp .4s ease forwards;
+    }
+
+    .add-reading-epic-wrapper *,
+    .add-reading-epic-wrapper *::before,
+    .add-reading-epic-wrapper *::after {
+        box-sizing: border-box;
+    }
+
+    .add-reading-epic-wrapper .row > * {
+        min-width: 0;
+    }
+
+    /* =====================================
+       BREADCRUMB & HEADER
+    ===================================== */
+
+    .add-reading-epic-wrapper .mobile-breadcrumb {
+        min-width: 0;
+        padding-top: 8px;
+        margin-bottom: 16px !important;
+    }
+
+    .add-reading-epic-wrapper .breadcrumb {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        margin-bottom: 0;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .add-reading-epic-wrapper .breadcrumb-item {
+        min-width: 0;
+    }
+
+    .add-reading-epic-wrapper .breadcrumb-item a {
+        color: var(--add-muted) !important;
+        text-decoration: none;
+        transition: color .2s ease;
+    }
+
+    .add-reading-epic-wrapper .breadcrumb-item a:hover {
+        color: var(--add-black) !important;
+    }
+
+    .add-reading-epic-wrapper .breadcrumb-item.active {
+        overflow: hidden;
+        color: var(--add-black);
+        text-overflow: ellipsis;
+    }
+
+    .add-reading-epic-wrapper .page-heading {
+        margin-bottom: 28px;
+    }
+
+    .add-reading-epic-wrapper .page-title {
+        margin: 0 0 7px;
+        color: var(--add-black);
+        font-size: clamp(24px, 3vw, 32px);
+        font-weight: 700;
+        letter-spacing: -.8px;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .add-reading-epic-wrapper .page-description {
+        margin: 0;
+        color: var(--add-muted);
+        font-size: 12px;
+        line-height: 1.8;
+    }
+
+    /* =====================================
+       FORM PANELS
+    ===================================== */
+
+    .add-reading-epic-wrapper .form-panel {
+        min-width: 0;
+        padding: 22px;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-white);
+    }
+
+    .add-reading-epic-wrapper .panel-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding-bottom: 17px;
+        margin-bottom: 22px;
+        border-bottom: 1px solid var(--add-border);
+    }
+
+    .add-reading-epic-wrapper .panel-heading-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-soft);
+        color: var(--add-black);
+        font-size: 16px;
+    }
+
+    .add-reading-epic-wrapper .panel-heading h2 {
+        margin: 0 0 5px;
+        color: var(--add-black);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .add-reading-epic-wrapper .panel-heading p {
+        margin: 0;
+        color: var(--add-muted);
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    /* =====================================
+       FIELD LABELS
+    ===================================== */
+
+    .add-reading-epic-wrapper .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--add-black) !important;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        line-height: 1.5;
+        text-transform: uppercase;
+    }
+
+    .add-reading-epic-wrapper .form-label i {
+        margin-right: 5px;
+        font-size: 12px;
+    }
+
+    /* =====================================
+       INPUT, SELECT, TEXTAREA
+    ===================================== */
+
+    .add-reading-epic-wrapper .form-control,
+    .add-reading-epic-wrapper .form-select {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        min-height: 40px;
+        padding: 9px 12px;
+        border: 1px solid var(--add-border) !important;
+        border-radius: var(--add-radius) !important;
+        background-color: var(--add-white);
+        color: var(--add-black);
+        font-family: inherit;
+        font-size: 12px;
+        line-height: 1.5;
+        box-shadow: none;
+        transition: border-color .2s ease,
+                    background-color .2s ease,
+                    box-shadow .2s ease;
+    }
+
+    .add-reading-epic-wrapper .form-control::placeholder {
+        color: #999;
+        opacity: 1;
+    }
+
+    .add-reading-epic-wrapper .form-control:hover,
+    .add-reading-epic-wrapper .form-select:hover {
+        border-color: #999 !important;
+    }
+
+    .add-reading-epic-wrapper .form-control:focus,
+    .add-reading-epic-wrapper .form-select:focus {
+        border-color: var(--add-black) !important;
+        background-color: var(--add-white);
+        color: var(--add-black);
+        box-shadow: 0 0 0 2px rgba(17, 17, 17, .08) !important;
+        outline: none;
+    }
+
+    .add-reading-epic-wrapper textarea.form-control {
+        min-height: 110px;
+        resize: vertical;
+        line-height: 1.8;
+    }
+
+    .add-reading-epic-wrapper input[type="file"].form-control {
+        min-height: 40px;
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    .add-reading-epic-wrapper input[type="file"]::file-selector-button {
+        margin: -2px 10px -2px -2px;
+        padding: 7px 10px;
+        border: 1px solid var(--add-border);
+        border-radius: 2px;
+        background: var(--add-soft);
+        color: var(--add-black);
+        font-size: 10px;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .add-reading-epic-wrapper input[type="file"]::file-selector-button:hover {
+        border-color: var(--add-black);
+        background: var(--add-black);
+        color: var(--add-white);
+    }
+
+    .add-reading-epic-wrapper .field-help {
+        display: block;
+        margin-top: 7px;
+        color: var(--add-muted);
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .add-reading-epic-wrapper .break-long-text {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    /* =====================================
+       FIELD GROUP SPACING
+    ===================================== */
+
+    .add-reading-epic-wrapper .add-field {
+        min-width: 0;
+        margin-bottom: 22px;
+    }
+
+    .add-reading-epic-wrapper .add-field:last-child {
+        margin-bottom: 0;
+    }
+
+    /* =====================================
+       CHAPTER CONTROL
+    ===================================== */
+
+    .add-reading-epic-wrapper .chapter-control {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .add-reading-epic-wrapper .chapter-input-wrap {
+        display: flex;
+        align-items: center;
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 40px;
+        padding: 0 10px;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-white);
+        transition: border-color .2s ease,
+                    box-shadow .2s ease;
+    }
+
+    .add-reading-epic-wrapper .chapter-input-wrap:focus-within {
+        border-color: var(--add-black);
+        box-shadow: 0 0 0 2px rgba(17, 17, 17, .08);
+    }
+
+    .add-reading-epic-wrapper .chapter-prefix {
+        flex-shrink: 0;
+        margin-right: 7px;
+        color: var(--add-muted);
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .add-reading-epic-wrapper .chapter-input {
+        width: 100%;
+        min-width: 0;
+        padding: 5px 0;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: var(--add-black);
+        font-size: 12px;
+        font-weight: 600;
+        box-shadow: none !important;
+    }
+
+    /* =====================================
+       BUTTONS
+    ===================================== */
+
+    .add-reading-epic-wrapper .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 9px 14px;
+        border: 1px solid var(--add-border) !important;
+        border-radius: var(--add-radius) !important;
+        background: var(--add-white);
+        color: var(--add-black);
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .25px;
+        line-height: 1.4;
+        text-align: center;
+        text-decoration: none;
+        box-shadow: none;
+        transition: background-color .2s ease,
+                    color .2s ease,
+                    border-color .2s ease,
+                    transform .2s ease;
+    }
+
+    .add-reading-epic-wrapper .btn:hover {
+        border-color: var(--add-black) !important;
+        background: var(--add-black) !important;
+        color: var(--add-white) !important;
+        box-shadow: none;
+        transform: none;
+    }
+
+    .add-reading-epic-wrapper .btn:active {
+        transform: scale(.985);
+    }
+
+    .add-reading-epic-wrapper .btn:focus-visible {
+        outline: 2px solid var(--add-black);
+        outline-offset: 3px;
+    }
+
+    .add-reading-epic-wrapper .btn-dark {
+        border-color: var(--add-black) !important;
+        background: var(--add-black) !important;
+        color: var(--add-white) !important;
+    }
+
+    .add-reading-epic-wrapper .btn-dark:hover {
+        border-color: #333 !important;
+        background: #333 !important;
+        color: var(--add-white) !important;
+    }
+
+    .add-reading-epic-wrapper .square-btn {
+        flex: 0 0 40px;
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+        min-height: 40px;
+        padding: 0;
+        font-size: 15px;
+    }
+
+    /* =====================================
+       RATING CONTROL
+    ===================================== */
+
+    .add-reading-epic-wrapper .rating-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .add-reading-epic-wrapper .rating-arrow-group,
+    .add-reading-epic-wrapper .rating-value-group {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        gap: 5px;
+    }
+
+    .add-reading-epic-wrapper .rating-divider {
+        flex: 1 1 auto;
+        min-width: 12px;
+        height: 0;
+        border-bottom: 1px solid var(--add-border);
+    }
+
+    .add-reading-epic-wrapper .type-arrow-btn.is-selected {
+        border-color: var(--add-black) !important;
+        background: var(--add-black) !important;
+        color: var(--add-white) !important;
+    }
+
+    .add-reading-epic-wrapper #rating-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 1 76px;
+        width: 76px;
+        min-width: 52px;
+        height: 40px;
+        padding: 4px;
+        overflow: hidden;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-soft);
+        color: var(--add-black);
+        font-size: 12px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+        word-break: break-all;
+    }
+
+    /* =====================================
+       TAGS / TOPICS
+    ===================================== */
+
+    .add-reading-epic-wrapper .tags-dropdown {
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-white);
+        transition: border-color .2s ease;
+    }
+
+    .add-reading-epic-wrapper .tags-dropdown:hover {
+        border-color: #999;
+    }
+
+    .add-reading-epic-wrapper .tags-dropdown > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 42px;
+        padding: 10px 12px;
+        background: var(--add-soft);
+        color: var(--add-black);
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        user-select: none;
+    }
+
+    .add-reading-epic-wrapper .tags-dropdown > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .add-reading-epic-wrapper .tags-dropdown > summary::after {
+        content: "+";
+        flex-shrink: 0;
+        font-size: 17px;
+        font-weight: 400;
+    }
+
+    .add-reading-epic-wrapper .tags-dropdown[open] > summary::after {
+        content: "−";
+    }
+
+    .add-reading-epic-wrapper .tags-dropdown > summary:hover {
+        background: #f0f0f0;
+    }
+
+    .add-reading-epic-wrapper .tags-dropdown-content {
+        max-height: 190px;
+        padding: 12px;
+        overflow-y: auto;
+        border-top: 1px solid var(--add-border);
+        background: var(--add-white);
+    }
+
+    .add-reading-epic-wrapper .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .add-reading-epic-wrapper .tag-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        max-width: 100%;
+        padding: 7px 9px;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-white);
+        color: var(--add-black);
+        font-size: 11px;
+        line-height: 1.5;
+        cursor: pointer;
+        transition: background-color .2s ease,
+                    color .2s ease,
+                    border-color .2s ease;
+    }
+
+    .add-reading-epic-wrapper .tag-option:hover {
+        border-color: var(--add-black);
+    }
+
+    .add-reading-epic-wrapper .tag-option:has(input:checked) {
+        border-color: var(--add-black);
+        background: var(--add-black);
+        color: var(--add-white);
+    }
+
+    .add-reading-epic-wrapper .tag-option input {
+        flex-shrink: 0;
+        margin: 0;
+        accent-color: var(--add-black);
+        cursor: pointer;
+    }
+
+    .add-reading-epic-wrapper .tag-option input:checked {
+        accent-color: var(--add-white);
+    }
+
+    .add-reading-epic-wrapper .empty-message {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--add-muted);
+        font-size: 11px;
+    }
+
+    /* =====================================
+       FORM FOOTER
+    ===================================== */
+
+    .add-reading-epic-wrapper .form-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 18px;
+        margin-top: 28px;
+        border-top: 1px solid var(--add-border);
+    }
+
+    .add-reading-epic-wrapper .form-footer .btn {
+        flex: 1 1 140px;
+        min-width: 0;
+    }
+
+    /* =====================================
+       IMPORT FORMS
+    ===================================== */
+
+    .add-reading-epic-wrapper .import-column {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
+    }
+
+    .add-reading-epic-wrapper .import-panel {
+        padding: 18px;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-white);
+    }
+
+    .add-reading-epic-wrapper .import-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding-bottom: 14px;
+        margin-bottom: 17px;
+        border-bottom: 1px solid var(--add-border);
+    }
+
+    .add-reading-epic-wrapper .import-heading-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 32px;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-soft);
+        font-size: 14px;
+    }
+
+    .add-reading-epic-wrapper .import-heading h2 {
+        margin: 0 0 4px;
+        color: var(--add-black);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.6;
+    }
+
+    .add-reading-epic-wrapper .import-heading p {
+        margin: 0;
+        color: var(--add-muted);
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .add-reading-epic-wrapper .import-panel .form-label {
+        font-size: 10px;
+    }
+
+    .add-reading-epic-wrapper .import-note {
+        padding: 10px;
+        margin: 14px 0 0;
+        border: 1px solid var(--add-border);
+        border-radius: var(--add-radius);
+        background: var(--add-soft);
+        color: var(--add-muted);
+        font-size: 10px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    .add-reading-epic-wrapper .import-note code {
+        color: var(--add-black);
+        font-size: 10px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    /* =====================================
+       ANIMATIONS
+    ===================================== */
+
+    @keyframes addSlideUp {
         from {
             opacity: 0;
-            transform: translateY(25px);
+            transform: translateY(12px);
         }
         to {
             opacity: 1;
@@ -172,136 +664,761 @@
         }
     }
 
-    .add-reading-epic-wrapper {
-        animation: itemSlideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-
-    .epic-header {
+    .add-reading-epic-wrapper .add-anim-1,
+    .add-reading-epic-wrapper .add-anim-2,
+    .add-reading-epic-wrapper .add-anim-3,
+    .add-reading-epic-wrapper .add-anim-4 {
         opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.15s forwards;
+        animation: addSlideUp .35s ease forwards;
     }
 
-    .anim-row {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease forwards;
+    .add-reading-epic-wrapper .add-anim-1 { animation-delay: .04s; }
+    .add-reading-epic-wrapper .add-anim-2 { animation-delay: .08s; }
+    .add-reading-epic-wrapper .add-anim-3 { animation-delay: .12s; }
+    .add-reading-epic-wrapper .add-anim-4 { animation-delay: .16s; }
+
+    /* =====================================
+       RESPONSIVE - TABLET & MOBILE
+    ===================================== */
+
+    @media (max-width: 767.98px) {
+        .add-reading-epic-wrapper {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .add-reading-epic-wrapper .mobile-breadcrumb {
+            padding-top: 4px;
+            margin-top: 0 !important;
+            margin-bottom: 12px !important;
+        }
+
+        .add-reading-epic-wrapper .page-heading {
+            margin-bottom: 22px;
+        }
+
+        .add-reading-epic-wrapper .row.g-4 {
+            --bs-gutter-y: 1rem;
+        }
+
+        .add-reading-epic-wrapper .form-panel {
+            padding: 17px;
+        }
+
+        .add-reading-epic-wrapper .import-panel {
+            padding: 16px;
+        }
+
+        .add-reading-epic-wrapper .add-field {
+            margin-bottom: 19px;
+        }
+
+        .add-reading-epic-wrapper .form-label {
+            margin-bottom: 7px;
+        }
+
+        .add-reading-epic-wrapper .rating-container {
+            flex-wrap: wrap;
+            justify-content: space-between;
+            row-gap: 9px;
+        }
+
+        .add-reading-epic-wrapper .rating-divider {
+            display: none;
+        }
+
+        .add-reading-epic-wrapper .rating-arrow-group,
+        .add-reading-epic-wrapper .rating-value-group {
+            gap: 5px;
+        }
+
+        .add-reading-epic-wrapper .rating-arrow-group .square-btn,
+        .add-reading-epic-wrapper .rating-value-group .square-btn {
+            width: 38px;
+            min-width: 38px;
+            flex-basis: 38px;
+            height: 38px;
+            min-height: 38px;
+        }
+
+        .add-reading-epic-wrapper #rating-display {
+            height: 38px;
+        }
+
+        .add-reading-epic-wrapper .form-footer {
+            margin-top: 24px;
+        }
     }
 
-    .delay-1 { animation-delay: 0.08s; }
-    .delay-2 { animation-delay: 0.12s; }
-    .delay-3 { animation-delay: 0.16s; }
-    .delay-4 { animation-delay: 0.20s; }
-    .delay-5 { animation-delay: 0.24s; }
-    .delay-6 { animation-delay: 0.28s; }
-    .delay-6-5 { animation-delay: 0.30s; }
-    .delay-7 { animation-delay: 0.32s; }
-    .delay-8 { animation-delay: 0.36s; }
-    .delay-9 { animation-delay: 0.40s; }
-    
-    .delay-10 { animation-delay: 0.44s; }
-    .delay-11 { animation-delay: 0.48s; }
-    .delay-12 { animation-delay: 0.52s; }
-    .delay-13 { animation-delay: 0.56s; }
-    .delay-14 { animation-delay: 0.60s; }
+    @media (max-width: 380px) {
+        .add-reading-epic-wrapper .container-fluid {
+            padding-right: 12px;
+            padding-left: 12px;
+        }
 
-    .delay-15 { animation-delay: 0.64s; }
-    .delay-16 { animation-delay: 0.68s; }
-    .delay-17 { animation-delay: 0.72s; }
-    .delay-18 { animation-delay: 0.76s; }
-    .delay-19 { animation-delay: 0.80s; }
+        .add-reading-epic-wrapper .form-panel {
+            padding: 13px;
+        }
 
-    .input-epic-effect {
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .input-epic-effect:focus {
-        background-color: #fff;
-        border-color: #000 !important;
-        box-shadow: 4px 4px 0px #000 !important;
-        transform: translateY(-3px);
+        .add-reading-epic-wrapper .rating-container {
+            justify-content: flex-start;
+            gap: 8px;
+        }
+
+        .add-reading-epic-wrapper .rating-arrow-group,
+        .add-reading-epic-wrapper .rating-value-group {
+            gap: 4px;
+        }
+
+        .add-reading-epic-wrapper .rating-arrow-group .square-btn,
+        .add-reading-epic-wrapper .rating-value-group .square-btn {
+            width: 34px;
+            min-width: 34px;
+            flex-basis: 34px;
+            height: 36px;
+            min-height: 36px;
+        }
+
+        .add-reading-epic-wrapper #rating-display {
+            width: 54px;
+            min-width: 44px;
+            height: 36px;
+            flex-basis: 54px;
+            font-size: 10px;
+        }
+
+        .add-reading-epic-wrapper .form-footer .btn {
+            flex-basis: 100%;
+        }
     }
 
-    .btn-epic-effect {
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .btn-epic-effect:hover {
-        background-color: #000;
-        color: #fff !important;
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-    .btn-epic-effect:active {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    @media (prefers-reduced-motion: reduce) {
+        .add-reading-epic-wrapper,
+        .add-reading-epic-wrapper *,
+        .add-reading-epic-wrapper *::before,
+        .add-reading-epic-wrapper *::after {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        .add-reading-epic-wrapper .add-anim-1,
+        .add-reading-epic-wrapper .add-anim-2,
+        .add-reading-epic-wrapper .add-anim-3,
+        .add-reading-epic-wrapper .add-anim-4 {
+            opacity: 1 !important;
+        }
     }
 </style>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const hiddenInput = document.getElementById("rating");
-        const displayBox = document.getElementById("rating-display");
-        const arrowButtons = document.querySelectorAll(".type-arrow-btn");
-        const btnMinus = document.getElementById("btn-rating-minus");
-        const btnPlus = document.getElementById("btn-rating-plus");
+<div class="container-fluid px-3 px-md-4 pt-0 mt-0 add-reading-epic-wrapper">
 
+    <!-- BREADCRUMB -->
+    <nav aria-label="breadcrumb" class="mobile-breadcrumb add-anim-1">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item flex-shrink-0">
+                <a href="{% url 'reading_list' %}">Reading List</a>
+            </li>
+            <li class="breadcrumb-item active fw-bold" aria-current="page">
+                Add New Reading
+            </li>
+        </ol>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-heading add-anim-1">
+        <h1 class="page-title">Add New Reading</h1>
+        <p class="page-description">
+            Add a new comic or manga to your collection, or import your reading data from a file.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- =====================================
+             LEFT COLUMN: MAIN FORM
+        ====================================== -->
+
+        <div class="col-12 col-md-8 add-anim-2">
+
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                class="form-panel"
+            >
+                {% csrf_token %}
+
+                <div class="panel-heading">
+                    <div class="panel-heading-icon">
+                        <i class="bi bi-journal-plus"></i>
+                    </div>
+
+                    <div>
+                        <h2>Reading Information</h2>
+                        <p>Fill in the details of the comic or manga you want to track.</p>
+                    </div>
+                </div>
+
+                <!-- TITLE -->
+                <div class="add-field">
+                    <label for="title" class="form-label">
+                        <i class="bi bi-type"></i> Title
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control break-long-text"
+                        id="title"
+                        name="title"
+                        placeholder="Enter title here..."
+                        required
+                    >
+                </div>
+
+                <!-- COVER IMAGE -->
+                <div class="add-field">
+                    <label for="image" class="form-label">
+                        <i class="bi bi-image"></i> Cover Image
+                    </label>
+
+                    <input
+                        type="file"
+                        class="form-control"
+                        id="image"
+                        name="image"
+                        accept="image/*"
+                    >
+
+                    <span class="field-help">
+                        Select an image file for your reading cover. This field is optional.
+                    </span>
+                </div>
+
+                <!-- CHAPTERS -->
+                <div class="add-field">
+                    <label for="chapters" class="form-label">
+                        <i class="bi bi-journal-bookmark"></i> Chapters
+                    </label>
+
+                    <div class="chapter-control">
+
+                        <div class="chapter-input-wrap">
+                            <span class="chapter-prefix">Ch.</span>
+
+                            <input
+                                type="number"
+                                id="chapters"
+                                name="chapters"
+                                class="chapter-input"
+                                value="0"
+                                min="0"
+                                required
+                            >
+                        </div>
+
+                        <button
+                            type="button"
+                            id="btn-chapter-minus"
+                            class="btn square-btn"
+                            aria-label="Decrease chapters"
+                            title="Decrease chapters"
+                        >
+                            <i class="bi bi-dash"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btn-chapter-plus"
+                            class="btn square-btn"
+                            aria-label="Increase chapters"
+                            title="Increase chapters"
+                        >
+                            <i class="bi bi-plus"></i>
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- SEASON / VOLUME -->
+                <div class="add-field">
+                    <label for="season" class="form-label">
+                        <i class="bi bi-collection"></i> Season / Volume
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control break-long-text"
+                        id="season"
+                        name="season"
+                        value=""
+                        placeholder="Enter season or volume..."
+                    >
+                </div>
+
+                <!-- STATUS -->
+                <div class="add-field">
+                    <label for="status" class="form-label">
+                        <i class="bi bi-bookmark"></i> Status
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="status"
+                        name="status"
+                    >
+                        {% for stat in statuses %}
+                            <option value="{{ stat.id }}">
+                                {{ stat.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- RATING -->
+                <div class="add-field">
+                    <label class="form-label" for="rating-display">
+                        <i class="bi bi-star"></i> Rating
+                    </label>
+
+                    <input
+                        type="hidden"
+                        id="rating"
+                        name="rating"
+                        value="-"
+                    >
+
+                    <div class="rating-container">
+
+                        <div class="rating-arrow-group">
+                            <button
+                                type="button"
+                                class="btn square-btn type-arrow-btn"
+                                data-arrow="↑"
+                                aria-label="Set upward rating"
+                                aria-pressed="false"
+                                title="Upward rating"
+                            >↑</button>
+
+                            <button
+                                type="button"
+                                class="btn square-btn type-arrow-btn"
+                                data-arrow="↓"
+                                aria-label="Set downward rating"
+                                aria-pressed="false"
+                                title="Downward rating"
+                            >↓</button>
+
+                            <button
+                                type="button"
+                                class="btn square-btn type-arrow-btn"
+                                data-arrow="→"
+                                aria-label="Set neutral rating"
+                                aria-pressed="false"
+                                title="Neutral rating"
+                            >→</button>
+                        </div>
+
+                        <div class="rating-divider"></div>
+
+                        <div class="rating-value-group">
+                            <button
+                                type="button"
+                                id="btn-rating-minus"
+                                class="btn square-btn"
+                                aria-label="Decrease rating"
+                                title="Decrease rating"
+                            >
+                                <i class="bi bi-dash"></i>
+                            </button>
+
+                            <div id="rating-display">-</div>
+
+                            <button
+                                type="button"
+                                id="btn-rating-plus"
+                                class="btn square-btn"
+                                aria-label="Increase rating"
+                                title="Increase rating"
+                            >
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <span class="field-help">
+                        Choose a rating direction, then adjust its count.
+                    </span>
+                </div>
+
+                <!-- TYPE -->
+                <div class="add-field">
+                    <label for="Type" class="form-label">
+                        <i class="bi bi-grid"></i> Type
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="Type"
+                        name="Type"
+                    >
+                        {% for cat in categories %}
+                            <option
+                                value="{{ cat.id }}"
+                                {% if cat.id == 1 %}selected{% endif %}
+                            >
+                                {{ cat.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- TAGS / TOPICS -->
+                <div class="add-field">
+                    <label class="form-label">
+                        <i class="bi bi-tags"></i> Tags / Topics
+                    </label>
+
+                    <details class="tags-dropdown">
+                        <summary>
+                            <span>Select Tags / Topics</span>
+                            <span id="selected-tags-count" class="text-muted">
+                                Selected: 0
+                            </span>
+                        </summary>
+
+                        <div class="tags-dropdown-content">
+                            {% if tags %}
+                                <div class="tags-list">
+
+                                    {% for tag in tags %}
+                                        {% if tag.id != 1 %}
+                                            <label
+                                                class="tag-option"
+                                                for="tag_{{ tag.id }}"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    name="tags"
+                                                    value="{{ tag.id }}"
+                                                    id="tag_{{ tag.id }}"
+                                                >
+
+                                                <span>{{ tag.name }}</span>
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </div>
+                            {% else %}
+                                <div class="empty-message">
+                                    <i class="bi bi-info-circle"></i>
+                                    <span>No tags available.</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </details>
+                </div>
+
+                <!-- SYNOPSIS -->
+                <div class="add-field">
+                    <label for="synopsis" class="form-label">
+                        <i class="bi bi-text-paragraph"></i> Synopsis
+                    </label>
+
+                    <textarea
+                        class="form-control break-long-text"
+                        id="synopsis"
+                        name="synopsis"
+                        rows="4"
+                        placeholder="Enter synopsis..."
+                    ></textarea>
+                </div>
+
+                <!-- NOTES -->
+                <div class="add-field">
+                    <label for="notes" class="form-label">
+                        <i class="bi bi-journal-text"></i> Notes
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control break-long-text"
+                        id="notes"
+                        name="notes"
+                        placeholder="Short notes..."
+                    >
+                </div>
+
+                <!-- FORM ACTIONS -->
+                <div class="form-footer">
+
+                    <button type="submit" class="btn btn-dark">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Add Item</span>
+                    </button>
+
+                    <a
+                        href="{% url 'reading_list' %}"
+                        class="btn"
+                    >
+                        <i class="bi bi-x-lg"></i>
+                        <span>Cancel</span>
+                    </a>
+
+                </div>
+
+            </form>
+        </div>
+
+        <!-- =====================================
+             RIGHT COLUMN: IMPORT FORMS
+        ====================================== -->
+
+        <div class="col-12 col-md-4 add-anim-3">
+
+            <div class="import-column">
+
+                <!-- TXT IMPORT -->
+                <form
+                    method="POST"
+                    action="{% url 'import_data' %}"
+                    enctype="multipart/form-data"
+                    class="import-panel"
+                >
+                    {% csrf_token %}
+
+                    <div class="import-heading">
+                        <div class="import-heading-icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+
+                        <div>
+                            <h2>Import Data (TXT)</h2>
+                            <p>Import reading entries from a text file.</p>
+                        </div>
+                    </div>
+
+                    <div class="add-field">
+                        <label for="import_file" class="form-label">
+                            <i class="bi bi-upload"></i> Upload Text File
+                        </label>
+
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="import_file"
+                            name="import_file"
+                            accept=".txt"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100">
+                        <i class="bi bi-arrow-down-circle"></i>
+                        <span>Process Import</span>
+                    </button>
+
+                    <p class="import-note">
+                        <strong>Expected TXT format</strong><br>
+                        <code>Title | Chapters | Season | Status | Rating</code>
+                    </p>
+                </form>
+
+                <!-- ZIP IMPORT -->
+                <form
+                    method="POST"
+                    action="{% url 'import_full' %}"
+                    enctype="multipart/form-data"
+                    class="import-panel"
+                >
+                    {% csrf_token %}
+
+                    <div class="import-heading">
+                        <div class="import-heading-icon">
+                            <i class="bi bi-file-earmark-zip"></i>
+                        </div>
+
+                        <div>
+                            <h2>Import Full Backup (ZIP)</h2>
+                            <p>Restore your previously exported app data.</p>
+                        </div>
+                    </div>
+
+                    <div class="add-field">
+                        <label for="import_file_zip" class="form-label">
+                            <i class="bi bi-upload"></i> Upload ZIP File
+                        </label>
+
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="import_file_zip"
+                            name="import_file"
+                            accept=".zip"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>Process Full Import</span>
+                    </button>
+
+                    <p class="import-note">
+                        Select the <code>.zip</code> backup file previously downloaded
+                        from the Export menu in this app.
+                    </p>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* =====================================
+       RATING CONTROL
+    ===================================== */
+
+    const hiddenInput = document.getElementById("rating");
+    const displayBox = document.getElementById("rating-display");
+    const arrowButtons = document.querySelectorAll(".type-arrow-btn");
+    const btnRatingMinus = document.getElementById("btn-rating-minus");
+    const btnRatingPlus = document.getElementById("btn-rating-plus");
+
+    if (
+        hiddenInput &&
+        displayBox &&
+        btnRatingMinus &&
+        btnRatingPlus
+    ) {
         let currentArrow = "-";
         let count = 0;
 
         function updateRating() {
-            let displayValue = (currentArrow === "-") ? "-" : currentArrow.repeat(count);
+            const displayValue = currentArrow === "-"
+                ? "-"
+                : currentArrow.repeat(count);
+
             displayBox.textContent = displayValue;
             hiddenInput.value = displayValue;
-            arrowButtons.forEach(btn => {
-                btn.classList.toggle("btn-dark", btn.getAttribute("data-arrow") === currentArrow);
-                btn.classList.toggle("btn-outline-dark", btn.getAttribute("data-arrow") !== currentArrow);
+
+            arrowButtons.forEach(function (button) {
+                const selected =
+                    button.getAttribute("data-arrow") === currentArrow;
+
+                button.classList.toggle("is-selected", selected);
+                button.setAttribute("aria-pressed", String(selected));
             });
         }
 
-        arrowButtons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                currentArrow = btn.getAttribute("data-arrow");
-                count = (currentArrow === "→") ? 1 : (count || 1);
+        arrowButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                currentArrow = button.getAttribute("data-arrow");
+
+                if (currentArrow === "→") {
+                    count = 1;
+                } else {
+                    count = count || 1;
+                }
+
                 updateRating();
             });
         });
 
-        btnPlus.addEventListener("click", () => {
+        btnRatingPlus.addEventListener("click", function () {
             if (currentArrow === "→") return;
-            if (currentArrow === "-") { currentArrow = "↑"; count = 1; }
-            else if (count < 5) count++;
+
+            if (currentArrow === "-") {
+                currentArrow = "↑";
+                count = 1;
+            } else if (count < 5) {
+                count++;
+            }
+
             updateRating();
         });
 
-        btnMinus.addEventListener("click", () => {
-            if (count > 1) count--;
-            else { currentArrow = "-"; count = 0; }
+        btnRatingMinus.addEventListener("click", function () {
+            if (count > 1) {
+                count--;
+            } else {
+                currentArrow = "-";
+                count = 0;
+            }
+
             updateRating();
         });
 
-        // Chapters Logic
-        const chapterInput = document.getElementById('chapters');
-        const btnChapterMinus = document.getElementById('btn-chapter-minus');
-        const btnChapterPlus = document.getElementById('btn-chapter-plus');
+        updateRating();
+    }
 
-        if (chapterInput) {
-            btnChapterMinus.addEventListener('click', function() {
-                let val = parseInt(chapterInput.value) || 0;
-                if (val > 0) chapterInput.value = val - 1;
-            });
+    /* =====================================
+       CHAPTER COUNTER
+    ===================================== */
 
-            btnChapterPlus.addEventListener('click', function() {
-                let val = parseInt(chapterInput.value) || 0;
-                chapterInput.value = val + 1;
-            });
+    const chapterInput = document.getElementById("chapters");
+    const btnChapterMinus = document.getElementById("btn-chapter-minus");
+    const btnChapterPlus = document.getElementById("btn-chapter-plus");
 
-            // Auto highlight/select text on focus or click
-            chapterInput.addEventListener('focus', function() {
-                this.select();
-            });
-            chapterInput.addEventListener('click', function() {
-                this.select();
-            });
-        }
+    if (chapterInput && btnChapterMinus && btnChapterPlus) {
+
+        btnChapterMinus.addEventListener("click", function () {
+            const currentValue = parseInt(chapterInput.value, 10) || 0;
+
+            chapterInput.value = Math.max(0, currentValue - 1);
+
+            chapterInput.dispatchEvent(new Event("change", {
+                bubbles: true
+            }));
+        });
+
+        btnChapterPlus.addEventListener("click", function () {
+            const currentValue = parseInt(chapterInput.value, 10) || 0;
+
+            chapterInput.value = currentValue + 1;
+
+            chapterInput.dispatchEvent(new Event("change", {
+                bubbles: true
+            }));
+        });
+    }
+
+    /* =====================================
+       TAG SELECTION COUNTER
+       ID 1 tetap dikecualikan dari pilihan
+    ===================================== */
+
+    const tagCheckboxes = Array.from(
+        document.querySelectorAll(
+            '.add-reading-epic-wrapper input[name="tags"]'
+        )
+    );
+
+    const selectedTagsCount = document.getElementById(
+        "selected-tags-count"
+    );
+
+    function updateSelectedTagsCount() {
+        if (!selectedTagsCount) return;
+
+        const selectedCount = tagCheckboxes.filter(
+            checkbox => checkbox.checked && checkbox.value !== "1"
+        ).length;
+
+        selectedTagsCount.textContent = "Selected: " + selectedCount;
+    }
+
+    tagCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateSelectedTagsCount);
     });
+
+    updateSelectedTagsCount();
+
+});
 </script>
+
 {% endblock %}

@@ -1,35 +1,180 @@
+
 <style>
-    /* --- STYLE FOOTER DARK GLASS --- */
+    /* ========================================
+       FOOTER BASE
+    ======================================== */
+    .footer-mono {
+        position: relative;
+        width: 100%;
+        margin-top: auto;
+        padding: 1.1rem 0;
+        background: rgba(255, 255, 255, 0.88);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .footer-mono .footer-content {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0 1rem;
+        text-align: center;
+    }
+
+    .footer-mono .footer-copyright {
+        margin: 0;
+        color: #6b7280;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        letter-spacing: 0.15px;
+    }
+
+    .footer-mono .footer-brand {
+        color: #111 !important;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+        white-space: nowrap;
+    }
+
+    .footer-mono .footer-divider {
+        width: 4px;
+        height: 4px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #9ca3af;
+    }
+
+    /* ========================================
+       FOOTER DIVIDER
+    ======================================== */
+    .footer-divider-section {
+        width: 100%;
+        max-width: 1320px;
+        margin: 0.5rem auto 0.25rem;
+        padding: 0 24px;
+        flex-shrink: 0;
+    }
+
+    .footer-divider-line {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 16px;
+    }
+
+    .footer-divider-line::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.75);
+    }
+
+    .footer-divider-label {
+        position: relative;
+        z-index: 1;
+        padding: 0.25rem 0.85rem;
+        background: #fff;
+        color: #6b7280;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    /* ========================================
+       DARK GLASS THEME
+    ======================================== */
     .footer-mono.dark-theme {
-        background-color: rgba(0, 0, 0, 0.7) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-        backdrop-filter: blur(10px);
+        background: rgba(12, 12, 12, 0.88) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
     }
-    
+
+    .footer-mono.dark-theme .footer-copyright,
     .footer-mono.dark-theme .text-muted {
-        color: #9ca3af !important; /* Abu-abu terang agar terbaca di background gelap */
+        color: #b0b0b0 !important;
     }
-    
+
+    .footer-mono.dark-theme .footer-brand,
     .footer-mono.dark-theme .text-dark {
-        color: #ffffff !important; /* Putih agar MemoApp terlihat jelas */
+        color: #fff !important;
+    }
+
+    /* ========================================
+       RESPONSIVE
+    ======================================== */
+    @media (max-width: 767.98px) {
+        .footer-divider-section {
+            margin-top: 0.75rem;
+            margin-bottom: 0.35rem;
+            padding: 0 18px;
+        }
+
+        .footer-mono {
+            padding: 1rem 0;
+        }
+
+        .footer-mono .footer-copyright {
+            font-size: 0.8rem;
+        }
+
+        .footer-divider-label {
+            padding: 0.25rem 0.7rem;
+            font-size: 0.62rem;
+            letter-spacing: 1.6px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .footer-divider-section {
+            padding: 0 14px;
+        }
+
+        .footer-mono .footer-content {
+            gap: 0.35rem;
+        }
+
+        .footer-mono .footer-copyright {
+            font-size: 0.75rem;
+        }
+    }
+
+    /* ========================================
+       ACCESSIBILITY
+    ======================================== */
+    @media (prefers-reduced-motion: reduce) {
+        .footer-mono {
+            transition: none;
+        }
     }
 </style>
 
-<!-- Pembatas "End Here" dengan jarak top & bottom yang disesuaikan -->
-<div class="container px-0 mt-5 mb-4 animate-fade-up delay-2">
-    <div class="position-relative text-center">
-        <hr class="border-dark border-1 opacity-100 m-0">
-        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 fw-black text-uppercase text-muted" style="font-size: 0.7rem; letter-spacing: 1px;">
-            End Here
-        </span>
+<!-- Footer Divider -->
+<div class="footer-divider-section animate-fade-up delay-2">
+    <div class="footer-divider-line">
+        <span class="footer-divider-label">End Here</span>
     </div>
 </div>
 
-<!-- Footer dengan margin top pas -->
-<footer class="footer-mono py-4 mt-4 {% if request.resolver_match.url_name == 'about' %}dark-theme{% endif %}">
-    <div class="container text-center">
-        <p class="mb-0 text-muted small">
-            &copy; {% now "Y" %} <span class="fw-bold text-dark">MemoApp</span>. All rights reserved.
-        </p>
+<!-- Main Footer -->
+<footer class="footer-mono {% if request.resolver_match.url_name == 'about' %}dark-theme{% endif %}">
+    <div class="container">
+        <div class="footer-content">
+            <p class="footer-copyright">
+                &copy; {% now "Y" %}
+                <span class="footer-brand">MemoApp</span>
+                <span class="footer-divider d-inline-block mx-1"></span>
+                All rights reserved.
+            </p>
+        </div>
     </div>
 </footer>

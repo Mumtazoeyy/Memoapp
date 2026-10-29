@@ -1,13 +1,76 @@
+<style>
+    .library-cover-wrapper {
+        position: relative;
+        overflow: hidden;
+        background: #f5f5f5;
+    }
+
+    .library-country-flag {
+        position: absolute;
+        top: 9px;
+        right: 9px;
+        z-index: 2;
+        display: flex;
+        width: 34px;
+        height: 23px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 3px;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+    }
+
+    .library-country-flag img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    @media (max-width: 480px) {
+        .library-country-flag {
+            top: 7px;
+            right: 7px;
+            width: 29px;
+            height: 20px;
+        }
+    }
+</style>
+
 {% for item in items %}
 <div class="col">
     <a href="{% url 'item_detail' item.pk %}" class="text-decoration-none">
         <div class="card card-item h-100">
-            <img src="{% if item.image %}{{ item.image.url }}{% else %}https://via.placeholder.com/300x450{% endif %}" 
-                class="card-img-top" alt="{{ item.title }}">
+
+            <div class="library-cover-wrapper">
+                <img
+                    src="{% if item.image %}{{ item.image.url }}{% else %}https://via.placeholder.com/300x450{% endif %}"
+                    class="card-img-top"
+                    alt="{{ item.title }}"
+                >
+
+                {% with item_type=item.Type.name|lower %}
+                    {% if item_type == "manga" %}
+                        <div class="library-country-flag">
+                            <img src="https://flagcdn.com/w80/jp.png" alt="Bendera Jepang">
+                        </div>
+                    {% elif item_type == "manhua" %}
+                        <div class="library-country-flag">
+                            <img src="https://flagcdn.com/w80/cn.png" alt="Bendera China">
+                        </div>
+                    {% elif item_type == "manhwa" %}
+                        <div class="library-country-flag">
+                            <img src="https://flagcdn.com/w80/kr.png" alt="Bendera Korea Selatan">
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+
             <div class="card-body">
                 <div class="card-title text-dark">{{ item.title }}</div>
                 <div class="card-text">{{ item.status.name }} | {{ item.Type.name }}</div>
             </div>
+
         </div>
     </a>
 </div>

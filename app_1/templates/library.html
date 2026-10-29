@@ -1,224 +1,990 @@
+
 {% extends 'base/base.html' %}
 {% load custom_filters %}
 
 {% block content %}
+
 <style>
-    body { background-color: #ffffff; color: #000000; margin: 0; }
-    
-    /* Staggered & Snappy Fade-up Animation (Tempo disamakan dengan halaman login/register) */
-    @keyframes itemSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(25px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .animate-fade-up {
+/* =========================================
+   LIBRARY PAGE FOUNDATION
+========================================= */
+
+.library-page {
+    --library-black: #000;
+    --library-white: #fff;
+    --library-text: #111;
+    --library-muted: #737373;
+    --library-border: #dedede;
+    --library-soft: #f8f8f8;
+    --library-radius: 4px;
+
+    min-height: 70vh;
+    padding: 28px 20px 40px;
+    background: #fff;
+    color: var(--library-text);
+    font-family: inherit;
+}
+
+.library-page *,
+.library-page *::before,
+.library-page *::after {
+    box-sizing: border-box;
+}
+
+.library-page button,
+.library-page input {
+    font-family: inherit;
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes libraryFadeUp {
+    from {
         opacity: 0;
-        animation: itemSlideUp 0.4s ease forwards;
+        transform: translateY(14px);
     }
 
-    .sticky-sidebar { 
-        position: sticky; 
-        top: 0; 
-        height: 100vh; 
-        overflow-y: auto; 
-        border-right: 1px solid #dee2e6;
-        padding: 1.5rem;
-        background-color: #ffffff;
-        z-index: 100;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    opacity: 0;
+    animation: libraryFadeUp 0.45s ease-out forwards;
+}
+
+.library-delay-1 { animation-delay: 0.08s; }
+.library-delay-2 { animation-delay: 0.14s; }
+.library-delay-3 { animation-delay: 0.20s; }
+.library-delay-4 { animation-delay: 0.26s; }
+
+/* =========================================
+   PAGE LAYOUT
+========================================= */
+
+.library-layout {
+    display: grid;
+    grid-template-columns: 245px minmax(0, 1fr);
+    gap: 28px;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+.library-sidebar {
+    position: sticky;
+    top: 20px;
+    min-width: 0;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 22px 18px;
+    border: 1px solid var(--library-border);
+    border-radius: var(--library-radius);
+    background: #fff;
+}
+
+.library-main {
+    min-width: 0;
+}
+
+/* =========================================
+   SIDEBAR HEADING
+========================================= */
+
+.library-sidebar-heading {
+    margin: 0 0 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--library-border);
+}
+
+.library-sidebar-heading span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--library-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.library-sidebar-heading h4 {
+    margin: 0;
+    color: #111;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+}
+
+/* =========================================
+   LIBRARY HEADER
+========================================= */
+
+.library-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-bottom: 28px;
+}
+
+.library-heading {
+    min-width: 0;
+}
+
+.library-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 10px;
+    color: var(--library-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.library-eyebrow::before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: #999;
+}
+
+.library-title {
+    margin: 0 0 8px;
+    color: #000;
+    font-size: clamp(27px, 3vw, 36px);
+    font-weight: 700;
+    letter-spacing: -1.2px;
+    line-height: 1.2;
+}
+
+.library-subtitle {
+    margin: 0;
+    color: var(--library-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.library-count {
+    color: #111;
+    font-weight: 700;
+}
+
+/* =========================================
+   SEARCH
+========================================= */
+
+.library-search-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.library-search-form {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+}
+
+.library-search-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 43px;
+    padding: 0 13px;
+    border: 1px solid #d0d0d0;
+    border-right: 0;
+    border-radius: var(--library-radius) 0 0 var(--library-radius);
+    background: #fff;
+    color: #111;
+    font-size: 13px;
+    outline: none;
+    box-shadow: none;
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.library-search-input::placeholder {
+    color: #999;
+    opacity: 1;
+}
+
+.library-search-input:hover {
+    border-color: #999;
+}
+
+.library-search-input:focus {
+    position: relative;
+    z-index: 1;
+    border-color: #111;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+
+.library-search-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    height: 43px;
+    border: 1px solid #d0d0d0;
+    border-radius: 0 var(--library-radius) var(--library-radius) 0;
+    background: #fff;
+    color: #111;
+    font-size: 21px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.library-search-button:hover {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+/* =========================================
+   SHARED BUTTON STYLE
+========================================= */
+
+.library-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 15px;
+    border: 1px solid #d0d0d0;
+    border-radius: var(--library-radius);
+    background: #fff;
+    color: #111;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.library-button:hover {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.library-button:active {
+    transform: scale(0.985);
+}
+
+.library-button:focus-visible,
+.library-search-button:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+}
+
+.library-filter-button {
+    display: none;
+    width: 100%;
+}
+
+/* =========================================
+   FILTER FORM COMPATIBILITY
+   Keep existing filter_form.html functional
+========================================= */
+
+.library-sidebar form,
+.library-mobile-sidebar form {
+    min-width: 0;
+}
+
+.library-sidebar input:not([type="checkbox"]):not([type="radio"]),
+.library-mobile-sidebar input:not([type="checkbox"]):not([type="radio"]),
+.library-sidebar select,
+.library-mobile-sidebar select,
+.library-sidebar textarea,
+.library-mobile-sidebar textarea {
+    max-width: 100%;
+    border-radius: var(--library-radius);
+}
+
+.library-sidebar input:focus,
+.library-sidebar select:focus,
+.library-sidebar textarea:focus,
+.library-mobile-sidebar input:focus,
+.library-mobile-sidebar select:focus,
+.library-mobile-sidebar textarea:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+    outline: none;
+}
+
+.library-sidebar button,
+.library-sidebar input[type="submit"],
+.library-mobile-sidebar button,
+.library-mobile-sidebar input[type="submit"] {
+    border-radius: var(--library-radius);
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+/* =========================================
+   COLLECTION GRID
+========================================= */
+
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 18px 14px;
+}
+
+.library-item {
+    min-width: 0;
+}
+
+.library-item-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+}
+
+.card-item {
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--library-border);
+    border-radius: var(--library-radius);
+    background: #fff;
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.card-item:hover {
+    border-color: #999;
+    transform: translateY(-3px);
+}
+
+.card-img-top {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    background: #f5f5f5;
+    border-bottom: 1px solid #eee;
+    transition: opacity 0.2s ease;
+}
+
+.library-item-link:hover .card-img-top {
+    opacity: 0.94;
+}
+
+.card-body {
+    padding: 12px 10px;
+}
+
+.card-title {
+    overflow: hidden;
+    margin: 0 0 7px;
+    color: #111;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-text {
+    overflow: hidden;
+    margin: 0;
+    color: var(--library-muted);
+    font-size: 10px;
+    line-height: 1.6;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =========================================
+   COUNTRY FLAG — TOP RIGHT OF COVER
+========================================= */
+
+.library-cover-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.library-cover-wrapper .card-img-top {
+    /* Mempertahankan desain gambar sebelumnya */
+    border-bottom: 1px solid #eee;
+}
+
+.library-country-flag {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 23px;
+    overflow: hidden;
+
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+}
+
+.library-country-flag img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 480px) {
+    .library-country-flag {
+        top: 7px;
+        right: 7px;
+        width: 29px;
+        height: 20px;
+    }
+}
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.library-empty {
+    grid-column: 1 / -1;
+    padding: 50px 20px;
+    border: 1px solid var(--library-border);
+    border-radius: var(--library-radius);
+    text-align: center;
+}
+
+.library-empty-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 14px;
+    border: 1px solid var(--library-border);
+    border-radius: var(--library-radius);
+    color: #777;
+    font-size: 20px;
+}
+
+.library-empty h4 {
+    margin: 0 0 7px;
+    color: #111;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.library-empty p {
+    margin: 0;
+    color: var(--library-muted);
+    font-size: 12px;
+}
+
+/* =========================================
+   MOBILE SIDEBAR & OVERLAY
+========================================= */
+
+.library-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+.library-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.library-mobile-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+    width: min(310px, 88vw);
+    padding: 22px 20px;
+    overflow-y: auto;
+    border-right: 1px solid var(--library-border);
+    border-radius: 0 var(--library-radius) var(--library-radius) 0;
+    background: #fff;
+    transform: translateX(-102%);
+    visibility: hidden;
+    transition:
+        transform 0.28s ease,
+        visibility 0.28s ease;
+}
+
+.library-mobile-sidebar.active {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.library-mobile-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--library-border);
+}
+
+.library-mobile-sidebar-header h4 {
+    margin: 0;
+    color: #111;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.library-sidebar-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--library-border);
+    border-radius: var(--library-radius);
+    background: #fff;
+    color: #111;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.library-sidebar-close:hover {
+    background: #111;
+    color: #fff;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 1199.98px) {
+    .library-layout {
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: 22px;
     }
 
-    /* Mobile Sidebar & Overlay Styling */
-    .mobile-sidebar {
-        position: fixed; top: 0; left: -100%; width: 280px; height: 100%;
-        background: #fff; z-index: 1050; transition: 0.3s; padding: 20px;
-        overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    .library-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px 12px;
     }
-    .mobile-sidebar.active { left: 0; }
-    .overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5); z-index: 1040; display: none;
+}
+
+/* =========================================
+   MOBILE / SMALL TABLET
+========================================= */
+
+@media (max-width: 767.98px) {
+    .library-page {
+        padding: 22px 16px 32px;
     }
 
-    /* Grid & Card Styling */
-    .card-item { 
-        border: 1px solid #dee2e6; 
-        border-radius: 4px; 
-        transition: border-color 0.2s ease, transform 0.3s ease, box-shadow 0.3s ease; 
-        overflow: hidden;
-    }
-    .card-item:hover { 
-        border-color: #000000; 
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-    .card-img-top { aspect-ratio: 2 / 3; object-fit: cover; width: 100%; }
-    .card-body { padding: 10px; }
-    .card-title { 
-        font-size: 0.85rem; font-weight: 700; height: 1.3em; 
-        overflow: hidden; text-overflow: ellipsis; white-space: nowrap; 
-    }
-    .card-text { font-size: 0.75rem; color: #6c757d; margin-bottom: 2px; }
-    
-    .search-input { 
-        height: 38px; 
-        border: 1px solid #000; 
-        padding: 0 10px; 
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .search-input:focus {
-        background-color: #fff;
-        border-color: #000 !important;
-        box-shadow: 4px 4px 0px #000 !important;
-        transform: translateY(-2px);
+    .library-layout {
+        display: block;
     }
 
-    .search-btn { 
-        height: 38px; 
-        width: 40px; 
-        border: 1px solid #000; 
-        background: #000; 
-        color: #fff; 
-        transition: all 0.3s ease;
-    }
-    .search-btn:hover {
-        background-color: #333;
-        transform: translateY(-2px);
+    .library-sidebar-desktop {
+        display: none !important;
     }
 
-    .btn-white-custom { background-color: white; border: 1px solid #ccc; color: black; transition: all 0.3s ease; }
-    .btn-white-custom:hover { background-color: black; color: white; border-color: black; transform: translateY(-2px); }
-    
-    .btn-danger-custom { background-color: black; color: white; border: 1px solid black; }
-
-    /* Styling khusus untuk mobile */
-    @media (max-width: 767px) {
-        .search-mobile-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-        }
-        .search-mobile-wrapper .search-box-group,
-        .search-mobile-wrapper .btn-filter-mobile {
-            width: 100%;
-        }
+    .library-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 23px;
     }
 
-    /* Styling untuk desktop */
-    @media (min-width: 768px) {
-        .search-mobile-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 300px; /* Membatasi lebar agar pas di desktop */
-        }
-        .btn-filter-mobile {
-            display: none; /* Menyembunyikan tombol filter di desktop */
-        }
+    .library-heading {
+        width: 100%;
     }
+
+    .library-title {
+        font-size: 30px;
+    }
+
+    .library-search-wrapper {
+        max-width: none;
+    }
+
+    .library-filter-button {
+        display: inline-flex;
+    }
+
+    .library-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px 12px;
+    }
+
+    .card-body {
+        padding: 10px 9px;
+    }
+
+    .card-title {
+        font-size: 11px;
+    }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+    .library-page {
+        padding: 18px 12px 28px;
+    }
+
+    .library-title {
+        font-size: 27px;
+        letter-spacing: -0.8px;
+    }
+
+    .library-subtitle {
+        font-size: 12px;
+    }
+
+    .library-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 12px;
+    }
+
+    .card-body {
+        padding: 11px 9px;
+    }
+
+    .card-title {
+        font-size: 11px;
+    }
+
+    .card-text {
+        font-size: 9px;
+    }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .library-page *,
+    .library-page *::before,
+    .library-page *::after,
+    .library-mobile-sidebar,
+    .library-overlay {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .animate-fade-up {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
 </style>
 
-<div class="overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+<!-- MOBILE OVERLAY -->
+<div class="library-overlay" id="sidebarOverlay"
+     onclick="toggleMobileSidebar(false)"></div>
 
-<div class="container-fluid" id="contentWrapper">
-    <div class="row">
-        <!-- FILTER SIDEBAR -->
-        <div class="col-md-3 sticky-sidebar d-none d-md-block animate-fade-up" style="animation-delay: 0.15s;">
+<!-- MOBILE FILTER SIDEBAR -->
+<aside class="library-mobile-sidebar" id="mobileSidebar"
+       aria-label="Library filters"
+       aria-hidden="true">
+
+    <div class="library-mobile-sidebar-header">
+        <h4>Filter Library</h4>
+
+        <button type="button"
+                class="library-sidebar-close"
+                onclick="toggleMobileSidebar(false)"
+                aria-label="Close filter menu">
+            &times;
+        </button>
+    </div>
+
+    <form method="GET" action="{% url 'library' %}">
+        {% include 'filter_form.html' %}
+    </form>
+</aside>
+
+<div class="library-page">
+    <div class="library-layout">
+
+        <!-- DESKTOP FILTER SIDEBAR -->
+        <aside class="library-sidebar library-sidebar-desktop animate-fade-up"
+               style="animation-delay: 0.10s;">
+
+            <div class="library-sidebar-heading">
+                <span>Discover</span>
+                <h4>Filter Library</h4>
+            </div>
+
             <form method="GET" action="{% url 'library' %}">
                 {% include 'filter_form.html' %}
             </form>
-        </div>
-
-        <!-- MOBILE SIDEBAR -->
-        <div class="mobile-sidebar d-md-none" id="mobileSidebar">
-            <form method="GET" action="{% url 'library' %}">
-                {% include 'filter_form.html' %}
-            </form>
-        </div>
+        </aside>
 
         <!-- MAIN CONTENT -->
-        <div class="col-12 col-md-9 p-3 p-md-4">
-            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3 animate-fade-up" style="animation-delay: 0.23s;">
-                <div>
-                    <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Library</h3>
-                    <p class="text-muted small mb-0">
-                        Explore the library. 
-                        <span id="items-found-count" class="fw-bold text-dark">({{ items.count }} found)</span>
+        <main class="library-main">
+
+            <!-- HEADER & SEARCH -->
+            <header class="library-header animate-fade-up"
+                    style="animation-delay: 0.16s;">
+
+                <div class="library-heading">
+                    <div class="library-eyebrow">Your Collection</div>
+
+                    <h1 class="library-title">Library</h1>
+
+                    <p class="library-subtitle">
+                        Explore your reading collection.
+                        <span id="items-found-count" class="library-count">
+                            ({{ items.count }} found)
+                        </span>
                     </p>
                 </div>
 
-                <div class="search-mobile-wrapper">
-                    <!-- Form Search -->
-                    <form class="search-box-group d-flex" onsubmit="return false;">
+                <div class="library-search-wrapper">
+
+                    <!-- SEARCH FORM -->
+                    <form class="library-search-form"
+                          id="librarySearchForm"
+                          onsubmit="return false;">
+
                         <input type="hidden" name="type" value="{{ search_type }}">
-                        <input type="text" name="q" class="search-input rounded-0 flex-grow-1" placeholder="Search..."
-                            hx-get="{% url 'library_results' %}" hx-target="#tabel-body"
-                            hx-trigger="keyup[keyCode==13] changed delay:300ms" hx-include="closest .search-box-group">
-                        <button type="button" class="search-btn rounded-0" style="border-left: none;"
-                                        hx-get="{% url 'library_results' %}" hx-target="#tabel-body"
-                                        hx-include="closest .search-box-group">⌕</button>
+
+                        <input
+                            type="text"
+                            name="q"
+                            class="library-search-input"
+                            placeholder="Search your collection..."
+                            aria-label="Search library"
+                            hx-get="{% url 'library_results' %}"
+                            hx-target="#tabel-body"
+                            hx-trigger="keyup[keyCode==13] changed delay:300ms"
+                            hx-include="closest form"
+                        >
+
+                        <button
+                            type="button"
+                            class="library-search-button"
+                            aria-label="Search"
+                            hx-get="{% url 'library_results' %}"
+                            hx-target="#tabel-body"
+                            hx-include="closest form">
+                            ⌕
+                        </button>
                     </form>
 
-                    <!-- Tombol Filter -->
-                    <button class="btn btn-outline-dark btn-sm rounded-0 btn-filter-mobile" onclick="toggleMobileSidebar()">
+                    <!-- MOBILE FILTER BUTTON -->
+                    <button
+                        type="button"
+                        class="library-button library-filter-button"
+                        id="openFilterButton"
+                        onclick="toggleMobileSidebar(true)"
+                        aria-controls="mobileSidebar"
+                        aria-expanded="false">
                         Filter Menu
                     </button>
                 </div>
-            </div>
+            </header>
 
-            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3" id="tabel-body">
+            <!-- LIBRARY ITEMS -->
+            <div class="library-grid" id="tabel-body">
+
                 {% for item in items %}
-                <div class="col animate-fade-up" style="animation-delay: {{ forloop.counter0|multiply:0.04|add:0.31 }}s;">
-                    <a href="{% url 'library_item_detail' item.pk %}" class="text-decoration-none">
-                        <div class="card card-item h-100">
-                            <img src="{% if item.image %}{{ item.image.url }}{% else %}https://via.placeholder.com/300x450{% endif %}" 
-                                class="card-img-top" alt="{{ item.title }}">
-                            <div class="card-body">
-                                <div class="card-title text-dark">{{ item.title }}</div>
-                                <div class="card-text">{{ item.status.name }} | {{ item.Type.name }}</div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                    <div class="library-item animate-fade-up"
+                         style="animation-delay: {{ forloop.counter0|multiply:0.04|add:0.22 }}s;">
+
+                        <a href="{% url 'library_item_detail' item.pk %}"
+                           class="library-item-link">
+
+                            <article class="card-item">
+
+                                <div class="library-cover-wrapper">
+
+                                    <img
+                                        src="{% if item.image %}{{ item.image.url }}{% else %}https://via.placeholder.com/300x450{% endif %}"
+                                        class="card-img-top"
+                                        alt="{{ item.title }}"
+                                        loading="lazy">
+
+                                    {% with item_type=item.Type.name|lower %}
+                                        {% if item_type == 'manga' %}
+                                            <span class="library-country-flag" title="Jepang" aria-label="Bendera Jepang">
+                                                <img
+                                                    src="https://flagcdn.com/w80/jp.png"
+                                                    alt="Jepang"
+                                                    loading="lazy">
+                                            </span>
+
+                                        {% elif item_type == 'manhua' %}
+                                            <span class="library-country-flag" title="Tiongkok" aria-label="Bendera Tiongkok">
+                                                <img
+                                                    src="https://flagcdn.com/w80/cn.png"
+                                                    alt="Tiongkok"
+                                                    loading="lazy">
+                                            </span>
+
+                                        {% elif item_type == 'manhwa' %}
+                                            <span class="library-country-flag" title="Korea Selatan" aria-label="Bendera Korea Selatan">
+                                                <img
+                                                    src="https://flagcdn.com/w80/kr.png"
+                                                    alt="Korea Selatan"
+                                                    loading="lazy">
+                                            </span>
+                                        {% endif %}
+                                    {% endwith %}
+
+                                </div>
+
+                                <div class="card-body">
+                                    <h2 class="card-title" title="{{ item.title }}">
+                                        {{ item.title }}
+                                    </h2>
+
+                                    <p class="card-text">
+                                        {{ item.status.name }} | {{ item.Type.name }}
+                                    </p>
+                                </div>
+
+                            </article>
+                        </a>
+                    </div>
+
                 {% empty %}
-                <p class="text-muted">No items found.</p>
+                    <div class="library-empty animate-fade-up">
+                        <div class="library-empty-mark">⌕</div>
+                        <h4>No items found</h4>
+                        <p>Try another search or adjust your filters.</p>
+                    </div>
                 {% endfor %}
+
             </div>
-        </div>
+        </main>
     </div>
 </div>
 
 <script>
-// Mobile Sidebar Toggle
-function toggleMobileSidebar() {
-    const sidebar = document.getElementById('mobileSidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    sidebar.classList.toggle('active');
-    overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+/* =========================================
+   MOBILE SIDEBAR
+========================================= */
+
+function toggleMobileSidebar(forceState) {
+    const sidebar = document.getElementById("mobileSidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const openButton = document.getElementById("openFilterButton");
+
+    if (!sidebar || !overlay) return;
+
+    const shouldOpen = typeof forceState === "boolean"
+        ? forceState
+        : !sidebar.classList.contains("active");
+
+    sidebar.classList.toggle("active", shouldOpen);
+    overlay.classList.toggle("active", shouldOpen);
+
+    sidebar.setAttribute("aria-hidden", String(!shouldOpen));
+
+    if (openButton) {
+        openButton.setAttribute("aria-expanded", String(shouldOpen));
+    }
+
+    document.body.style.overflow = shouldOpen ? "hidden" : "";
 }
 
-function handleTagSelection(clickedCheckbox) {
-    const container = document.getElementById('tag-container');
-    const noTagCheckbox = document.getElementById('g_1');
-    const allCheckboxes = container.querySelectorAll('.tag-checkbox');
+/* Close sidebar with Escape */
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        toggleMobileSidebar(false);
+    }
+});
 
-    if (clickedCheckbox.id === 'g_1' && clickedCheckbox.checked) {
-        allCheckboxes.forEach(cb => { if (cb.id !== 'g_1') cb.checked = false; });
-    } else if (clickedCheckbox.id !== 'g_1' && clickedCheckbox.checked) {
+/* Restore scrolling if viewport changes to desktop */
+window.addEventListener("resize", function () {
+    if (window.innerWidth >= 768) {
+        toggleMobileSidebar(false);
+    }
+});
+
+/* =========================================
+   FILTER TAG SELECTION
+========================================= */
+
+function handleTagSelection(clickedCheckbox) {
+    const container = document.getElementById("tag-container");
+    const noTagCheckbox = document.getElementById("g_1");
+
+    if (!container || !noTagCheckbox || !clickedCheckbox) return;
+
+    const allCheckboxes = container.querySelectorAll(".tag-checkbox");
+
+    if (clickedCheckbox.id === "g_1" && clickedCheckbox.checked) {
+        allCheckboxes.forEach(function (checkbox) {
+            if (checkbox.id !== "g_1") {
+                checkbox.checked = false;
+            }
+        });
+    } else if (clickedCheckbox.id !== "g_1" && clickedCheckbox.checked) {
         noTagCheckbox.checked = false;
     }
 
-    let anyChecked = false;
-    allCheckboxes.forEach(cb => { if (cb.checked) anyChecked = true; });
-    if (!anyChecked) { noTagCheckbox.checked = true; }
+    const anyChecked = Array.from(allCheckboxes).some(function (checkbox) {
+        return checkbox.checked;
+    });
 
-    clickedCheckbox.form.submit();
+    if (!anyChecked) {
+        noTagCheckbox.checked = true;
+    }
+
+    if (clickedCheckbox.form) {
+        clickedCheckbox.form.submit();
+    }
 }
 </script>
+
 {% endblock %}

@@ -8,13 +8,20 @@ from django.db.models import Avg, Count
 # Model Master (Dikelola Admin/Staff)
 class Item(models.Model):
     title = models.CharField(max_length=200)
+
+    alternative_title = models.TextField(
+        blank=True,
+        default='',
+        help_text='Pisahkan beberapa judul alternatif dengan koma atau baris baru.'
+    )
+
     chapters = models.IntegerField(default=0)
     season = models.CharField(max_length=10, default='-', blank=True, null=True)
-    
+
     status = models.ForeignKey('Status', on_delete=models.SET_DEFAULT, default=1)
     Type = models.ForeignKey('Type', on_delete=models.SET_DEFAULT, default=1)
     tags = models.ManyToManyField('Tag', blank=True)
-    
+
     synopsis = models.TextField(default='-', blank=True, null=True)
     image = models.ImageField(upload_to='item_covers/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -93,6 +100,13 @@ class ReadingItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reading_items', db_index=True)
     
     title = models.CharField(max_length=200)
+
+    alternative_title = models.TextField(
+        blank=True,
+        default='',
+        help_text='Judul alternatif item'
+    )
+
     favorit = models.BooleanField(default=False)
     chapters = models.IntegerField(default=0)
     season = models.CharField(max_length=10, default='-', blank=True, null=True)

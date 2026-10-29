@@ -1,107 +1,1692 @@
+
 {% extends 'base/base.html' %}
 {% load static %}
 
 {% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
 <style>
-    .col-title { min-width: 200px; }
-    .item-img {
-        width: 40px; 
-        height: 50px; 
-        object-fit: cover; 
-        border-radius: 4px;
-        background-color: #eee;
+/* =====================================
+   USER READING SYNCHRONIZATION
+===================================== */
+
+.sync-epic-wrapper {
+    --sync-black: #111;
+    --sync-white: #fff;
+    --sync-muted: #737373;
+    --sync-border: #d0d0d0;
+    --sync-soft: #f8f8f8;
+    --sync-radius: 4px;
+
+    width: 100%;
+    padding-bottom: 30px;
+    color: var(--sync-black);
+    animation: syncSlideUp .4s ease both;
+}
+
+.sync-epic-wrapper *,
+.sync-epic-wrapper *::before,
+.sync-epic-wrapper *::after {
+    box-sizing: border-box;
+}
+
+@keyframes syncSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* BREADCRUMB */
+
+.sync-breadcrumb {
+    min-width: 0;
+    padding-top: 8px;
+    margin-bottom: 22px;
+}
+
+.sync-breadcrumb .breadcrumb {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    margin: 0;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.sync-breadcrumb .breadcrumb-item {
+    min-width: 0;
+}
+
+.sync-breadcrumb .breadcrumb-item a {
+    color: var(--sync-muted);
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.sync-breadcrumb .breadcrumb-item a:hover {
+    color: var(--sync-black);
+}
+
+.sync-breadcrumb .breadcrumb-item.active {
+    overflow: hidden;
+    color: var(--sync-black);
+    text-overflow: ellipsis;
+}
+
+/* PAGE HEADER */
+
+.sync-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 23px;
+    margin-bottom: 23px;
+    border-bottom: 1px solid var(--sync-border);
+}
+
+.sync-header-copy {
+    flex: 1 1 300px;
+    min-width: 0;
+}
+
+.sync-overline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 11px;
+    color: var(--sync-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.sync-overline i {
+    color: var(--sync-black);
+    font-size: 13px;
+}
+
+.sync-page-title {
+    margin: 0 0 10px;
+    color: var(--sync-black);
+    font-size: clamp(26px, 3vw, 35px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.8px;
+    overflow-wrap: anywhere;
+}
+
+.sync-page-description {
+    max-width: 650px;
+    margin: 0;
+    color: var(--sync-muted);
+    font-size: 12px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
+
+.sync-page-description strong {
+    color: var(--sync-black);
+    font-weight: 700;
+}
+
+/* BUTTONS */
+
+.sync-epic-wrapper .sync-btn,
+.sync-modal-overlay .sync-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 9px 14px;
+    border: 1px solid var(--sync-border, #d0d0d0);
+    border-radius: 4px;
+    background: #fff;
+    color: #111;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .35px;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease,
+                border-color .2s ease, transform .2s ease;
+}
+
+.sync-epic-wrapper .sync-btn:hover,
+.sync-modal-overlay .sync-btn:hover {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.sync-epic-wrapper .sync-btn:active,
+.sync-modal-overlay .sync-btn:active {
+    transform: scale(.985);
+}
+
+.sync-epic-wrapper .sync-btn:focus-visible,
+.sync-modal-overlay .sync-btn:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+}
+
+.sync-epic-wrapper .sync-btn-dark,
+.sync-modal-overlay .sync-btn-dark {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.sync-epic-wrapper .sync-btn-dark:hover,
+.sync-modal-overlay .sync-btn-dark:hover {
+    border-color: #333;
+    background: #333;
+    color: #fff;
+}
+
+.sync-epic-wrapper .sync-btn:disabled,
+.sync-modal-overlay .sync-btn:disabled {
+    border-color: #dedede;
+    background: #eee;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.sync-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* COLLECTION OVERVIEW */
+
+.sync-overview {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 30px;
+    border: 1px solid var(--sync-border);
+    border-radius: var(--sync-radius);
+    background: #fff;
+}
+
+.sync-overview-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    padding: 17px 19px;
+}
+
+.sync-overview-item + .sync-overview-item {
+    border-left: 1px solid var(--sync-border);
+}
+
+.sync-overview-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33px;
+    height: 33px;
+    flex: 0 0 33px;
+    border: 1px solid var(--sync-border);
+    border-radius: var(--sync-radius);
+    color: #111;
+    font-size: 14px;
+}
+
+.sync-overview-copy {
+    min-width: 0;
+}
+
+.sync-overview-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--sync-muted);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.sync-overview-value {
+    display: block;
+    color: #111;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.sync-overview-value.sync-account-name {
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+/* COLLECTION HEADING */
+
+.sync-collection-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.sync-collection-copy {
+    flex: 1 1 250px;
+    min-width: 0;
+}
+
+.sync-collection-title {
+    margin: 0 0 7px;
+    color: #111;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.3px;
+}
+
+.sync-collection-description {
+    margin: 0;
+    color: var(--sync-muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.sync-collection-heading .sync-btn {
+    flex: 0 0 auto;
+}
+
+/* TABLE PANEL */
+
+.sync-table-panel {
+    overflow: hidden;
+    border: 1px solid var(--sync-border);
+    border-radius: var(--sync-radius);
+    background: #fff;
+    scroll-margin-top: 20px;
+}
+
+.sync-table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--sync-border);
+    background: #fff;
+}
+
+.sync-toolbar-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.sync-toolbar-heading > i {
+    color: #111;
+    font-size: 16px;
+}
+
+.sync-toolbar-heading h3 {
+    margin: 0 0 4px;
+    color: #111;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sync-toolbar-heading p {
+    margin: 0;
+    color: var(--sync-muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.sync-select-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    margin: 0;
+    color: #111;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* CUSTOM CHECKBOX */
+
+.sync-epic-wrapper input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.sync-custom-checkbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    border: 1px solid #c7c7c7;
+    border-radius: 2px;
+    background: #fff;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.sync-epic-wrapper input[type="checkbox"]:checked + .sync-custom-checkbox {
+    border-color: #111;
+    background: #111;
+}
+
+.sync-epic-wrapper input[type="checkbox"]:checked + .sync-custom-checkbox::after {
+    width: 4px;
+    height: 8px;
+    border-right: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+    content: "";
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.sync-epic-wrapper input[type="checkbox"]:indeterminate + .sync-custom-checkbox {
+    border-color: #111;
+    background: #111;
+}
+
+.sync-epic-wrapper input[type="checkbox"]:indeterminate + .sync-custom-checkbox::after {
+    width: 8px;
+    height: 1.5px;
+    background: #fff;
+    content: "";
+}
+
+.sync-epic-wrapper input[type="checkbox"]:focus-visible + .sync-custom-checkbox {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+}
+
+/* TABLE */
+
+.sync-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb #f8f8f8;
+}
+
+.sync-table {
+    width: 100%;
+    min-width: 1120px;
+    margin: 0;
+    border-collapse: collapse;
+    color: #222;
+    font-size: 11px;
+}
+
+.sync-table thead th {
+    padding: 12px;
+    border-bottom: 1px solid var(--sync-border);
+    background: #f8f8f8;
+    color: #666;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.sync-table thead th:first-child,
+.sync-table tbody td:first-child {
+    padding-left: 18px;
+}
+
+.sync-table tbody td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #ededed;
+    vertical-align: middle;
+}
+
+.sync-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.sync-table tbody tr {
+    transition: background .15s ease;
+}
+
+.sync-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.sync-check-column {
+    width: 45px;
+}
+
+.sync-title-column {
+    min-width: 220px;
+}
+
+.sync-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    cursor: pointer;
+}
+
+.sync-item-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 205px;
+}
+
+.sync-item-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 54px;
+    flex: 0 0 43px;
+    border: 1px solid #e5e5e5;
+    border-radius: 2px;
+    background: #f8f8f8;
+    object-fit: cover;
+}
+
+.sync-no-image span {
+    color: #999;
+    font-size: 7px;
+    font-weight: 700;
+}
+
+.sync-item-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    min-width: 0;
+}
+
+.sync-item-title {
+    max-width: 230px;
+    color: #111;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.sync-item-title:hover {
+    color: #555;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.sync-item-id {
+    color: #999;
+    font-size: 9px;
+    letter-spacing: .4px;
+}
+
+.sync-plain-value,
+.sync-date {
+    color: #444;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.sync-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #333;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.sync-status-dot {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: #777;
+}
+
+.sync-type {
+    display: inline-block;
+    padding: 5px 8px;
+    border: 1px solid var(--sync-border);
+    border-radius: var(--sync-radius);
+    background: #fff;
+    color: #555;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.sync-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-width: 70px;
+    max-width: 170px;
+}
+
+.sync-tag {
+    display: inline-block;
+    padding: 4px 7px;
+    border: 1px solid #e1e1e1;
+    border-radius: 2px;
+    background: #fff;
+    color: #555;
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.sync-synopsis-cell {
+    width: 190px;
+    max-width: 190px;
+}
+
+.sync-synopsis {
+    display: -webkit-box;
+    overflow: hidden;
+    color: #737373;
+    font-size: 10px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.sync-muted {
+    color: #aaa;
+    font-size: 10px;
+}
+
+/* EMPTY STATE */
+
+.sync-empty {
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.sync-empty-icon {
+    display: block;
+    margin-bottom: 12px;
+    color: #737373;
+    font-size: 28px;
+}
+
+.sync-empty h3 {
+    margin: 0 0 8px;
+    color: #111;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.sync-empty p {
+    margin: 0;
+    color: var(--sync-muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* TABLE FOOTER */
+
+.sync-table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--sync-border);
+    background: #fafafa;
+}
+
+.sync-footer-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.sync-footer-info i {
+    color: #111;
+}
+
+.sync-footer-note {
+    color: #999;
+    font-size: 9px;
+    letter-spacing: .3px;
+}
+
+/* BOTTOM NOTE */
+
+.sync-bottom-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #737373;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.sync-bottom-note i {
+    margin-top: 2px;
+    color: #111;
+}
+
+/* =====================================
+   CONFIRMATION MODAL
+===================================== */
+
+.sync-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, .48);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .2s ease, visibility .2s ease;
+}
+
+.sync-modal-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.sync-modal {
+    width: 100%;
+    max-width: 430px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, .15);
+    transform: translateY(10px);
+    transition: transform .2s ease;
+}
+
+.sync-modal-overlay.is-visible .sync-modal {
+    transform: translateY(0);
+}
+
+.sync-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 22px 22px 17px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.sync-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    color: #111;
+    font-size: 19px;
+}
+
+.sync-modal-heading {
+    min-width: 0;
+}
+
+.sync-modal-title {
+    margin: 0 0 5px;
+    color: #111;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.sync-modal-subtitle {
+    margin: 0;
+    color: #737373;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.sync-modal-body {
+    padding: 20px 22px;
+}
+
+.sync-modal-message {
+    margin: 0 0 16px;
+    color: #555;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.sync-modal-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: #f8f8f8;
+}
+
+.sync-modal-summary-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    font-size: 11px;
+}
+
+.sync-modal-summary-label {
+    color: #737373;
+}
+
+.sync-modal-summary-value {
+    color: #111;
+    font-weight: 700;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.sync-modal-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 15px;
+    color: #737373;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.sync-modal-warning i {
+    margin-top: 2px;
+    color: #111;
+}
+
+.sync-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 15px 22px 20px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.sync-modal-footer .sync-btn {
+    min-width: 105px;
+}
+
+.sync-modal-footer .sync-btn-dark:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 767.98px) {
+    .sync-breadcrumb {
+        margin-bottom: 17px;
     }
+
+    .sync-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 18px;
+        padding-bottom: 18px;
+    }
+
+    .sync-header-actions {
+        width: 100%;
+    }
+
+    .sync-header-actions .sync-btn {
+        flex: 1 1 auto;
+    }
+
+    .sync-overview {
+        grid-template-columns: 1fr;
+        margin-bottom: 25px;
+    }
+
+    .sync-overview-item {
+        padding: 13px 15px;
+    }
+
+    .sync-overview-item + .sync-overview-item {
+        border-top: 1px solid var(--sync-border);
+        border-left: 0;
+    }
+
+    .sync-overview-icon {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+    }
+
+    .sync-overview-value {
+        font-size: 17px;
+    }
+
+    .sync-table-toolbar {
+        align-items: flex-start;
+    }
+
+    .sync-collection-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .sync-collection-heading .sync-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .sync-page-title {
+        font-size: 26px;
+    }
+
+    .sync-page-description {
+        font-size: 11px;
+    }
+
+    .sync-header-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .sync-header-actions .sync-btn {
+        width: 100%;
+    }
+
+    .sync-table-toolbar {
+        padding: 14px;
+    }
+
+    .sync-table-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 14px;
+    }
+
+    .sync-table thead th:first-child,
+    .sync-table tbody td:first-child {
+        padding-left: 14px;
+    }
+
+    .sync-modal-overlay {
+        padding: 14px;
+    }
+
+    .sync-modal-header {
+        padding: 18px 16px 15px;
+    }
+
+    .sync-modal-body {
+        padding: 17px 16px;
+    }
+
+    .sync-modal-footer {
+        padding: 14px 16px 17px;
+    }
+
+    .sync-modal-footer .sync-btn {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sync-epic-wrapper,
+    .sync-epic-wrapper *,
+    .sync-modal-overlay,
+    .sync-modal {
+        animation: none !important;
+        transition: none !important;
+    }
+}
 </style>
 
-<div class="container-fluid px-4 mt-5">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2>Reading List User: <strong>{{ selected_user.username }}</strong></h2>
-        <a href="javascript:history.back()" class="btn btn-outline-dark">Kembali</a>
-    </div>
-    <hr>
+<div class="container-fluid px-3 px-md-4 pt-0 mt-0 sync-epic-wrapper">
 
-    <div class="card p-4 shadow-sm">
-        <h5>Daftar Reading List {{ selected_user.username }}:</h5>
-        
-        <div class="table-responsive">
-            <table class="table table-hover mt-3 align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th class="text-center" style="width: 50px;"><input type="checkbox" id="select-all" checked></th>
-                        <th class="text-start">Judul Item</th>
-                        <th class="text-start">Season</th>
-                        <th class="text-start">Status</th>
-                        <th class="text-start">Type</th>
-                        <th class="text-start">Tags</th>
-                        <th class="text-start">Synopsis</th>
-                        <th class="text-start">Last Edited</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr>
-                        <td class="text-center"><input type="checkbox" class="item-checkbox" value="{{ item.id }}" checked></td>
-                        <td class="fw-bold text-dark text-start col-title">
-                            <div class="d-flex align-items-center">
-                                {% if item.image %}
-                                    <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-img me-2">
-                                {% else %}
-                                    <div class="item-img me-2 d-flex align-items-center justify-content-center text-muted" style="font-size: 9px;">No Pic</div>
-                                {% endif %}
-                                <a href="{% url 'reading_item_detail' item.id %}" class="text-dark text-decoration-none">{{ item.title }}</a>
-                            </div>
-                        </td>
-                        <td class="text-start">{% if item.season %}{{ item.season }}{% else %}-{% endif %}</td>
-                        <td class="text-start">{% if item.status %}{{ item.status.name }}{% else %}-{% endif %}</td>
-                        <td class="text-start">{% if item.Type %}{{ item.Type.name }}{% else %}-{% endif %}</td>
-                        <td class="text-start">
-                            {% for tag in item.tags.all %}
-                                <span class="badge bg-secondary">{{ tag.name }}</span>
-                            {% empty %}-{% endfor %}
-                        </td>
-                        <td class="text-start text-truncate" style="max-width: 150px;">{{ item.synopsis|default:"-" }}</td>
-                        <td class="text-start">{{ item.last_edited_at|date:"d M Y" }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center">Tidak ada item dalam reading list user ini.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- BREADCRUMB -->
+    <nav class="sync-breadcrumb" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'reading_list' %}">Reading List</a>
+            </li>
+            <li class="breadcrumb-item active fw-bold" aria-current="page">
+                User Synchronization
+            </li>
+        </ol>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <header class="sync-page-header">
+        <div class="sync-header-copy">
+            <div class="sync-overline">
+                <i class="bi bi-arrow-left-right"></i>
+                <span>Library Management</span>
+            </div>
+
+            <h1 class="sync-page-title">User Reading List</h1>
+
+            <p class="sync-page-description">
+                Review the reading collection belonging to
+                <strong>{{ selected_user.username }}</strong>.
+                Choose which entries you want to synchronize.
+            </p>
         </div>
-        
-        <div class="mt-4">
-            <button id="btn-sync" class="btn btn-dark px-5">Konfirmasi Sinkronisasi Item Terpilih</button>
+
+        <div class="sync-header-actions">
+            <a href="javascript:history.back()" class="sync-btn">
+                <i class="bi bi-arrow-left"></i>
+                <span>Back</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- COLLECTION OVERVIEW -->
+    <section class="sync-overview" aria-label="Collection overview">
+        <div class="sync-overview-item">
+            <div class="sync-overview-icon">
+                <i class="bi bi-collection"></i>
+            </div>
+            <div class="sync-overview-copy">
+                <span class="sync-overview-label">Total Entries</span>
+                <span class="sync-overview-value">
+                    {{ items|length|stringformat:"02d" }}
+                </span>
+            </div>
+        </div>
+
+        <div class="sync-overview-item">
+            <div class="sync-overview-icon">
+                <i class="bi bi-check2-square"></i>
+            </div>
+            <div class="sync-overview-copy">
+                <span class="sync-overview-label">Selected Entries</span>
+                <span class="sync-overview-value" id="selected-count">
+                    {{ items|length|stringformat:"02d" }}
+                </span>
+            </div>
+        </div>
+
+        <div class="sync-overview-item">
+            <div class="sync-overview-icon">
+                <i class="bi bi-person"></i>
+            </div>
+            <div class="sync-overview-copy">
+                <span class="sync-overview-label">Target Account</span>
+                <span class="sync-overview-value sync-account-name">
+                    {{ selected_user.username }}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- COLLECTION HEADING + TOP BUTTON -->
+    <section>
+        <div class="sync-collection-heading">
+            <div class="sync-collection-copy">
+                <h2 class="sync-collection-title">Collection Entries</h2>
+                <p class="sync-collection-description">
+                    Select the entries to include in this synchronization.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="sync-btn sync-btn-dark"
+                id="syncButtonTop"
+                {% if not items %}disabled{% endif %}
+            >
+                <i class="bi bi-arrow-repeat"></i>
+                <span id="sync-button-text">Confirm Synchronization</span>
+            </button>
+        </div>
+
+        <!-- COLLECTION TABLE -->
+        <div class="sync-table-panel">
+            <div class="sync-table-toolbar">
+                <div class="sync-toolbar-heading">
+                    <i class="bi bi-journal-bookmark"></i>
+                    <div>
+                        <h3>Reading Collection</h3>
+                        <p>Manage the entries for this account.</p>
+                    </div>
+                </div>
+
+                <label class="sync-select-all">
+                    <input type="checkbox" id="select-all" checked>
+                    <span class="sync-custom-checkbox"></span>
+                    <span>Select All</span>
+                </label>
+            </div>
+
+            <div class="sync-table-scroll">
+                <table class="sync-table">
+                    <thead>
+                        <tr>
+                            <th class="sync-check-column">
+                                <span class="visually-hidden">Select item</span>
+                            </th>
+                            <th class="sync-title-column">Item Title</th>
+                            <th>Season</th>
+                            <th>Status</th>
+                            <th>Type</th>
+                            <th>Tags</th>
+                            <th>Synopsis</th>
+                            <th>Last Edited</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td class="sync-check-column">
+                                <label class="sync-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        class="item-checkbox"
+                                        value="{{ item.id }}"
+                                        checked
+                                        aria-label="Select {{ item.title }}"
+                                    >
+                                    <span class="sync-custom-checkbox"></span>
+                                </label>
+                            </td>
+
+                            <td>
+                                <div class="sync-item-info">
+                                    {% if item.image %}
+                                        <img
+                                            src="{{ item.image.url }}"
+                                            alt="{{ item.title }}"
+                                            class="sync-item-image"
+                                            loading="lazy"
+                                        >
+                                    {% else %}
+                                        <div class="sync-item-image sync-no-image">
+                                            <span>NO IMAGE</span>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="sync-item-details">
+                                        <a
+                                            href="{% url 'reading_item_detail' item.id %}"
+                                            class="sync-item-title"
+                                        >
+                                            {{ item.title }}
+                                        </a>
+                                        <span class="sync-item-id">
+                                            ID #{{ item.id }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="sync-plain-value">
+                                    {{ item.season|default:"—" }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if item.status %}
+                                    <span class="sync-status">
+                                        <span class="sync-status-dot"></span>
+                                        {{ item.status.name }}
+                                    </span>
+                                {% else %}
+                                    <span class="sync-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if item.Type %}
+                                    <span class="sync-type">
+                                        {{ item.Type.name }}
+                                    </span>
+                                {% else %}
+                                    <span class="sync-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="sync-tags">
+                                    {% for tag in item.tags.all %}
+                                        <span class="sync-tag">{{ tag.name }}</span>
+                                    {% empty %}
+                                        <span class="sync-muted">—</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+
+                            <td class="sync-synopsis-cell">
+                                {% if item.synopsis %}
+                                    <span
+                                        class="sync-synopsis"
+                                        title="{{ item.synopsis }}"
+                                    >
+                                        {{ item.synopsis }}
+                                    </span>
+                                {% else %}
+                                    <span class="sync-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <span class="sync-date">
+                                    {{ item.last_edited_at|date:"d M Y"|default:"—" }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="sync-empty">
+                                    <span class="sync-empty-icon">
+                                        <i class="bi bi-journal-x"></i>
+                                    </span>
+                                    <h3>No Reading Items Found</h3>
+                                    <p>
+                                        This account does not have any entries
+                                        in its reading collection.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TABLE FOOTER -->
+            <div class="sync-table-footer">
+                <div class="sync-footer-info">
+                    <i class="bi bi-check2-circle"></i>
+                    <span id="footer-selection">
+                        {{ items|length }} of {{ items|length }} items selected
+                    </span>
+                </div>
+
+                <span class="sync-footer-note">
+                    {{ selected_user.username }} / Reading Collection
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOTTOM NOTE -->
+    <div class="sync-bottom-note mt-3">
+        <i class="bi bi-info-circle"></i>
+        <span>
+            Only selected entries will be included in the synchronization request.
+        </span>
+    </div>
+</div>
+
+<!-- SYNCHRONIZATION CONFIRMATION MODAL -->
+<div
+    class="sync-modal-overlay"
+    id="sync-confirm-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sync-modal-title"
+    aria-hidden="true"
+>
+    <div class="sync-modal">
+        <div class="sync-modal-header">
+            <div class="sync-modal-icon">
+                <i class="bi bi-arrow-repeat"></i>
+            </div>
+
+            <div class="sync-modal-heading">
+                <h2 class="sync-modal-title" id="sync-modal-title">
+                    Confirm Synchronization
+                </h2>
+                <p class="sync-modal-subtitle">
+                    Please review your synchronization request.
+                </p>
+            </div>
+        </div>
+
+        <div class="sync-modal-body">
+            <p class="sync-modal-message">
+                Are you sure you want to synchronize the selected reading
+                entries? Please verify the information below before continuing.
+            </p>
+
+            <div class="sync-modal-summary">
+                <div class="sync-modal-summary-row">
+                    <span class="sync-modal-summary-label">Selected Items</span>
+                    <span
+                        class="sync-modal-summary-value"
+                        id="modal-selected-count"
+                    >0 items</span>
+                </div>
+
+                <div class="sync-modal-summary-row">
+                    <span class="sync-modal-summary-label">Target Account</span>
+                    <span class="sync-modal-summary-value">
+                        {{ selected_user.username }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="sync-modal-warning">
+                <i class="bi bi-info-circle"></i>
+                <span>
+                    The synchronization request will only include the items
+                    selected in the collection table.
+                </span>
+            </div>
+        </div>
+
+        <div class="sync-modal-footer">
+            <button
+                type="button"
+                class="sync-btn"
+                id="sync-modal-cancel"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="sync-btn sync-btn-dark"
+                id="sync-modal-confirm"
+            >
+                <i class="bi bi-check2"></i>
+                <span>Confirm</span>
+            </button>
         </div>
     </div>
 </div>
 
 <script>
-    document.getElementById('select-all').addEventListener('click', function(e) {
-        document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
+document.addEventListener("DOMContentLoaded", function () {
+    const selectAll = document.getElementById("select-all");
+    const itemCheckboxes = Array.from(
+        document.querySelectorAll(".item-checkbox")
+    );
+
+    const selectedCount = document.getElementById("selected-count");
+    const footerSelection = document.getElementById("footer-selection");
+
+    const syncButton = document.getElementById("syncButtonTop");
+    const syncButtonText = document.getElementById("sync-button-text");
+
+    const confirmModal = document.getElementById("sync-confirm-modal");
+    const modalSelectedCount = document.getElementById("modal-selected-count");
+    const modalCancelButton = document.getElementById("sync-modal-cancel");
+    const modalConfirmButton = document.getElementById("sync-modal-confirm");
+
+    if (
+        !selectAll ||
+        !selectedCount ||
+        !footerSelection ||
+        !syncButton ||
+        !syncButtonText ||
+        !confirmModal ||
+        !modalSelectedCount ||
+        !modalCancelButton ||
+        !modalConfirmButton
+    ) {
+        return;
+    }
+
+    let previouslyFocusedElement = null;
+    let isSynchronizing = false;
+
+    /*
+     * Custom notification integration:
+     * Uses the toast container and CSS already defined in base/base.html.
+     */
+    function showNotification(message, type = "info", duration = 5000) {
+        const allowedTypes = ["success", "danger", "warning", "info"];
+        const safeType = allowedTypes.includes(type) ? type : "info";
+
+        let container = document.querySelector(".toast-container-custom");
+
+        if (!container) {
+            container = document.createElement("div");
+            container.className = "toast-container-custom";
+            container.setAttribute("aria-live", "polite");
+            container.setAttribute("aria-atomic", "false");
+            document.body.appendChild(container);
+        }
+
+        const alertElement = document.createElement("div");
+        alertElement.className =
+            "alert alert-" + safeType +
+            " alert-dismissible fade show custom-alert";
+        alertElement.setAttribute("role", "alert");
+
+        const messageElement = document.createElement("span");
+        messageElement.textContent = message || "Request processed.";
+
+        const closeButton = document.createElement("button");
+        closeButton.type = "button";
+        closeButton.className = "btn-close";
+        closeButton.setAttribute("aria-label", "Close notification");
+
+        let dismissTimer = null;
+
+        function dismissNotification() {
+            if (dismissTimer) {
+                window.clearTimeout(dismissTimer);
+            }
+
+            if (!alertElement.isConnected) {
+                return;
+            }
+
+            if (typeof bootstrap !== "undefined" && bootstrap.Alert) {
+                bootstrap.Alert.getOrCreateInstance(alertElement).close();
+            } else {
+                alertElement.remove();
+            }
+        }
+
+        closeButton.addEventListener("click", dismissNotification);
+
+        alertElement.appendChild(messageElement);
+        alertElement.appendChild(closeButton);
+        container.appendChild(alertElement);
+
+        if (duration > 0) {
+            dismissTimer = window.setTimeout(
+                dismissNotification,
+                duration
+            );
+        }
+
+        return alertElement;
+    }
+
+    function getSelectedIds() {
+        return itemCheckboxes
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+    }
+
+    function updateSelection() {
+        const checkedCount = getSelectedIds().length;
+        const totalCount = itemCheckboxes.length;
+
+        selectedCount.textContent = String(checkedCount).padStart(2, "0");
+
+        footerSelection.textContent =
+            checkedCount + " of " + totalCount + " items selected";
+
+        selectAll.checked =
+            totalCount > 0 && checkedCount === totalCount;
+
+        selectAll.indeterminate =
+            checkedCount > 0 && checkedCount < totalCount;
+
+        if (!isSynchronizing) {
+            syncButton.disabled = checkedCount === 0;
+
+            syncButtonText.textContent = checkedCount > 0
+                ? "Confirm " + checkedCount + " Items"
+                : "Select Items First";
+        }
+    }
+
+    function openConfirmModal() {
+        const selectedIds = getSelectedIds();
+
+        if (selectedIds.length === 0) {
+            showNotification(
+                "Please select at least one item before synchronizing.",
+                "warning"
+            );
+            return;
+        }
+
+        if (isSynchronizing) {
+            return;
+        }
+
+        previouslyFocusedElement = document.activeElement;
+
+        modalSelectedCount.textContent =
+            selectedIds.length +
+            (selectedIds.length === 1 ? " item" : " items");
+
+        modalConfirmButton.disabled = false;
+        modalConfirmButton.innerHTML =
+            '<i class="bi bi-check2"></i><span>Confirm</span>';
+
+        modalCancelButton.disabled = false;
+
+        confirmModal.classList.add("is-visible");
+        confirmModal.setAttribute("aria-hidden", "false");
+
+        document.body.style.overflow = "hidden";
+        modalConfirmButton.focus();
+    }
+
+    function closeConfirmModal() {
+        if (isSynchronizing) {
+            return;
+        }
+
+        confirmModal.classList.remove("is-visible");
+        confirmModal.setAttribute("aria-hidden", "true");
+
+        document.body.style.overflow = "";
+
+        if (
+            previouslyFocusedElement &&
+            typeof previouslyFocusedElement.focus === "function"
+        ) {
+            previouslyFocusedElement.focus();
+        }
+    }
+
+    function getCookie(name) {
+        const cookieString = document.cookie || "";
+        const cookies = cookieString.split(";");
+
+        for (const cookie of cookies) {
+            const trimmedCookie = cookie.trim();
+
+            if (trimmedCookie.startsWith(name + "=")) {
+                return decodeURIComponent(
+                    trimmedCookie.substring(name.length + 1)
+                );
+            }
+        }
+
+        return "";
+    }
+
+    function getCsrfToken() {
+        const cookieToken = getCookie("csrftoken");
+
+        if (cookieToken) {
+            return cookieToken;
+        }
+
+        const csrfInput = document.querySelector(
+            'input[name="csrfmiddlewaretoken"]'
+        );
+
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+
+        return "{{ csrf_token|escapejs }}";
+    }
+
+    selectAll.addEventListener("change", function () {
+        itemCheckboxes.forEach(function (checkbox) {
+            checkbox.checked = selectAll.checked;
+        });
+
+        updateSelection();
     });
 
-    document.getElementById('btn-sync').addEventListener('click', function() {
-        let selectedIds = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => cb.value);
-        
-        if (selectedIds.length > 0) {
-            fetch(window.location.href, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ selected_ids: selectedIds })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                window.location.reload();
-            });
-        } else {
-            alert("Pilih minimal satu item!");
+    itemCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateSelection);
+    });
+
+    syncButton.addEventListener("click", openConfirmModal);
+    modalCancelButton.addEventListener("click", closeConfirmModal);
+
+    confirmModal.addEventListener("click", function (event) {
+        if (event.target === confirmModal) {
+            closeConfirmModal();
         }
     });
+
+    document.addEventListener("keydown", function (event) {
+        if (
+            event.key === "Escape" &&
+            confirmModal.classList.contains("is-visible") &&
+            !isSynchronizing
+        ) {
+            closeConfirmModal();
+        }
+    });
+
+    async function synchronizeItems() {
+        if (isSynchronizing) {
+            return;
+        }
+
+        const selectedIds = getSelectedIds();
+
+        if (selectedIds.length === 0) {
+            showNotification(
+                "Please select at least one item before synchronizing.",
+                "warning"
+            );
+            closeConfirmModal();
+            return;
+        }
+
+        isSynchronizing = true;
+
+        syncButton.disabled = true;
+        syncButtonText.textContent = "Processing...";
+
+        modalConfirmButton.disabled = true;
+        modalConfirmButton.innerHTML =
+            '<i class="bi bi-arrow-repeat"></i><span>Processing...</span>';
+
+        modalCancelButton.disabled = true;
+
+        try {
+            const response = await fetch(window.location.href, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCsrfToken(),
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    selected_ids: selectedIds
+                })
+            });
+
+            let data;
+
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                throw new Error(
+                    "The server returned an invalid response. Please try again."
+                );
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Synchronization failed."
+                );
+            }
+
+            /*
+             * Show the result using the existing base.html toast design.
+             * Do not reload immediately: that would remove the AJAX toast.
+             */
+            showNotification(
+                data.message ||
+                "The synchronization request was processed successfully.",
+                "success",
+                6000
+            );
+
+            confirmModal.classList.remove("is-visible");
+            confirmModal.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = "";
+
+            isSynchronizing = false;
+            modalCancelButton.disabled = false;
+
+            updateSelection();
+
+        } catch (error) {
+            showNotification(
+                error.message ||
+                "An error occurred during synchronization.",
+                "danger",
+                7000
+            );
+
+            isSynchronizing = false;
+
+            modalConfirmButton.disabled = false;
+            modalConfirmButton.innerHTML =
+                '<i class="bi bi-check2"></i><span>Confirm</span>';
+
+            modalCancelButton.disabled = false;
+
+            updateSelection();
+        }
+    }
+
+    modalConfirmButton.addEventListener("click", synchronizeItems);
+
+    updateSelection();
+});
 </script>
+
 {% endblock %}

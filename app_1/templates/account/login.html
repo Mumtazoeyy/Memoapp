@@ -1,133 +1,365 @@
+
 {% extends 'base/base.html' %}
 {% block content %}
-<div class="container d-flex justify-content-center">
-    <!-- Card dengan animasi Bounce & Zoom-in yang konsisten -->
-    <div class="dashboard-card border border-dark rounded-0 p-4 p-md-5 my-5 w-100 login-card-epic" style="max-width: 450px;">
-        <h2 class="fw-bold mb-4 epic-title" style="letter-spacing: -1px;">LOGIN</h2>
+
+<div class="login-page">
+    <div class="login-card">
+        <h2 class="login-title">Login</h2>
+        <p class="login-description">Sign in to your account.</p>
 
         <form method="POST">
             {% csrf_token %}
-            <div class="mb-3 epic-input-1">
-                <label class="small fw-bold text-uppercase">Username</label>
-                <input type="text" name="username" class="form-control rounded-0 border-dark shadow-none py-2 input-epic-effect" required>
+
+            <div class="login-field">
+                <label for="login-username">Username</label>
+                <input
+                    id="login-username"
+                    type="text"
+                    name="username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required
+                >
             </div>
-            <div class="mb-4 epic-input-2">
-                <label class="small fw-bold text-uppercase">Password</label>
-                <input type="password" name="password" class="form-control rounded-0 border-dark shadow-none py-2 input-epic-effect" required>
+
+            <div class="login-field">
+                <label for="login-password">Password</label>
+                <div class="password-wrapper">
+                    <input
+                        id="login-password"
+                        type="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <button type="button" id="passwordToggle" aria-label="Show password">
+                        <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
-            <button type="submit" class="btn btn-dark btn-pro w-100 rounded-0 py-3 fw-bold mb-3 btn-epic-effect">MASUK</button>
+
+            <label class="remember-label">
+                <input type="checkbox" name="remember_me" value="1">
+                <span>Remember me</span>
+            </label>
+
+            <button type="submit" class="login-submit">Sign In</button>
         </form>
-        
-        <p class="small text-center text-muted epic-footer">Belum punya akun? <a href="{% url 'register' %}" class="text-dark fw-bold link-epic">Daftar sekarang</a></p>
+
+        <p class="login-footer">
+            Don't have an account?
+            <a href="{% url 'register' %}">Sign up</a>
+        </p>
     </div>
 </div>
 
-<!-- Styling Animasi Heboh dengan Tempo yang Disamakan -->
 <style>
-    /* 1. Animasi Utama Card: Zoom-in dengan efek pantulan (bounce) */
-    @keyframes epicCardIntro {
-        0% {
-            opacity: 0;
-            transform: scale(0.7) translateY(50px);
-        }
-        60% {
-            opacity: 1;
-            transform: scale(1.03) translateY(-10px);
-        }
-        80% {
-            transform: scale(0.97) translateY(5px);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 65vh;
+    padding: 32px 16px;
+}
 
-    .login-card-epic {
-        animation: epicCardIntro 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 32px;
+    background: var(--color-white, #fff);
+    border: 1px solid var(--color-border, #dedede);
+    border-radius: 0;
+}
 
-    /* 2. Animasi Masuk Berurutan (Staggered Fade & Slide) dengan Tempo Cepat */
-    @keyframes itemSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(25px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+/* Individual entrance animations */
+.login-title,
+.login-description,
+.login-field,
+.remember-label,
+.login-submit,
+.login-footer {
+    animation: loginItemEnter 0.45s ease-out both;
+}
 
-    .epic-title {
+.login-title {
+    margin: 0 0 6px;
+    color: var(--color-black, #000);
+    font-size: 28px;
+    font-weight: 700;
+    animation-delay: 0.05s;
+}
+
+.login-description {
+    margin: 0 0 28px;
+    color: var(--color-gray, #6c757d);
+    font-size: 13px;
+    animation-delay: 0.12s;
+}
+
+.login-field {
+    margin-bottom: 20px;
+}
+
+.login-field:nth-of-type(1) {
+    animation-delay: 0.19s;
+}
+
+.login-field:nth-of-type(2) {
+    animation-delay: 0.26s;
+}
+
+.login-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-black, #000);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.login-field input {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 11px 12px;
+    border: 1px solid var(--color-border, #dedede);
+    border-radius: 0;
+    outline: none;
+    background: #fff;
+    color: #000;
+    font-size: 14px;
+    transition: border-color 0.2s ease,
+                background-color 0.2s ease;
+}
+
+.login-field input:hover {
+    border-color: #999;
+}
+
+.login-field input:focus {
+    border-color: #000;
+    box-shadow: none;
+}
+
+/* Password input */
+.password-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-border, #dedede);
+    transition: border-color 0.2s ease,
+                background-color 0.2s ease;
+}
+
+.password-wrapper:hover {
+    border-color: #999;
+}
+
+.password-wrapper:focus-within {
+    border-color: #000;
+}
+
+.password-wrapper input {
+    border: none;
+}
+
+.password-wrapper input:hover,
+.password-wrapper input:focus {
+    border: none;
+}
+
+.password-wrapper button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    width: 44px;
+    flex-shrink: 0;
+    border: none;
+    background: #fff;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.2s ease,
+                background-color 0.2s ease;
+}
+
+.password-wrapper button:hover {
+    color: #000;
+    background-color: rgba(0, 0, 0, 0.045);
+}
+
+.password-wrapper button:active {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.password-wrapper button:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: -4px;
+}
+
+/* Remember me */
+.remember-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px 0 22px;
+    color: #444;
+    font-size: 12px;
+    cursor: pointer;
+    animation-delay: 0.33s;
+    transition: color 0.2s ease;
+}
+
+.remember-label:hover {
+    color: #000;
+}
+
+.remember-label input {
+    accent-color: #000;
+    cursor: pointer;
+}
+
+/* Sign in button */
+.login-submit {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px;
+    border: 1px solid #000;
+    border-radius: 0;
+    background: #000;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    animation-delay: 0.40s;
+    transition: background-color 0.2s ease,
+                color 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.login-submit:hover {
+    background-color: #fff;
+    color: #000;
+    border-color: #000;
+}
+
+.login-submit:active {
+    transform: scale(0.985);
+}
+
+.login-submit:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 3px;
+}
+
+/* Sign up link */
+.login-footer {
+    margin: 24px 0 0;
+    color: var(--color-gray, #6c757d);
+    font-size: 12px;
+    text-align: center;
+    animation-delay: 0.47s;
+}
+
+.login-footer a {
+    color: #000;
+    font-weight: 600;
+    text-decoration: none;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease,
+                text-decoration-color 0.2s ease;
+}
+
+.login-footer a:hover {
+    color: #666;
+    text-decoration: underline;
+}
+
+.login-footer a:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 3px;
+}
+
+/* Smooth upward entrance */
+@keyframes loginItemEnter {
+    from {
         opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.15s forwards;
+        transform: translateY(18px);
     }
 
-    .epic-input-1 {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.23s forwards;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 575.98px) {
+    .login-page {
+        min-height: auto;
+        padding: 28px 8px;
     }
 
-    .epic-input-2 {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.31s forwards;
+    .login-card {
+        padding: 26px 20px;
     }
 
-    .btn-pro {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.48s forwards;
+    .login-title {
+        font-size: 25px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .login-title,
+    .login-description,
+    .login-field,
+    .remember-label,
+    .login-submit,
+    .login-footer {
+        animation: none !important;
+        opacity: 1;
+        transform: none;
     }
 
-    .epic-footer {
-        opacity: 0;
-        animation: itemSlideUp 0.4s ease 0.56s forwards;
+    .login-field input,
+    .password-wrapper,
+    .password-wrapper button,
+    .remember-label,
+    .login-submit,
+    .login-footer a {
+        transition: none !important;
     }
-
-    /* 3. Efek Interaktif Heboh pada Input saat Fokus */
-    .input-epic-effect {
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .input-epic-effect:focus {
-        background-color: #fff;
-        border-color: #000 !important;
-        box-shadow: 4px 4px 0px #000 !important; /* Efek brutalist shadow */
-        transform: translateY(-3px);
-    }
-
-    /* 4. Efek Heboh pada Tombol (Glow & Lift) */
-    .btn-epic-effect {
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .btn-epic-effect:hover {
-        background-color: #000;
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-    .btn-epic-effect:active {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    /* 5. Efek Link Berdenyut/Animasi Garis Bawah */
-    .link-epic {
-        position: relative;
-        text-decoration: none;
-    }
-    .link-epic::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: -2px;
-        left: 0;
-        background-color: #000;
-        transition: width 0.3s ease-in-out;
-    }
-    .link-epic:hover::after {
-        width: 100%;
-    }
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const passwordInput = document.getElementById('login-password');
+    const passwordToggle = document.getElementById('passwordToggle');
+
+    if (!passwordInput || !passwordToggle) return;
+
+    passwordToggle.addEventListener('click', function () {
+        const showPassword = passwordInput.type === 'password';
+
+        passwordInput.type = showPassword ? 'text' : 'password';
+        passwordToggle.setAttribute(
+            'aria-label',
+            showPassword ? 'Hide password' : 'Show password'
+        );
+
+        const icon = passwordToggle.querySelector('i');
+
+        if (icon) {
+            icon.classList.toggle('bi-eye', !showPassword);
+            icon.classList.toggle('bi-eye-slash', showPassword);
+        }
+    });
+});
+</script>
+
 {% endblock %}

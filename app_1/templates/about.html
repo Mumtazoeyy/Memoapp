@@ -1,29 +1,39 @@
+
 {% extends 'base/base.html' %}
 {% load static %}
 
 {% block content %}
 <style>
-    /* 1. Pengaturan dasar halaman */
-    html, body {
+    /* 1. Pengaturan dasar */
+    html {
         margin: 0;
         padding: 0;
         overflow-x: hidden;
         scroll-behavior: smooth;
-        background-color: #121212;
-        height: 100%;
-        /* Aktifkan snap pada container utama */
         scroll-snap-type: y mandatory;
+        background-color: #121212;
+        overscroll-behavior-y: contain;
     }
 
-    /* Styling Loading Screen */
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background-color: #121212;
+        min-height: 100%;
+        scroll-behavior: smooth;
+        overscroll-behavior-y: contain;
+    }
+
+    /* Loading screen */
     #page-loader {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
+        inset: 0;
+        width: 100%;
         height: 100vh;
+        height: 100svh;
         background-color: #121212;
-        z-index: 999;
+        z-index: 2000;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -54,18 +64,22 @@
         transition: width 0.2s ease;
     }
 
-    /* 2. Mengunci Navbar base.html agar stay di atas */
-    header, nav, .navbar {
+    /* Navbar base.html */
+    header,
+    nav,
+    .navbar {
         position: fixed !important;
         top: 0;
         left: 0;
         width: 100%;
         z-index: 1000;
-        transition: background-color 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+        transition:
+            background-color 0.4s ease,
+            backdrop-filter 0.4s ease,
+            box-shadow 0.4s ease;
     }
 
-    /* 3. Container Halaman Pertama */
-    /* Container Halaman Pertama (Hero) di-snap ke awal layar */
+    /* 2. Hero section */
     .hero-container {
         position: fixed;
         top: 56px;
@@ -81,14 +95,12 @@
         text-align: center;
         overflow: hidden;
         pointer-events: none;
-        scroll-snap-align: start;
     }
 
-    /* Background Video */
+    /* Background video */
     .hero-video-container {
         position: absolute;
-        top: 0;
-        left: 0;
+        inset: 0;
         width: 100%;
         height: 100%;
         z-index: -1;
@@ -117,7 +129,7 @@
         }
     }
 
-    /* 4. Container Teks Utama */
+    /* 3. Konten utama */
     .about-content-wrapper {
         width: 100%;
         display: flex;
@@ -128,6 +140,7 @@
         color: #ffffff;
         z-index: 1;
         padding: 0 20px;
+        box-sizing: border-box;
         pointer-events: none;
         user-select: none;
         -webkit-user-select: none;
@@ -135,45 +148,89 @@
         -ms-user-select: none;
     }
 
-    /* Efek Shadow */
     .text-pop-effect {
         text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
         transition: text-shadow 0.4s ease;
     }
 
-    /* Khusus kotak petunjuk scroll dengan efek blur hitam */
+    /* 4. Petunjuk scroll */
+    .anim-scroll-hint-wrapper {
+        position: fixed;
+        left: 0;
+        bottom: 80px;
+        width: 100%;
+        max-width: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+        padding: 0 12px;
+        z-index: 1500;
+        pointer-events: none;
+        opacity: 1;
+        visibility: visible;
+        transition:
+            opacity 0.4s ease,
+            visibility 0.4s ease,
+            transform 0.4s ease;
+    }
+
     .scroll-hint-box {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: max-content;
+        max-width: 100%;
+        box-sizing: border-box;
         background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
         padding: 10px 22px;
         border-radius: 30px;
         border: 1px solid rgba(255, 255, 255, 0.1);
+        pointer-events: auto;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+            background 0.3s ease,
+            border-color 0.3s ease,
+            transform 0.3s ease;
+    }
+
+    .scroll-hint-box .click-target {
+        display: block;
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+        pointer-events: auto;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .scroll-hint-box:hover {
+        background: rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.03);
+    }
+
+    .scroll-hint-hidden {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateY(20px) !important;
         pointer-events: none !important;
     }
 
-    .scroll-hint-box span {
-        pointer-events: auto !important;
-        cursor: pointer !important;
-    }
-
-    .anim-scroll-hint-wrapper:hover .scroll-hint-box {
-        background: rgba(0, 0, 0, 0.7);
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: scale(1.05);
-    }
-
-    /* Mencegah elemen anak (teks/ikon) memblokir klik di area sekitarnya */
-    .anim-scroll-hint-wrapper * {
-        pointer-events: none; 
-    }
-
-    /* Animasi Masuk Teks */
+    /* Animasi masuk teks */
     @keyframes smoothSlideUp {
         0% {
             opacity: 0;
             transform: translateY(35px);
         }
+
         100% {
             opacity: 1;
             transform: translateY(0);
@@ -182,8 +239,9 @@
 
     @keyframes pureFloating {
         0%, 100% {
-            transform: translateY(0px);
+            transform: translateY(0);
         }
+
         50% {
             transform: translateY(-8px);
         }
@@ -191,47 +249,33 @@
 
     .play-text-anim .anim-title {
         opacity: 0;
-        animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards, 
-                   pureFloating 4s ease-in-out infinite;
+        animation:
+            smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards,
+            pureFloating 4s ease-in-out infinite;
         animation-delay: 0.3s, 2.8s;
     }
 
     .play-text-anim .anim-desc {
         opacity: 0;
-        animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards, 
-                   pureFloating 4s ease-in-out infinite;
+        animation:
+            smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards,
+            pureFloating 4s ease-in-out infinite;
         animation-delay: 0.6s, 3.1s;
     }
 
     .play-text-anim .anim-enjoy {
         opacity: 0;
-        animation: smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards, 
-                   pureFloating 4s ease-in-out infinite;
+        animation:
+            smoothSlideUp 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards,
+            pureFloating 4s ease-in-out infinite;
         animation-delay: 0.9s, 3.4s;
-    }
-
-    /* Pembungkus Utama Petunjuk Scroll */
-    .anim-scroll-hint-wrapper {
-        position: absolute;
-        bottom: 25px;
-        left: 50%;
-        transform: translateX(-50%);
-        pointer-events: none !important; /* Mematikan klik pada seluruh pembungkus secara default */
-        transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
-        z-index: 10;
-    }
-
-    .scroll-hint-hidden {
-        opacity: 0 !important;
-        visibility: hidden !important;
-        transform: translate(-50%, 20px) !important;
-        pointer-events: none !important;
     }
 
     @keyframes slowFadePulse {
         0%, 100% {
             opacity: 0.4;
         }
+
         50% {
             opacity: 1;
         }
@@ -241,17 +285,19 @@
         animation: slowFadePulse 4s ease-in-out infinite;
     }
 
-    /* 5. Dummy Spacer agar halaman bisa di-scroll secara natural */
+    /* 5. Spacer halaman dan titik snap pertama */
     .scroll-spacer {
         width: 100%;
         height: calc(100vh - 56px - 60px);
         height: calc(100svh - 56px - 60px);
         pointer-events: none;
         scroll-snap-align: start;
+        scroll-snap-stop: always;
     }
 
-    /* 6. Mengunci Footer base.html agar stay di layar bawah */
-    footer, .footer {
+    /* 6. Footer base.html */
+    footer,
+    .footer {
         position: fixed !important;
         bottom: 0;
         left: 0;
@@ -262,12 +308,12 @@
         transition: background-color 0.4s ease;
     }
 
-    /* 7. Area Informasi Tambahan di Bawah */
+    /* 7. Area informasi tambahan */
     .detail-wrapper {
         position: relative;
         width: 100%;
-        height: calc(100vh - 60px);
-        height: calc(100svh - 60px);
+        min-height: calc(100vh - 60px);
+        min-height: calc(100svh - 60px);
         background: transparent;
         color: #ffffff;
         display: flex;
@@ -277,7 +323,6 @@
         padding: 0;
         z-index: 2;
         box-sizing: border-box;
-        /* Mengunci posisi agar berhenti pas di tengah layar */
         scroll-snap-align: start;
         scroll-snap-stop: always;
     }
@@ -285,6 +330,7 @@
     .blur-backdrop-section {
         width: 100%;
         padding: 60px 20px;
+        box-sizing: border-box;
         background: rgba(255, 255, 255, 0.02);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -299,7 +345,10 @@
         border-radius: 50px;
         text-decoration: none;
         box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
-        transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        transition:
+            background-color 0.3s ease,
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
         pointer-events: auto;
     }
 
@@ -310,22 +359,61 @@
         box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
     }
 
-    /* Menyembunyikan ikon panah khusus di layar mobile */
+    /* Responsif mobile */
     @media (max-width: 767.98px) {
+        html {
+            scroll-snap-type: y mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .hero-container {
+            height: calc(100dvh - 56px - 60px);
+        }
+
+        .anim-scroll-hint-wrapper {
+            bottom: 76px;
+            padding: 0 16px;
+        }
+
+        .scroll-hint-box {
+            padding: 10px 16px;
+            font-size: 0.8rem !important;
+        }
+
         .scroll-hint-box .mt-1 {
             display: none !important;
         }
-        .scroll-hint-box {
-            padding: 6px 16px !important;
-            font-size: 0.8rem !important;
+
+        .scroll-hint-box .click-target {
+            padding: 4px 2px;
+        }
+
+        .blur-backdrop-section {
+            padding: 40px 20px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html,
+        body {
+            scroll-behavior: auto;
         }
     }
 </style>
 
-<!-- ================= LOADING SCREEN (True Download Tracker + Fallback) ================= -->
+<!-- ================= LOADING SCREEN ================= -->
 <div id="page-loader">
-    <div class="fw-bold text-pop-effect" style="letter-spacing: 2px; font-size: 0.85rem;">LOADING ...</div>
-    <div id="loaderPercentage" class="text-white-50 mt-1" style="font-size: 0.75rem;">0%</div>
+    <div class="fw-bold text-pop-effect"
+         style="letter-spacing: 2px; font-size: 0.85rem;">
+        LOADING ...
+    </div>
+
+    <div id="loaderPercentage"
+         class="text-white-50 mt-1"
+         style="font-size: 0.75rem;">
+        0%
+    </div>
+
     <div class="loader-bar-container">
         <div id="loaderBarFill" class="loader-bar-fill"></div>
     </div>
@@ -333,6 +421,7 @@
 
 <!-- ================= HALAMAN UTAMA ================= -->
 <div class="hero-container">
+
     <!-- Background Video -->
     <div id="heroVideoContainer" class="hero-video-container">
         <video id="bgVideo" autoplay muted loop playsinline preload="auto">
@@ -342,8 +431,10 @@
 
     <!-- Konten Utama -->
     <div id="contentWrapper" class="about-content-wrapper">
-        <h1 class="display-1 fw-black text-pop-effect mb-0 anim-title">kagataudah</h1>
-        
+        <h1 class="display-1 fw-black text-pop-effect mb-0 anim-title">
+            kagataudah
+        </h1>
+
         <p class="lead w-50 text-pop-effect mt-2 mb-3 anim-desc d-none d-md-block">
             This is a simple application designed to help you track your reading progress efficiently and effortlessly.
         </p>
@@ -352,194 +443,326 @@
             Enjoy it
         </p>
     </div>
+</div>
 
-    <!-- Petunjuk Scroll ke Bawah (Bisa Diklik) -->
-    <div id="scrollHint" class="anim-scroll-hint-wrapper">
-        <div class="scroll-hint-box text-white text-pop-effect anim-pulse-content text-center" style="font-size: 0.9rem;">
-            <span class="click-target" style="cursor: pointer; display: inline-block;">Scroll down to explore more</span>
-            <div class="mt-1">
-                <i class="bi bi-chevron-down"></i>
-            </div>
+<!-- Petunjuk scroll -->
+<div id="scrollHint" class="anim-scroll-hint-wrapper">
+    <div class="scroll-hint-box text-white text-pop-effect anim-pulse-content text-center"
+         style="font-size: 0.9rem;"
+         role="button"
+         tabindex="0"
+         aria-label="Scroll down to Community and Support">
+
+        <span class="click-target">
+            Scroll down to explore more
+        </span>
+
+        <div class="mt-1">
+            <i class="bi bi-chevron-down"></i>
         </div>
     </div>
 </div>
 
-<!-- Spacer agar halaman punya ruang untuk discroll -->
-<div class="scroll-spacer"></div>
+<!-- Spacer halaman -->
+<div class="scroll-spacer" aria-hidden="true"></div>
 
-<!-- ================= INFORMASI LEBIH DETAIL DI BAWAHNYA ================= -->
+<!-- ================= INFORMASI LEBIH DETAIL ================= -->
 <div id="scrollDownTarget" class="detail-wrapper">
     <div class="blur-backdrop-section text-center">
         <div class="container" style="max-width: 700px;">
-            <h2 class="display-6 fw-bold mb-3 text-pop-effect">Community & Support</h2>
+
+            <h2 class="display-6 fw-bold mb-3 text-pop-effect">
+                Community *&* Support
+            </h2>
+
             <p class="text-white-50 fs-6 mb-4 text-pop-effect">
                 Join our community or ask any questions regarding the app directly through the WhatsApp button below without needing to save the number.
             </p>
+
             <div>
-                <a href="{% url 'redirect_wa' %}" target="_blank" class="btn-whatsapp text-pop-effect">
-                    <i class="bi bi-whatsapp me-2"></i> Contact via WhatsApp
+                <a href="{% url 'redirect_wa' %}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn-whatsapp text-pop-effect">
+                    <i class="bi bi-whatsapp me-2"></i>
+                    Contact via WhatsApp
                 </a>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- Script Loading, Download Nyata, & Auto-Play Video yang Solid -->
+<!-- ================= SCRIPT LOADING DAN SCROLL ================= -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const loader = document.getElementById('page-loader');
-        const loaderBarFill = document.getElementById('loaderBarFill');
-        const loaderPercentage = document.getElementById('loaderPercentage');
-        const video = document.getElementById('bgVideo');
-        const heroVideoContainer = document.getElementById('heroVideoContainer');
-        const contentWrapper = document.getElementById('contentWrapper');
-        const scrollHint = document.getElementById('scrollHint');
-        const scrollTarget = document.getElementById('scrollDownTarget');
+document.addEventListener("DOMContentLoaded", function () {
+    const loader = document.getElementById("page-loader");
+    const loaderBarFill = document.getElementById("loaderBarFill");
+    const loaderPercentage = document.getElementById("loaderPercentage");
+    const video = document.getElementById("bgVideo");
+    const heroVideoContainer = document.getElementById("heroVideoContainer");
+    const contentWrapper = document.getElementById("contentWrapper");
+    const scrollHint = document.getElementById("scrollHint");
+    const hintBox = scrollHint
+        ? scrollHint.querySelector(".scroll-hint-box")
+        : null;
+    const scrollTarget = document.getElementById("scrollDownTarget");
 
-        let isDone = false;
+    let isDone = false;
+    let isScrolling = false;
+    let scrollEndTimer = null;
+    let wheelLock = false;
+    let touchStartY = 0;
 
-        function launchPage(videoBlobUrl) {
-            if (isDone) return;
-            isDone = true;
+    /* Loading screen */
+    function launchPage(videoBlobUrl) {
+        if (isDone) return;
+        isDone = true;
 
-            // Pastikan bar menunjuk ke 100% penuh sempurna
-            loaderBarFill.style.width = '100%';
-            loaderPercentage.innerText = '100%';
+        loaderBarFill.style.width = "100%";
+        loaderPercentage.innerText = "100%";
 
-            if (video && videoBlobUrl) {
-                video.src = videoBlobUrl;
-                
-                // Tunggu sampai video selesai mendekode dan benar-benar siap diputar tanpa jeda
-                video.oncanplaythrough = function() {
-                    video.play().catch(() => {});
-                    revealContent();
-                };
+        if (video && videoBlobUrl) {
+            video.src = videoBlobUrl;
 
-                // Fallback pengaman jika event canplaythrough agak lambat terpanggil
-                setTimeout(function() {
-                    video.play().catch(() => {});
-                    revealContent();
-                }, 400);
-            } else {
+            video.oncanplaythrough = function () {
+                video.play().catch(() => {});
                 revealContent();
-            }
-        }
+            };
 
-        // Fungsi pembantu untuk mengubah bytes menjadi format yang readable (KB / MB)
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-
-        function revealContent() {
-            loader.classList.add('loader-hidden');
-            heroVideoContainer.classList.add('play-entrance');
-            contentWrapper.classList.add('play-text-anim');
-        }
-
-        // Ambil path sumber video dari elemen <source>
-        const sourceElement = video ? video.querySelector('source') : null;
-        const videoUrl = sourceElement ? sourceElement.src : null;
-
-        if (videoUrl) {
-            sourceElement.src = '';
-            
-            // Unduh file video secara nyata byte-by-byte
-            fetch(videoUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Gagal mengunduh video');
-                    
-                    const contentLength = response.headers.get('content-length');
-                    if (!contentLength) {
-                        return response.blob().then(blob => launchPage(URL.createObjectURL(blob)));
-                    }
-
-                    const total = parseInt(contentLength, 10);
-                    let loaded = 0;
-                    const reader = response.body.getReader();
-                    const chunks = [];
-
-                    return new ReadableStream({
-                        start(controller) {
-                            function push() {
-                                reader.read().then(({ done, value }) => {
-                                    if (done) {
-                                        controller.close();
-                                        return;
-                                    }
-                                    loaded += value.length;
-                                    chunks.push(value);
-                                    controller.enqueue(value);
-
-                                    let percent = Math.floor((loaded / total) * 100);
-                                    
-                                    // --- UPDATE TAMPILAN PERSEN + UKURAN FILE ---
-                                    let loadedFormatted = formatBytes(loaded);
-                                    let totalFormatted = formatBytes(total);
-                                    loaderPercentage.innerText = `${percent}% (${loadedFormatted} / ${totalFormatted})`;
-                                    // -------------------------------------------
-
-                                    loaderBarFill.style.width = percent + '%';
-
-                                    push();
-                                }).catch(err => {
-                                    controller.error(err);
-                                });
-                            }
-                            push();
-                        }
-                    });
-                })
-                .then(stream => new Response(stream))
-                .then(response => response.blob())
-                .then(blob => {
-                    const videoBlobUrl = URL.createObjectURL(blob);
-                    launchPage(videoBlobUrl);
-                })
-                .catch(error => {
-                    console.error("Terjadi kesalahan saat mengunduh video:", error);
-                    launchPage(videoUrl);
-                });
+            setTimeout(function () {
+                video.play().catch(() => {});
+                revealContent();
+            }, 400);
         } else {
-            launchPage(null);
+            revealContent();
         }
+    }
 
-        // Fitur Klik pada Petunjuk Scroll untuk Turun ke Bawah
-        if (scrollHint && scrollTarget) {
-            scrollHint.addEventListener('click', function(e) {
-                // Pastikan yang diklik adalah bagian teks (span.click-target)
-                if (e.target.classList.contains('click-target')) {
-                    scrollHint.classList.add('scroll-hint-hidden');
-                    scrollTarget.scrollIntoView({ behavior: 'smooth' });
+    /* Format ukuran file */
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return "0 Bytes";
+
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ["Bytes", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return parseFloat(
+            (bytes / Math.pow(k, i)).toFixed(dm)
+        ) + " " + sizes[i];
+    }
+
+    function revealContent() {
+        loader.classList.add("loader-hidden");
+        heroVideoContainer.classList.add("play-entrance");
+        contentWrapper.classList.add("play-text-anim");
+    }
+
+    /* Unduh video dengan progress */
+    const sourceElement = video
+        ? video.querySelector("source")
+        : null;
+
+    const videoUrl = sourceElement ? sourceElement.src : null;
+
+    if (videoUrl) {
+        sourceElement.removeAttribute("src");
+        video.load();
+
+        fetch(videoUrl)
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error("Gagal mengunduh video");
                 }
+
+                const contentLength =
+                    response.headers.get("content-length");
+
+                if (!contentLength || !response.body) {
+                    return response.blob();
+                }
+
+                const total = parseInt(contentLength, 10);
+                let loaded = 0;
+                const reader = response.body.getReader();
+                const chunks = [];
+
+                function readChunk() {
+                    return reader.read().then(function (result) {
+                        if (result.done) {
+                            return new Blob(chunks, {
+                                type: "video/mp4"
+                            });
+                        }
+
+                        const value = result.value;
+                        loaded += value.length;
+                        chunks.push(value);
+
+                        const percent = Math.min(
+                            100,
+                            Math.floor((loaded / total) * 100)
+                        );
+
+                        loaderPercentage.innerText =
+                            `${percent}% (${formatBytes(loaded)} / ${formatBytes(total)})`;
+
+                        loaderBarFill.style.width = percent + "%";
+
+                        return readChunk();
+                    });
+                }
+
+                return readChunk();
+            })
+            .then(function (blob) {
+                launchPage(URL.createObjectURL(blob));
+            })
+            .catch(function (error) {
+                console.error(
+                    "Terjadi kesalahan saat mengunduh video:",
+                    error
+                );
+
+                if (sourceElement) {
+                    sourceElement.src = videoUrl;
+                    video.load();
+                }
+
+                launchPage(videoUrl);
             });
+    } else {
+        launchPage(null);
+    }
+
+    /* Posisi scroll halaman */
+    function getCurrentScroll() {
+        return window.scrollY ||
+            document.documentElement.scrollTop ||
+            0;
+    }
+
+    function getDetailsPosition() {
+        if (!scrollTarget) return 0;
+
+        return scrollTarget.getBoundingClientRect().top +
+            getCurrentScroll();
+    }
+
+    function scrollToPosition(position) {
+        if (isScrolling) return;
+
+        isScrolling = true;
+        wheelLock = true;
+
+        window.scrollTo({
+            top: Math.max(0, position),
+            behavior: "smooth"
+        });
+
+        clearTimeout(scrollEndTimer);
+
+        scrollEndTimer = setTimeout(function () {
+            isScrolling = false;
+            wheelLock = false;
+            updateHintVisibility();
+        }, 1000);
+    }
+
+    /* Scroll menuju Community & Support */
+    function goToDetails(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
         }
 
-        // Logika Interaksi Scroll Sembunyikan/Munculkan Hint
-        window.addEventListener('wheel', function(e) {
-            if (e.deltaY > 0) {
-                scrollHint.classList.add('scroll-hint-hidden');
-            } else if (window.pageYOffset <= 15) {
-                scrollHint.classList.remove('scroll-hint-hidden');
-            }
-        }, { passive: true });
+        if (!scrollTarget || isScrolling) return;
 
-        window.addEventListener('touchstart', function() {
-            scrollHint.classList.add('scroll-hint-hidden');
-        }, { passive: true });
+        scrollHint.classList.add("scroll-hint-hidden");
+        scrollToPosition(getDetailsPosition());
+    }
 
-        window.addEventListener('scroll', function() {
-            let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-            if (currentScroll <= 15) {
-                scrollHint.classList.remove('scroll-hint-hidden');
-            } else {
-                scrollHint.classList.add('scroll-hint-hidden');
+    if (hintBox && scrollTarget) {
+        hintBox.addEventListener("click", goToDetails);
+
+        hintBox.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+                goToDetails(event);
             }
-        }, { passive: true });
+        });
+    }
+
+    /* Tampilkan petunjuk hanya saat berada di bagian hero */
+    function updateHintVisibility() {
+        if (!scrollHint || isScrolling) return;
+
+        if (getCurrentScroll() <= 15) {
+            scrollHint.classList.remove("scroll-hint-hidden");
+        } else {
+            scrollHint.classList.add("scroll-hint-hidden");
+        }
+    }
+
+    /*
+     * Snap dengan mouse/trackpad:
+     * - Scroll sedikit ke bawah dari hero -> Community & Support.
+     * - Scroll ke atas dari Community & Support -> hero.
+     */
+    window.addEventListener("wheel", function (event) {
+        if (wheelLock || isScrolling) return;
+
+        const currentScroll = getCurrentScroll();
+        const detailsPosition = getDetailsPosition();
+
+        if (event.deltaY > 0 && currentScroll < detailsPosition - 20) {
+            event.preventDefault();
+            scrollHint.classList.add("scroll-hint-hidden");
+            scrollToPosition(detailsPosition);
+        } else if (event.deltaY < 0 && currentScroll > 20) {
+            event.preventDefault();
+            scrollToPosition(0);
+        }
+    }, { passive: false });
+
+    /* Snap dengan swipe pada perangkat mobile */
+    window.addEventListener("touchstart", function (event) {
+        if (event.touches.length === 1) {
+            touchStartY = event.touches[0].clientY;
+        }
+    }, { passive: true });
+
+    window.addEventListener("touchend", function (event) {
+        if (wheelLock || isScrolling || !event.changedTouches.length) {
+            return;
+        }
+
+        const touchEndY = event.changedTouches[0].clientY;
+        const difference = touchStartY - touchEndY;
+
+        /* Abaikan sentuhan kecil agar tombol tetap nyaman digunakan */
+        if (Math.abs(difference) < 35) return;
+
+        const currentScroll = getCurrentScroll();
+        const detailsPosition = getDetailsPosition();
+
+        if (difference > 0 && currentScroll < detailsPosition - 20) {
+            scrollHint.classList.add("scroll-hint-hidden");
+            scrollToPosition(detailsPosition);
+        } else if (difference < 0 && currentScroll > 20) {
+            scrollToPosition(0);
+        }
+    }, { passive: true });
+
+    window.addEventListener("scroll", updateHintVisibility, {
+        passive: true
     });
+
+    window.addEventListener("resize", function () {
+        if (getCurrentScroll() <= 15) {
+            updateHintVisibility();
+        }
+    });
+});
 </script>
 {% endblock %}

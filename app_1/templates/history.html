@@ -1,113 +1,945 @@
+
 {% extends 'base/base.html' %}
 {% load static %}
 
 {% block title %}Import History{% endblock %}
 
 {% block content %}
+
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
-<div class="py-2 animate-fade-up">
-    <div class="mb-5">
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
-            <div>
-                <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Import History</h3>
-                <p class="text-muted small mb-0">Management of imported data logs.</p>
-            </div>
+<style>
+    /* ========================================
+       IMPORT HISTORY — BASE
+    ======================================== */
 
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <form class="search-box-group d-flex" onsubmit="return false;">
-                    <input type="text" name="q" class="search-input rounded-0" placeholder="Search..." style="width: 200px;" 
-                        hx-get="{% url 'search' %}?type={{ search_type }}" 
-                        hx-target="#tabel-body" 
-                        hx-include="closest .search-box-group" 
-                        hx-trigger="keyup[keyCode==13]">
-                    
-                    <button type="button" class="search-btn rounded-0" style="border-left: none;" 
-                            hx-get="{% url 'search' %}?type={{ search_type }}" 
-                            hx-target="#tabel-body" 
-                            hx-include="closest .search-box-group" 
-                            hx-trigger="click">⌕</button>
-                </form>
+    .history-page,
+    .history-page *,
+    .history-page *::before,
+    .history-page *::after {
+        box-sizing: border-box;
+    }
 
-                <form action="{% url 'delete_history' %}" method="POST" id="bulk-delete-form" style="display: none;">
-                    {% csrf_token %}
-                    <input type="hidden" name="selected_ids" id="selected_ids">
-                </form>
-                
-                <button type="button" id="btn-delete-bulk" class="btn btn-danger rounded-0 px-3 fw-semibold btn-pro" style="height: 42px; display: none;" onclick="confirmBulkDelete()">
-                    Delete selected
-                </button>
-            </div>
+    .history-page {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin: 0;
+        padding: 12px 16px 24px;
+        color: #171717;
+        font-family: inherit;
+        font-size: 12px;
+        line-height: 1.5;
+        animation: historyFadeIn .3s ease both;
+    }
+
+    .history-page button,
+    .history-page input {
+        font-family: inherit;
+    }
+
+    @keyframes historyFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .history-page,
+        .history-page * {
+            animation-duration: .01ms !important;
+            transition-duration: .01ms !important;
+        }
+    }
+
+    /* ========================================
+       TOOLBAR
+    ======================================== */
+
+    .history-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+        margin: 0 0 14px;
+        padding: 0 0 12px;
+        border-bottom: 1px solid #dedede;
+    }
+
+    .history-heading {
+        min-width: 0;
+        margin: 0;
+    }
+
+    .history-heading h1 {
+        margin: 0;
+        padding: 0;
+        color: #171717;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.35;
+        letter-spacing: -.4px;
+    }
+
+    .history-heading p {
+        margin: 4px 0 0;
+        padding: 0;
+        color: #858585;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .history-toolbar-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 7px;
+        min-width: 0;
+    }
+
+    /* ========================================
+       SEARCH
+    ======================================== */
+
+    .history-search {
+        display: flex;
+        align-items: stretch;
+        width: 250px;
+        max-width: 100%;
+        min-width: 0;
+        height: 34px;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        transition: border-color .2s ease;
+    }
+
+    .history-search:focus-within {
+        border-color: #777;
+    }
+
+    .history-search-input {
+        display: block;
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        margin: 0;
+        padding: 7px 10px;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        outline: none;
+        box-shadow: none;
+        color: #171717;
+        font-size: 11px;
+    }
+
+    .history-search-input::placeholder {
+        color: #aaa;
+        opacity: 1;
+    }
+
+    .history-search-input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .history-search-btn {
+        display: inline-flex;
+        flex: 0 0 35px;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        border: 0;
+        border-left: 1px solid #dedede;
+        border-radius: 0;
+        color: #444;
+        font-size: 17px;
+        cursor: pointer;
+        transition: background .2s ease, color .2s ease;
+    }
+
+    .history-search-btn:hover {
+        background: #171717;
+        color: #fff;
+    }
+
+    /* ========================================
+       BUTTONS
+    ======================================== */
+
+    .history-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 34px;
+        margin: 0;
+        padding: 7px 10px;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.4;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+            background .2s ease,
+            border-color .2s ease,
+            color .2s ease;
+    }
+
+    .history-btn svg {
+        width: 13px;
+        height: 13px;
+        flex: 0 0 auto;
+    }
+
+    .history-btn-dark {
+        background: #171717;
+        border-color: #171717;
+        color: #fff;
+    }
+
+    .history-btn-dark:hover {
+        background: #333;
+        border-color: #333;
+        color: #fff;
+    }
+
+    .history-btn-outline {
+        background: #fff;
+        border-color: #dedede;
+        color: #333;
+    }
+
+    .history-btn-outline:hover {
+        background: #f5f5f5;
+        border-color: #bbb;
+        color: #171717;
+    }
+
+    .history-btn-danger {
+        background: #fff;
+        border-color: #cfcfcf;
+        color: #444;
+    }
+
+    .history-btn-danger:hover {
+        background: #171717;
+        border-color: #171717;
+        color: #fff;
+    }
+
+    /* ========================================
+       SELECTED ITEMS STATUS
+    ======================================== */
+
+    .history-selection-info {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        padding: 0 2px;
+        color: #777;
+        font-size: 10px;
+    }
+
+    .history-selection-info.is-visible {
+        display: inline-flex;
+    }
+
+    /* ========================================
+       TABLE CONTAINER
+    ======================================== */
+
+    .history-table-card {
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+    }
+
+    .history-table-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .history-table-topline h2 {
+        margin: 0;
+        padding: 0;
+        color: #333;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .history-table-topline span {
+        color: #999;
+        font-size: 9px;
+    }
+
+    .history-table-scroll {
+        width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+        scrollbar-color: #c7c7c7 #f5f5f5;
+    }
+
+    .history-table {
+        width: 100%;
+        min-width: 660px;
+        margin: 0;
+        border-collapse: collapse;
+        border-spacing: 0;
+        color: #444;
+        font-size: 11px;
+        vertical-align: middle;
+    }
+
+    .history-table > thead > tr > th {
+        padding: 11px 12px;
+        background: #fafafa;
+        border: 0;
+        border-bottom: 1px solid #dedede;
+        color: #777;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .55px;
+        line-height: 1.5;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .history-table > tbody > tr > td {
+        padding: 11px 12px;
+        background: #fff;
+        border: 0;
+        border-bottom: 1px solid #ededed;
+        color: #555;
+        font-size: 11px;
+        line-height: 1.6;
+        vertical-align: middle;
+    }
+
+    .history-table > tbody > tr:last-child > td {
+        border-bottom: 0;
+    }
+
+    .history-table > tbody > tr {
+        transition: background .15s ease;
+    }
+
+    .history-table > tbody > tr:hover > td {
+        background: #fafafa;
+    }
+
+    .history-table .history-number {
+        width: 55px;
+        color: #999;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .history-table .history-filename {
+        max-width: 280px;
+        color: #222;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .history-table .history-date {
+        min-width: 140px;
+        color: #777;
+        white-space: nowrap;
+    }
+
+    .history-table .history-total {
+        width: 100px;
+        color: #333;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .history-table .history-actions-cell {
+        min-width: 155px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .history-table .history-select-cell {
+        width: 48px;
+        text-align: center;
+    }
+
+    /* ========================================
+       CHECKBOX
+    ======================================== */
+
+    .history-checkbox {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        margin: 0;
+        vertical-align: middle;
+        accent-color: #171717;
+        cursor: pointer;
+    }
+
+    .history-checkbox:focus-visible {
+        outline: 2px solid #777;
+        outline-offset: 2px;
+    }
+
+    /* ========================================
+       ROW ACTIONS
+    ======================================== */
+
+    .history-row-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .history-row-btn {
+        display: inline-flex;
+        min-height: 27px;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 9px;
+        border: 1px solid #dedede;
+        border-radius: 2px;
+        font-size: 9px;
+        font-weight: 600;
+        line-height: 1.3;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+
+    .history-row-btn-view {
+        background: #fff;
+        color: #333;
+    }
+
+    .history-row-btn-view:hover {
+        background: #f3f3f3;
+        border-color: #bcbcbc;
+        color: #171717;
+    }
+
+    .history-row-btn-download {
+        background: #171717;
+        border-color: #171717;
+        color: #fff;
+    }
+
+    .history-row-btn-download:hover {
+        background: #383838;
+        border-color: #383838;
+        color: #fff;
+    }
+
+    /* ========================================
+       EMPTY STATE
+    ======================================== */
+
+    .history-empty {
+        padding: 38px 16px !important;
+        text-align: center;
+    }
+
+    .history-empty-icon {
+        display: flex;
+        width: 38px;
+        height: 38px;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        background: #f7f7f7;
+        border: 1px solid #e7e7e7;
+        border-radius: 50%;
+        color: #888;
+    }
+
+    .history-empty-icon svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .history-empty strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #444;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .history-empty span {
+        display: block;
+        color: #999;
+        font-size: 10px;
+    }
+
+    /* ========================================
+       TABLE FOOTER
+    ======================================== */
+
+    .history-table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 9px 12px;
+        background: #fff;
+        border-top: 1px solid #e8e8e8;
+        color: #999;
+        font-size: 9px;
+    }
+
+    /* ========================================
+       RESPONSIVE
+    ======================================== */
+
+    @media (max-width: 767.98px) {
+        .history-page {
+            padding: 9px 10px 18px;
+        }
+
+        .history-toolbar {
+            align-items: stretch;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+
+        .history-heading h1 {
+            font-size: 16px;
+        }
+
+        .history-toolbar-actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            justify-content: stretch;
+            width: 100%;
+        }
+
+        .history-search {
+            width: 100%;
+        }
+
+        .history-toolbar-actions .history-btn-danger {
+            grid-column: 1 / -1;
+            width: 100%;
+        }
+
+        .history-table-topline {
+            padding: 9px 10px;
+        }
+
+        .history-table > thead > tr > th {
+            padding: 10px;
+        }
+
+        .history-table > tbody > tr > td {
+            padding: 10px;
+        }
+
+        .history-table-footer {
+            padding: 9px 10px;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .history-page {
+            padding-right: 7px;
+            padding-left: 7px;
+        }
+
+        .history-heading h1 {
+            font-size: 15px;
+        }
+
+        .history-toolbar-actions {
+            grid-template-columns: minmax(0, 1fr) 34px;
+        }
+
+        .history-search-btn {
+            flex-basis: 34px;
+            width: 34px;
+        }
+    }
+</style>
+
+<div class="history-page">
+
+    <!-- Compact Toolbar -->
+    <header class="history-toolbar">
+
+        <div class="history-heading">
+            <h1>Import History</h1>
+            <p>Management of imported data logs.</p>
         </div>
-    </div>
 
-    <div class="table-responsive animate-fade-up delay-1">
-        <table class="table align-middle custom-table-mono" style="white-space: nowrap; width: 100%;">
-            <thead>
-                <tr>
-                    <th scope="col" style="width: 60px;">No.</th>
-                    <th scope="col">File Name</th>
-                    <th scope="col">Imported Date</th>
-                    <th scope="col">Total Items</th>
-                    <th scope="col" class="text-center">Actions</th>
-                    <th scope="col" class="text-center" style="width: 40px;"><input type="checkbox" id="select-all"></th>
-                </tr>
-            </thead>
-            <tbody id="tabel-body">
-                {% for log in histories %}
-                <tr>
-                    <td class="text-center">{{ forloop.counter }}</td>
-                    <td class="fw-bold">{{ log.filename }}</td>
-                    <td>{{ log.imported_at|date:"d M Y, H:i" }}</td>
-                    <td>{{ log.total_items }}</td>
-                    <td class="text-center">
-                        <a href="{% url 'history_detail' log.id %}" class="btn btn-sm btn-outline-dark rounded-0 px-2">View</a>
-                        <a href="{% url 'download_history' log.id %}" class="btn btn-sm btn-dark rounded-0 px-2">Download</a>
-                    </td>
-                    <td class="text-center"><input type="checkbox" class="item-checkbox" value="{{ log.id }}"></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">No import history found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        <div class="history-toolbar-actions">
+
+            <form
+                class="history-search"
+                id="history-search-form"
+                onsubmit="return false;"
+            >
+                <input
+                    type="text"
+                    name="q"
+                    class="history-search-input"
+                    id="history-search-input"
+                    placeholder="Search import history..."
+                    aria-label="Search import history"
+                    hx-get="{% url 'search' %}?type={{ search_type|urlencode }}"
+                    hx-target="#tabel-body"
+                    hx-include="this"
+                    hx-trigger="keyup[keyCode==13]"
+                >
+
+                <button
+                    type="button"
+                    class="history-search-btn"
+                    aria-label="Search"
+                    hx-get="{% url 'search' %}?type={{ search_type|urlencode }}"
+                    hx-target="#tabel-body"
+                    hx-include="#history-search-input"
+                    hx-trigger="click"
+                >
+                    <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="m20 20-4-4"/>
+                    </svg>
+                </button>
+            </form>
+
+            <form
+                action="{% url 'delete_history' %}"
+                method="POST"
+                id="bulk-delete-form"
+                style="display: none;"
+            >
+                {% csrf_token %}
+                <input type="hidden" name="selected_ids" id="selected_ids">
+            </form>
+
+            <button
+                type="button"
+                id="btn-delete-bulk"
+                class="history-btn history-btn-danger"
+                style="display: none;"
+                onclick="confirmBulkDelete()"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M3 6h18"/>
+                    <path d="M8 6V4h8v2"/>
+                    <path d="m19 6-1 14H6L5 6"/>
+                    <path d="M10 11v5M14 11v5"/>
+                </svg>
+                Delete selected
+            </button>
+
+        </div>
+    </header>
+
+    <!-- History Table -->
+    <section class="history-table-card">
+
+        <div class="history-table-topline">
+            <h2>Import Records</h2>
+            <span id="history-selection-label">Select records to manage</span>
+        </div>
+
+        <div class="history-table-scroll">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 55px; text-align: center;">No.</th>
+                        <th scope="col">File Name</th>
+                        <th scope="col">Imported Date</th>
+                        <th scope="col">Total Items</th>
+                        <th scope="col" class="text-center">Actions</th>
+                        <th scope="col" class="text-center" style="width: 48px;">
+                            <input
+                                type="checkbox"
+                                id="select-all"
+                                class="history-checkbox"
+                                aria-label="Select all import records"
+                                title="Select all"
+                            >
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabel-body">
+                    {% for log in histories %}
+                        <tr>
+                            <td class="history-number">
+                                {{ forloop.counter }}
+                            </td>
+
+                            <td class="history-filename">
+                                {{ log.filename }}
+                            </td>
+
+                            <td class="history-date">
+                                {{ log.imported_at|date:"d M Y, H:i" }}
+                            </td>
+
+                            <td class="history-total">
+                                {{ log.total_items }}
+                            </td>
+
+                            <td class="history-actions-cell">
+                                <div class="history-row-actions">
+                                    <a
+                                        href="{% url 'history_detail' log.id %}"
+                                        class="history-row-btn history-row-btn-view"
+                                    >
+                                        View
+                                    </a>
+
+                                    <a
+                                        href="{% url 'download_history' log.id %}"
+                                        class="history-row-btn history-row-btn-download"
+                                    >
+                                        Download
+                                    </a>
+                                </div>
+                            </td>
+
+                            <td class="history-select-cell">
+                                <input
+                                    type="checkbox"
+                                    class="item-checkbox history-checkbox"
+                                    value="{{ log.id }}"
+                                    aria-label="Select {{ log.filename }}"
+                                >
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="history-empty">
+                                <div class="history-empty-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+                                        <path d="M14 2v6h6M8 13h8M8 17h8"/>
+                                    </svg>
+                                </div>
+
+                                <strong>No import history found</strong>
+                                <span>Imported files will appear here.</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="history-table-footer">
+            <span>Import History</span>
+            <span id="history-selected-count">0 selected</span>
+        </div>
+
+    </section>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const btnDelete = document.getElementById('btn-delete-bulk');
         const selectAll = document.getElementById('select-all');
+        const selectedIdsInput = document.getElementById('selected_ids');
+        const selectionLabel = document.getElementById('history-selection-label');
+        const selectedCountLabel = document.getElementById('history-selected-count');
+        const tableBody = document.getElementById('tabel-body');
+
+        function getCheckboxes() {
+            return Array.from(
+                document.querySelectorAll('#tabel-body .item-checkbox')
+            );
+        }
 
         function updateBulkButtons() {
-            const anyChecked = document.querySelectorAll('.item-checkbox:checked').length > 0;
-            if (btnDelete) btnDelete.style.display = anyChecked ? 'inline-block' : 'none';
+            const checkboxes = getCheckboxes();
+            const checkedBoxes = checkboxes.filter(function (checkbox) {
+                return checkbox.checked;
+            });
+
+            const selectedCount = checkedBoxes.length;
+            const totalCount = checkboxes.length;
+
+            if (btnDelete) {
+                btnDelete.style.display = selectedCount > 0
+                    ? 'inline-flex'
+                    : 'none';
+            }
+
+            if (selectAll) {
+                selectAll.checked = totalCount > 0 &&
+                    selectedCount === totalCount;
+
+                selectAll.indeterminate = selectedCount > 0 &&
+                    selectedCount < totalCount;
+
+                selectAll.disabled = totalCount === 0;
+            }
+
+            if (selectionLabel) {
+                selectionLabel.textContent = selectedCount > 0
+                    ? selectedCount + ' record(s) selected'
+                    : 'Select records to manage';
+            }
+
+            if (selectedCountLabel) {
+                selectedCountLabel.textContent = selectedCount + ' selected';
+            }
+
+            if (selectedIdsInput) {
+                selectedIdsInput.value = checkedBoxes
+                    .map(function (checkbox) {
+                        return checkbox.value;
+                    })
+                    .join(',');
+            }
         }
 
         if (selectAll) {
-            selectAll.addEventListener('click', function(e) {
-                document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
+            selectAll.addEventListener('change', function () {
+                getCheckboxes().forEach(function (checkbox) {
+                    checkbox.checked = selectAll.checked;
+                });
+
                 updateBulkButtons();
             });
         }
 
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('item-checkbox')) {
+        document.addEventListener('change', function (event) {
+            if (event.target.matches('#tabel-body .item-checkbox')) {
                 updateBulkButtons();
             }
         });
+
+        /*
+         * HTMX replaces table rows after a search.
+         * Reset selection state and recalculate checkbox status.
+         */
+        if (tableBody && window.htmx) {
+            document.body.addEventListener('htmx:afterSwap', function (event) {
+                if (
+                    event.detail &&
+                    event.detail.target &&
+                    event.detail.target.id === 'tabel-body'
+                ) {
+                    if (selectAll) {
+                        selectAll.checked = false;
+                        selectAll.indeterminate = false;
+                    }
+
+                    updateBulkButtons();
+                }
+            });
+        }
+
+        /*
+         * Recalculate if HTMX is loaded after this script.
+         */
+        document.body.addEventListener('htmx:afterSettle', function () {
+            updateBulkButtons();
+        });
+
+        updateBulkButtons();
     });
 
     function confirmBulkDelete() {
-        const selected = document.querySelectorAll('.item-checkbox:checked');
-        if (confirm('Are you sure you want to delete these ' + selected.length + ' history logs?')) {
-            const ids = Array.from(selected).map(cb => cb.value).join(',');
-            document.getElementById('selected_ids').value = ids;
-            document.getElementById('bulk-delete-form').submit();
+        const selected = document.querySelectorAll(
+            '#tabel-body .item-checkbox:checked'
+        );
+
+        if (selected.length === 0) {
+            alert('Please select at least one history record.');
+            return;
+        }
+
+        const confirmed = confirm(
+            'Are you sure you want to delete these ' +
+            selected.length +
+            ' history logs?'
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        const ids = Array.from(selected)
+            .map(function (checkbox) {
+                return checkbox.value;
+            })
+            .join(',');
+
+        const idsInput = document.getElementById('selected_ids');
+        const form = document.getElementById('bulk-delete-form');
+
+        if (idsInput && form) {
+            idsInput.value = ids;
+            form.submit();
         }
     }
 </script>
+
 {% endblock %}

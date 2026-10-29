@@ -1,3 +1,4 @@
+
 {% extends 'base/base.html' %}
 {% load static %}
 {% block title %}Collection Analytics{% endblock %}
@@ -7,20 +8,573 @@
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
 <style>
-    /* Tooltip Minimalis */
-    .tech-tooltip-fixed {
-        position: fixed; pointer-events: none; display: none; background: #fff;
-        padding: 6px 10px; border-left: 3px solid #000; font-family: monospace;
-        font-size: 11px; text-transform: uppercase; z-index: 9999;
-        box-shadow: 2px 2px 0px rgba(0,0,0,0.2); color: #000;
+    /* ========================================
+       COLLECTION ANALYTICS - RESPONSIVE
+    ======================================== */
+    .analytics-page {
+        width: 100%;
+        max-width: 1440px;
+        min-width: 0;
+        margin: 0 auto;
+        padding: 14px clamp(12px, 2vw, 28px) 28px;
+        color: #111;
+        font-size: 12px;
+        line-height: 1.45;
+        box-sizing: border-box;
     }
-    .slash-line { color: #ccc; margin: 0 5px; }
 
-    /* --- Definisi Animasi Fade Up (Dipercepat ke 0.3s) --- */
-    @keyframes fadeInUp {
+    .analytics-page *,
+    .analytics-page *::before,
+    .analytics-page *::after,
+    .analytics-modal,
+    .analytics-modal * {
+        box-sizing: border-box;
+    }
+
+    .analytics-page img,
+    .analytics-page svg,
+    .analytics-page canvas {
+        max-width: 100%;
+    }
+
+    .analytics-page h1,
+    .analytics-page h2,
+    .analytics-page h3,
+    .analytics-page h4,
+    .analytics-page h5,
+    .analytics-page h6,
+    .analytics-modal h1,
+    .analytics-modal h2,
+    .analytics-modal h3,
+    .analytics-modal h4,
+    .analytics-modal h5,
+    .analytics-modal h6 {
+        color: #111;
+        letter-spacing: -.02em;
+    }
+
+    .analytics-page .row {
+        --bs-gutter-x: 12px;
+        --bs-gutter-y: 12px;
+        min-width: 0;
+    }
+
+    .analytics-page [class*="col-"] {
+        min-width: 0;
+    }
+
+    .analytics-page .anl-card {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        padding: 12px;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-radius: 4px;
+        transition: border-color .18s ease, background .18s ease;
+    }
+
+    .analytics-page .anl-card:hover {
+        border-color: #999;
+    }
+
+    .analytics-page .anl-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #737373;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .09em;
+        line-height: 1.4;
+        text-transform: uppercase;
+    }
+
+    .analytics-page .anl-number {
+        font-size: clamp(19px, 1.8vw, 25px);
+        font-weight: 750;
+        line-height: 1.15;
+        letter-spacing: -.05em;
+        overflow-wrap: anywhere;
+    }
+
+    .analytics-page .anl-section-title {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .analytics-page .anl-muted {
+        color: #737373;
+    }
+
+    .analytics-page .anl-small {
+        font-size: 10px;
+    }
+
+    .analytics-page .anl-dark-card {
+        color: #fff;
+        background: #111;
+        border-color: #111;
+    }
+
+    .analytics-page .anl-dark-card .anl-label,
+    .analytics-page .anl-dark-card .anl-muted {
+        color: #c6c6c6;
+    }
+
+    .analytics-page .anl-dark-card .anl-number,
+    .analytics-page .anl-dark-card h5,
+    .analytics-page .anl-dark-card .anl-title {
+        color: #fff;
+    }
+
+    .analytics-page .anl-section {
+        margin-bottom: 14px;
+    }
+
+    .analytics-page .anl-section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #dedede;
+    }
+
+    .analytics-page .anl-clickable {
+        cursor: pointer;
+    }
+
+    .analytics-page .anl-clickable:hover .anl-section-title,
+    .analytics-page .anl-clickable:hover .anl-collection-heading h5 {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .analytics-page .anl-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .analytics-page .anl-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-width: 0;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .analytics-page .anl-list-item:last-child {
+        border-bottom: 0;
+    }
+
+    .analytics-page .anl-item-title {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        color: #222;
+        font-size: 11px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .analytics-page .anl-meta {
+        flex-shrink: 0;
+        color: #737373;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .analytics-page .anl-outline-badge {
+        display: inline-block;
+        padding: 3px 6px;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        color: #555;
+        font-size: 9px;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .analytics-page .anl-link-hint {
+        margin-top: 6px;
+        color: #888;
+        font-size: 10px;
+        font-style: italic;
+    }
+
+    /* Main statistics */
+    .analytics-page .anl-stat {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 82px;
+    }
+
+    .analytics-page .anl-stat .anl-number {
+        margin-top: 8px;
+    }
+
+    .analytics-page .anl-stat-title {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 12px;
+        font-weight: 650;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    /* Monthly activity chart */
+    .analytics-page .anl-chart-card {
+        min-width: 0;
+        min-height: 0;
+        padding: 14px;
+    }
+
+    .analytics-page .anl-chart-scroll {
+        width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: #ccc transparent;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .analytics-page .anl-chart-inner {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .analytics-page .anl-chart-area {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+        height: clamp(135px, 15vw, 180px);
+        padding: 0 4px;
+        margin: 7px 0 0;
+    }
+
+    .analytics-page .anl-y-axis {
+        display: flex;
+        flex: 0 0 30px;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-right: 6px;
+        color: #888;
+        font-size: 8px;
+        text-align: right;
+    }
+
+    .analytics-page .anl-chart-plot {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+    }
+
+    .analytics-page .anl-chart-plot svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .analytics-page .monthly-data-point {
+        z-index: 2;
+        padding: 5px;
+        transform: translate(-50%, 50%);
+        cursor: pointer;
+    }
+
+    .analytics-page .monthly-data-point > div {
+        width: 6px;
+        height: 6px;
+        background: #111;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        outline: 1px solid #111;
+        transition: transform .15s ease;
+    }
+
+    .analytics-page .monthly-data-point:hover > div {
+        transform: scale(1.4);
+    }
+
+    .analytics-page .anl-chart-days {
+        display: flex;
+        justify-content: space-between;
+        gap: 0;
+        padding: 7px 0 0 34px;
+        margin-top: 4px;
+        border-top: 1px solid #eee;
+    }
+
+    .analytics-page .anl-chart-day {
+        flex: 1;
+        min-width: 0;
+        color: #888;
+        font-size: 8px;
+        text-align: center;
+    }
+
+    /* Side statistics */
+    .analytics-page .anl-side-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        min-width: 0;
+    }
+
+    .analytics-page .anl-side-stat {
+        flex: 1;
+        min-width: 0;
+        padding: 11px;
+    }
+
+    .analytics-page .anl-side-stat .anl-number {
+        font-size: clamp(19px, 1.7vw, 23px);
+    }
+
+    .analytics-page .anl-side-stat .anl-description {
+        display: block;
+        margin-top: 4px;
+        color: #777;
+        font-size: 10px;
+    }
+
+    /* Category and status distribution */
+    .analytics-page .anl-distribution {
+        min-width: 0;
+        padding: 14px 0;
+        border-top: 1px solid #dedede;
+        border-bottom: 1px solid #dedede;
+    }
+
+    .analytics-page .anl-distribution-block {
+        display: flex;
+        align-items: center;
+        gap: clamp(10px, 1.5vw, 18px);
+        width: 100%;
+        min-width: 0;
+    }
+
+    .analytics-page .anl-donut {
+        display: block;
+        flex: 0 0 clamp(76px, 8vw, 110px);
+        width: clamp(76px, 8vw, 110px);
+        height: auto;
+        aspect-ratio: 1 / 1;
+        transform: rotate(-90deg);
+    }
+
+    .analytics-page .anl-distribution-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .analytics-page .anl-distribution-content h6 {
+        margin-bottom: 7px;
+    }
+
+    .analytics-page .anl-distribution-list {
+        max-height: 135px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    .analytics-page .anl-distribution-table {
+        width: 100%;
+        margin: 0;
+        font-size: 10px;
+        table-layout: fixed;
+    }
+
+    .analytics-page .anl-distribution-table td {
+        padding: 4px 2px;
+        border-color: #eee;
+        background: transparent;
+        overflow-wrap: anywhere;
+    }
+
+    .analytics-page .anl-distribution-table td:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .analytics-page .anl-color-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        margin-right: 5px;
+        border-radius: 1px;
+        vertical-align: middle;
+    }
+
+    /* Tooltip */
+    .tech-tooltip-fixed {
+        position: fixed;
+        z-index: 99999;
+        display: none;
+        max-width: min(220px, calc(100vw - 16px));
+        padding: 7px 9px;
+        pointer-events: none;
+        color: #111;
+        background: #fff;
+        border: 1px solid #dedede;
+        border-left: 2px solid #111;
+        border-radius: 3px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+        font-family: inherit;
+        font-size: 10px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        text-transform: uppercase;
+    }
+
+    .slash-line {
+        margin: 0 4px;
+        color: #aaa;
+    }
+
+    /* Collection lists */
+    .analytics-page .anl-collection-card {
+        min-width: 0;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .analytics-page .anl-collection-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-bottom: 8px;
+        margin-bottom: 0;
+        border-bottom: 1px solid #dedede;
+    }
+
+    .analytics-page .anl-collection-heading h5 {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .analytics-page .anl-collection-count {
+        color: #737373;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    /* Empty state */
+    .analytics-page .anl-empty {
+        padding: clamp(20px, 4vw, 36px) 16px;
+        border: 1px solid #dedede;
+        border-top: 2px solid #111;
+        border-radius: 4px;
+        text-align: center;
+        background: #fff;
+    }
+
+    .analytics-page .anl-empty h4 {
+        margin-bottom: 5px;
+        font-size: 17px;
+        font-weight: 750;
+    }
+
+    .analytics-page .anl-empty p {
+        margin-bottom: 12px;
+        color: #737373;
+        font-size: 11px;
+    }
+
+    .analytics-page .anl-empty .btn {
+        padding: 7px 12px;
+        border-radius: 3px !important;
+        font-size: 11px;
+    }
+
+    /* Modal styling */
+    .analytics-modal .modal-dialog {
+        width: calc(100% - 24px);
+        max-width: 520px;
+        margin: 12px auto;
+    }
+
+    .analytics-modal .modal-content {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border: 1px solid #dedede;
+        border-radius: 4px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, .08);
+    }
+
+    .analytics-modal .modal-header {
+        gap: 10px;
+        padding: 12px 14px;
+        border-bottom: 1px solid #dedede;
+    }
+
+    .analytics-modal .modal-title {
+        min-width: 0;
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: .04em;
+        overflow-wrap: anywhere;
+        text-transform: uppercase;
+    }
+
+    .analytics-modal .modal-body {
+        padding: 10px 14px;
+        overflow-x: hidden;
+    }
+
+    .analytics-modal .list-group-item {
+        display: flex;
+        gap: 8px;
+        min-width: 0;
+        padding: 9px 0;
+        border-color: #eee;
+        font-size: 11px;
+    }
+
+    .analytics-modal .list-group-item > * {
+        min-width: 0;
+    }
+
+    .analytics-modal .list-group-item:hover {
+        background: #fafafa;
+    }
+
+    .analytics-modal .badge {
+        border-radius: 3px !important;
+        font-size: 9px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    /* Animations */
+    @keyframes anlFadeUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(8px);
         }
         to {
             opacity: 1;
@@ -28,567 +582,1082 @@
         }
     }
 
-    /* Kelas dasar untuk elemen yang akan dianimasikan */
-    .anl-animate {
+    .analytics-page .anl-animate {
         opacity: 0;
-        animation: fadeInUp 0.3s ease forwards; 
+        animation: anlFadeUp .25s ease forwards;
     }
 
-    /* Delay berurutan untuk setiap kolom (Row 1) */
-    .anl-delay-1 { animation-delay: 0.05s; }
-    .anl-delay-2 { animation-delay: 0.1s; }
-    .anl-delay-3 { animation-delay: 0.15s; }
-    .anl-delay-4 { animation-delay: 0.2s; }
+    .analytics-page .anl-delay-1 { animation-delay: .03s; }
+    .analytics-page .anl-delay-2 { animation-delay: .06s; }
+    .analytics-page .anl-delay-3 { animation-delay: .09s; }
+    .analytics-page .anl-delay-4 { animation-delay: .12s; }
+
+    .analytics-page .animate-fade-up {
+        animation: anlFadeUp .25s ease both;
+    }
+
+    /* ========================================
+       LARGE DESKTOP
+    ======================================== */
+    @media (min-width: 1200px) {
+        .analytics-page {
+            padding-top: 18px;
+        }
+
+        .analytics-page .anl-chart-card {
+            padding: 16px;
+        }
+    }
+
+    /* ========================================
+       TABLET AND SMALL LAPTOP
+    ======================================== */
+    @media (max-width: 991.98px) {
+        .analytics-page {
+            padding: 12px 14px 24px;
+        }
+
+        .analytics-page .row {
+            --bs-gutter-x: 10px;
+            --bs-gutter-y: 10px;
+        }
+
+        .analytics-page .anl-chart-area {
+            height: 150px;
+        }
+
+        .analytics-page .anl-side-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .analytics-page .anl-side-stat {
+            min-height: 95px;
+        }
+
+        .analytics-page .anl-side-stat .anl-description {
+            line-height: 1.4;
+        }
+
+        .analytics-page .anl-distribution-block {
+            gap: 12px;
+        }
+
+        .analytics-page .anl-donut {
+            flex-basis: 90px;
+            width: 90px;
+        }
+    }
+
+    /* ========================================
+       MOBILE
+    ======================================== */
+    @media (max-width: 767.98px) {
+        .analytics-page {
+            width: 100%;
+            max-width: 100%;
+            padding: 10px 12px 20px;
+            font-size: 11px;
+        }
+
+        .analytics-page .row {
+            --bs-gutter-x: 9px;
+            --bs-gutter-y: 9px;
+        }
+
+        .analytics-page .anl-card {
+            padding: 10px;
+        }
+
+        .analytics-page .anl-stat {
+            min-height: 76px;
+        }
+
+        .analytics-page .anl-number {
+            font-size: 21px;
+        }
+
+        .analytics-page .anl-stat-title {
+            font-size: 11px;
+        }
+
+        .analytics-page .anl-chart-card {
+            padding: 11px;
+        }
+
+        .analytics-page .anl-chart-area {
+            height: 140px;
+        }
+
+        .analytics-page .anl-chart-inner {
+            min-width: 440px;
+        }
+
+        .analytics-page .anl-side-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .analytics-page .anl-side-stat {
+            padding: 9px;
+            min-height: 88px;
+        }
+
+        .analytics-page .anl-side-stat .anl-number {
+            font-size: 19px;
+        }
+
+        .analytics-page .anl-side-stat .anl-description {
+            font-size: 9px;
+        }
+
+        .analytics-page .anl-outline-badge {
+            padding: 2px 4px;
+            font-size: 8px;
+        }
+
+        .analytics-page .anl-distribution {
+            padding: 12px 0;
+        }
+
+        .analytics-page .anl-distribution-block {
+            gap: 12px;
+        }
+
+        .analytics-page .anl-donut {
+            flex-basis: 85px;
+            width: 85px;
+        }
+
+        .analytics-page .anl-distribution-list {
+            max-height: 125px;
+        }
+
+        .analytics-page .anl-collection-card {
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .analytics-modal .modal-dialog {
+            width: calc(100% - 24px);
+            max-width: 520px;
+            margin: 12px auto;
+        }
+
+        .analytics-modal .modal-body {
+            padding: 10px 12px;
+        }
+    }
+
+    /* ========================================
+       SMALL MOBILE
+    ======================================== */
+    @media (max-width: 480px) {
+        .analytics-page {
+            padding: 8px 9px 18px;
+        }
+
+        .analytics-page .row {
+            --bs-gutter-x: 7px;
+            --bs-gutter-y: 7px;
+        }
+
+        .analytics-page .anl-label {
+            font-size: 8px;
+            letter-spacing: .06em;
+        }
+
+        .analytics-page .anl-number {
+            font-size: 19px;
+        }
+
+        .analytics-page .anl-stat {
+            min-height: 70px;
+            padding: 9px;
+        }
+
+        .analytics-page .anl-section {
+            margin-bottom: 10px;
+        }
+
+        .analytics-page .anl-section-heading {
+            gap: 6px;
+        }
+
+        .analytics-page .anl-section-title {
+            font-size: 10px;
+        }
+
+        .analytics-page .anl-chart-card {
+            padding: 9px;
+        }
+
+        .analytics-page .anl-chart-area {
+            height: 130px;
+        }
+
+        .analytics-page .anl-chart-inner {
+            min-width: 440px;
+        }
+
+        .analytics-page .anl-chart-days {
+            padding-left: 31px;
+        }
+
+        .analytics-page .anl-side-stats {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .analytics-page .anl-side-stat {
+            padding: 8px 7px;
+            min-height: 85px;
+        }
+
+        .analytics-page .anl-side-stat .anl-number {
+            font-size: 17px;
+        }
+
+        .analytics-page .anl-side-stat .anl-description {
+            font-size: 9px;
+            line-height: 1.35;
+        }
+
+        .analytics-page .anl-side-stat .anl-outline-badge {
+            font-size: 7px;
+        }
+
+        .analytics-page .anl-distribution-block {
+            gap: 8px;
+        }
+
+        .analytics-page .anl-donut {
+            flex-basis: 76px;
+            width: 76px;
+        }
+
+        .analytics-page .anl-distribution-content h6 {
+            font-size: 10px;
+        }
+
+        .analytics-page .anl-distribution-table {
+            font-size: 9px;
+        }
+
+        .analytics-page .anl-distribution-table td {
+            padding: 4px 1px;
+        }
+
+        .analytics-page .anl-color-dot {
+            width: 6px;
+            height: 6px;
+            margin-right: 3px;
+        }
+
+        .analytics-page .anl-item-title {
+            font-size: 10px;
+        }
+
+        .analytics-page .anl-meta {
+            font-size: 9px;
+        }
+
+        .analytics-page .anl-collection-heading h5 {
+            font-size: 10px;
+        }
+
+        .analytics-page .anl-collection-count {
+            font-size: 9px;
+        }
+
+        .analytics-modal .modal-dialog {
+            width: calc(100% - 20px);
+            margin: 10px auto;
+        }
+
+        .analytics-modal .modal-header {
+            padding: 10px;
+        }
+
+        .analytics-modal .modal-title {
+            font-size: 11px;
+        }
+
+        .analytics-modal .modal-body {
+            padding: 9px 10px;
+        }
+
+        .analytics-modal .list-group-item {
+            font-size: 10px;
+        }
+    }
+
+    /* ========================================
+       VERY SMALL MOBILE
+    ======================================== */
+    @media (max-width: 359.98px) {
+        .analytics-page {
+            padding-right: 7px;
+            padding-left: 7px;
+        }
+
+        .analytics-page .row {
+            --bs-gutter-x: 6px;
+            --bs-gutter-y: 6px;
+        }
+
+        .analytics-page .anl-card {
+            padding: 8px;
+        }
+
+        .analytics-page .anl-number {
+            font-size: 17px;
+        }
+
+        .analytics-page .anl-side-stats {
+            gap: 5px;
+        }
+
+        .analytics-page .anl-side-stat {
+            padding: 7px 6px;
+        }
+
+        .analytics-page .anl-side-stat .anl-number {
+            font-size: 16px;
+        }
+
+        .analytics-page .anl-distribution-block {
+            gap: 6px;
+        }
+
+        .analytics-page .anl-donut {
+            flex-basis: 68px;
+            width: 68px;
+        }
+
+        .analytics-page .anl-distribution-table {
+            font-size: 8px;
+        }
+
+        .analytics-page .anl-meta {
+            font-size: 8px;
+        }
+
+        .analytics-page .anl-outline-badge {
+            letter-spacing: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .analytics-page *,
+        .analytics-modal * {
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
+        }
+    }
 </style>
 
+<div class="analytics-page">
+
 {% if total_titles > 0 %}
-    <!-- Row 1: Statistik Utama (Dianimasikan per kolom) -->
-    <div class="row g-2 mb-3">
-        <!-- Kolom 1 (Total Titles) -->
+
+    <!-- Statistik Utama -->
+    <div class="row anl-section">
         <div class="col-6 col-lg-3 anl-animate anl-delay-1">
-            <div class="p-2 border border-1 border-dark bg-white h-100">
-                <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Total Titles</small>
-                <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
-                    <span class="fs-4 fw-black text-dark">{{ total_titles }}</span>
-                </div>
+            <div class="anl-card anl-stat">
+                <span class="anl-label">Total Titles</span>
+                <div class="anl-number">{{ total_titles }}</div>
             </div>
         </div>
-        <!-- Kolom 2 (Total Chapters) -->
+
         <div class="col-6 col-lg-3 anl-animate anl-delay-2">
-            <div class="p-2 border border-1 border-dark bg-white h-100">
-                <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Total Chapters</small>
-                <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
-                    <span class="fs-4 fw-black text-dark">{{ total_chapters|default:"0" }}</span>
-                </div>
+            <div class="anl-card anl-stat">
+                <span class="anl-label">Total Chapters</span>
+                <div class="anl-number">{{ total_chapters|default:"0" }}</div>
             </div>
         </div>
-        <!-- Kolom 3 (Stats Card) -->
-        <div class="col-6 col-lg-3 anl-animate">
-            <div class="p-2 border border-1 border-dark bg-white h-100">
-                <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Completed</small>
-                <div class="d-flex justify-content-center align-items-center" style="min-height: 40px;">
-                    <span class="fs-4 fw-black text-dark">{{ percentage_completed|default:"0" }}%</span>
-                </div>
+
+        <div class="col-6 col-lg-3 anl-animate anl-delay-3">
+            <div class="anl-card anl-stat">
+                <span class="anl-label">Completed</span>
+                <div class="anl-number">{{ percentage_completed|default:"0" }}%</div>
             </div>
         </div>
-        <!-- Kolom 4 (Most Chapters) -->
+
         <div class="col-6 col-lg-3 anl-animate anl-delay-4">
-            <div class="p-2 border border-1 border-dark bg-dark text-white h-100">
-                <small class="text-secondary fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Most Chapters</small>
-                <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 40px;">
-                    <div class="fw-bold fs-6 text-truncate" style="max-width: 90%;">{{ mvp.title|default:"-" }}</div>
-                    <div class="text-secondary" style="font-size: 0.6rem;">{{ mvp.chapters|default:"0" }} Ch | {{ mvp.status.name|default:"-" }}</div>
-                </div>
+            <div class="anl-card anl-stat anl-dark-card">
+                <span class="anl-label">Most Chapters</span>
+                <div class="anl-stat-title anl-title">{{ mvp.title|default:"-" }}</div>
+                <small class="anl-muted anl-small mt-1">
+                    {{ mvp.chapters|default:"0" }} Ch
+                    <span class="mx-1">/</span>
+                    {{ mvp.status.name|default:"-" }}
+                </small>
             </div>
         </div>
     </div>
 
-    <!-- Sisi Grafik Bulanan (Lebar 3/4 layar / col-lg-9, sejajar dengan 3 kotak statistik di atasnya) -->
-    <div class="row g-2 mb-4">
-        
-        <!-- 1. Grafik Bulanan (Sisi Kiri - col-lg-9) -->
-        <div class="col-12 col-lg-9 anl-animate position-relative">
-            <div class="p-3 border border-dark bg-white h-100 d-flex flex-column justify-content-between" style="min-height: 250px;">
-                <div>
-                    <!-- Judul Grafik yang bisa diklik untuk membuka Modal Pilihan 3 Bulan Terakhir -->
-                    <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-2 mb-3" data-bs-toggle="modal" data-bs-target="#monthlyHistoryModal" style="cursor: pointer;">
-                        <h5 class="fw-black text-uppercase mb-0">
-                            {{ current_month_name|default:"Activity" }} <span class="small text-muted" style="font-size: 0.7rem;">▼ (History)</span>
-                        </h5>
-                        <small class="text-muted fw-bold">PEAK: {{ max_scale }} / DAY</small>
-                    </div>
-                    
-                    <!-- Container Horizontal Scroll untuk Mobile -->
-                    <div class="overflow-x-auto">
-                        <div style="min-width: 600px;">
-                            <!-- Wrapper Grafik dengan Indikator Sumbu Y di Kiri -->
-                            <div class="position-relative w-100 px-2 my-2 d-flex align-items-center" style="height: 200px;">
-                                
-                                <!-- Indikator Angka Sumbu Y -->
-                                <div class="d-flex flex-column justify-content-between text-end pe-2 text-muted fw-bold" style="font-size: 0.5rem; height: 100%; width: 32px;">
-                                    <span>{{ max_scale }}</span>
-                                    <span>10</span>
-                                    <span>5</span>
-                                    <span>4</span>
-                                    <span>3</span>
-                                    <span>2</span>
-                                    <span>1</span>
-                                    <span>0</span>
-                                </div>
+    <!-- Grafik dan Statistik Samping -->
+    <div class="row anl-section">
 
-                                <!-- Area SVG Grafik -->
-                                <div class="flex-grow-1 position-relative h-100">
-                                    <svg viewBox="0 0 900 100" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
-                                        <!-- Garis Grid Latar Belakang -->
-                                        <line x1="0" y1="0" x2="900" y2="0" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
-                                        <line x1="0" y1="14.28" x2="900" y2="14.28" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
-                                        <line x1="0" y1="28.57" x2="900" y2="28.57" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
-                                        <line x1="0" y1="42.85" x2="900" y2="42.85" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
-                                        <line x1="0" y1="57.14" x2="900" y2="57.14" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
-                                        <line x1="0" y1="71.42" x2="900" y2="71.42" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
-                                        <line x1="0" y1="85.71" x2="900" y2="85.71" stroke="#f1f1f1" stroke-width="1" stroke-dasharray="3" />
-                                        <line x1="0" y1="100" x2="900" y2="100" stroke="#e9ecef" stroke-width="1" />
+        <!-- Grafik Bulanan -->
+        <div class="col-12 col-lg-9 anl-animate">
+            <div class="anl-card anl-chart-card">
 
-                                        <!-- Group Transform untuk Garis SVG -->
-                                        <g transform="translate(0, 100) scale(1, -1)">
-                                            <polyline 
-                                                fill="none" 
-                                                stroke="#212529" 
-                                                stroke-width="1.5" 
-                                                stroke-linecap="round" 
-                                                stroke-linejoin="round"
-                                                vector-effect="non-scaling-stroke"
-                                                points="
-                                                    {% for act in monthly_activity_data %}
-                                                        {% widthratio forloop.counter0|add:forloop.counter0|add:1 62 900 %},{% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %} 
-                                                    {% endfor %}
-                                                "
-                                            />
-                                        </g>
-                                    </svg>
+                <div
+                    class="anl-section-heading anl-clickable"
+                    data-bs-toggle="modal"
+                    data-bs-target="#monthlyHistoryModal"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Open monthly activity history"
+                >
+                    <h5 class="anl-section-title">
+                        {{ current_month_name|default:"Activity" }}
+                        <span class="anl-muted" style="font-size:9px; font-weight:400;">▼ History</span>
+                    </h5>
+                    <small class="anl-muted fw-bold" style="font-size:9px;">
+                        PEAK: {{ max_scale }} / DAY
+                    </small>
+                </div>
 
-                                    <!-- Titik Dot HTML (Dinamis mengikuti jumlah total hari bulan tersebut) -->
-                                    {% for act in monthly_activity_data %}
-                                        {% if act.count > 0 %}
-                                        <div class="monthly-data-point position-absolute" 
-                                            style="left: calc((({{ forloop.counter0 }} + 0.5) / {{ monthly_activity_data|length }}) * 100%); bottom: calc({% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %}%); transform: translate(-50%, 50%); cursor: pointer; padding: 6px;"
-                                            data-day="{{ act.day }}"
-                                            data-count="{{ act.count }}">
-                                            <div style="width: 7px; height: 7px; background-color: #212529; border-radius: 50%;"></div>
-                                        </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
+                <div class="anl-chart-scroll">
+                    <div class="anl-chart-inner">
+
+                        <div class="anl-chart-area">
+                            <div class="anl-y-axis">
+                                <span>{{ max_scale }}</span>
+                                <span>10</span>
+                                <span>5</span>
+                                <span>4</span>
+                                <span>3</span>
+                                <span>2</span>
+                                <span>1</span>
+                                <span>0</span>
                             </div>
 
-                            <!-- Label Sumbu X: Tanggal Dinamis -->
-                            <div class="d-flex justify-content-between align-items-center ps-4 pe-1 pt-3 border-top border-light overflow-hidden">
+                            <div class="anl-chart-plot">
+                                <svg viewBox="0 0 900 100" preserveAspectRatio="none" aria-label="Monthly activity chart">
+                                    <line x1="0" y1="0" x2="900" y2="0" stroke="#ededed" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="0" y1="14.28" x2="900" y2="14.28" stroke="#ededed" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="0" y1="28.57" x2="900" y2="28.57" stroke="#ededed" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="0" y1="42.85" x2="900" y2="42.85" stroke="#ededed" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="0" y1="57.14" x2="900" y2="57.14" stroke="#ededed" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="0" y1="71.42" x2="900" y2="71.42" stroke="#ededed" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="0" y1="85.71" x2="900" y2="85.71" stroke="#ededed" stroke-width="1" stroke-dasharray="3"/>
+                                    <line x1="0" y1="100" x2="900" y2="100" stroke="#dedede" stroke-width="1"/>
+
+                                    <g transform="translate(0, 100) scale(1, -1)">
+                                        <polyline
+                                            fill="none"
+                                            stroke="#111"
+                                            stroke-width="1.5"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            vector-effect="non-scaling-stroke"
+                                            points="
+                                                {% for act in monthly_activity_data %}
+                                                    {% widthratio forloop.counter0|add:forloop.counter0|add:1 62 900 %},{% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %}
+                                                {% endfor %}
+                                            "
+                                        />
+                                    </g>
+                                </svg>
+
                                 {% for act in monthly_activity_data %}
-                                <div class="text-center" style="font-size: 0.55rem; width: calc(100% / {{ monthly_activity_data|length }});">
-                                    <span class="text-muted fw-bold">{{ act.day }}</span>
-                                </div>
+                                    {% if act.count > 0 %}
+                                    <div
+                                        class="monthly-data-point position-absolute"
+                                        style="left: calc((({{ forloop.counter0 }} + 0.5) / {{ monthly_activity_data|length }}) * 100%); bottom: calc({% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %}%);"
+                                        data-day="{{ act.day }}"
+                                        data-count="{{ act.count }}"
+                                        aria-label="Day {{ act.day }}: {{ act.count }} activities"
+                                    >
+                                        <div></div>
+                                    </div>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
+
+                        <div class="anl-chart-days">
+                            {% for act in monthly_activity_data %}
+                            <div class="anl-chart-day">{{ act.day }}</div>
+                            {% endfor %}
+                        </div>
+
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <!-- Modal untuk Memilih History 3 Bulan Terakhir -->
-        <div class="modal fade" id="monthlyHistoryModal" tabindex="-1" aria-labelledby="monthlyHistoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
+        <!-- Statistik Samping -->
+        <div class="col-12 col-lg-3">
+            <div class="anl-side-stats">
+
+                <div class="anl-card anl-side-stat anl-animate">
+                    <span class="anl-label">Current Streak</span>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="anl-number">
+                            {{ streak_count }}
+                            <span class="anl-muted" style="font-size:10px; font-weight:400; letter-spacing:0;">Days</span>
+                        </div>
+                        <span style="font-size:17px;" aria-hidden="true">🔥</span>
+                    </div>
+                    <small class="anl-description">Consecutive days with updates</small>
+                </div>
+
+                <div class="anl-card anl-side-stat anl-animate">
+                    <span class="anl-label">Weekly Velocity</span>
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="anl-number">{{ updates_this_week }}</div>
+                        <span class="anl-outline-badge">Updates</span>
+                    </div>
+                    <small class="anl-description">Activity in the last 7 days</small>
+                </div>
+
+                <div
+                    class="anl-card anl-side-stat anl-clickable anl-animate"
+                    data-bs-toggle="modal"
+                    data-bs-target="#stalledModal"
+                    role="button"
+                    tabindex="0"
+                >
+                    <span class="anl-label">Stalled / On-Hold</span>
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="anl-number">
+                            {{ stalled_items|length }}
+                            <span class="anl-muted" style="font-size:10px; font-weight:400; letter-spacing:0;">Titles</span>
+                        </div>
+                        <span class="anl-outline-badge">Inactive</span>
+                    </div>
+                    <small class="anl-description">Click to review stalled list</small>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Grafik Riwayat Bulanan -->
+    <div class="modal fade analytics-modal" id="monthlyHistoryModal" tabindex="-1" aria-labelledby="monthlyHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-sm">
             <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-black text-uppercase" id="monthlyHistoryModalLabel" style="font-size: 0.9rem;">3 Months Activity History</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="list-group list-group-flush">
-                    {% for m in last_three_months %}
-                    <a href="?month={{ m.code }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none py-3 {% if m.name == current_month_name %}bg-light{% endif %}">
-                        <div class="d-flex align-items-center">
-                            <span class="fw-bold text-dark">{{ m.name }}</span>
-                            
-                            <!-- Indikator penanda bulan berjalan saat ini -->
-                            {% if forloop.first %}
-                            <span class="ms-2 badge bg-secondary fw-normal" style="font-size: 0.6rem;">This Month</span>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-flex align-items-center">
-                            <!-- Indikator jika bulan tersebut sedang aktif dipilih di grafik -->
-                            {% if m.name == current_month_name %}
-                            <span class="text-muted small me-2 fst-italic" style="font-size: 0.7rem;">(Active)</span>
-                            {% endif %}
-                            <span class="badge bg-dark rounded-pill">{{ m.total_activity|default:"0" }} items</span>
-                        </div>
-                    </a>
-                    {% empty %}
-                    <div class="text-muted text-center py-3 small">No history available yet.</div>
-                    {% endfor %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="monthlyHistoryModalLabel">3 Months Activity History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-            </div>
-        </div>
-        </div>
+                <div class="modal-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for m in last_three_months %}
+                        <a
+                            href="?month={{ m.code }}"
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none {% if m.name == current_month_name %}bg-light{% endif %}"
+                        >
+                            <div class="d-flex align-items-center flex-wrap gap-1">
+                                <span class="fw-bold text-dark">{{ m.name }}</span>
+                                {% if forloop.first %}
+                                <span class="badge bg-secondary">This Month</span>
+                                {% endif %}
+                            </div>
 
-        <!-- Sisi Kanan: 3 Kartu Statistik Ditumpuk Vertikal (Ukuran Ditambah Sedikit) -->
-        <div class="col-12 col-lg-3 d-flex flex-column justify-content-between gap-1">
-            <!-- 1. Reading Streak -->
-            <div class="col-12 anl-animate">
-                <div class="border border-dark bg-white" style="padding: 10px 14px;">
-                    <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Current Streak</small>
-                    <div class="d-flex align-items-center justify-content-between my-1">
-                        <span class="fs-4 fw-black text-dark">{{ streak_count }} <small class="fs-6 text-muted fw-normal">Days</small></span>
-                        <span class="fs-5">🔥</span>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if m.name == current_month_name %}
+                                <span class="text-muted fst-italic" style="font-size:9px;">Active</span>
+                                {% endif %}
+                                <span class="badge bg-dark">{{ m.total_activity|default:"0" }} items</span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="text-muted text-center py-3 small">No history available yet.</div>
+                        {% endfor %}
                     </div>
-                    <small class="text-muted d-block" style="font-size: 0.7rem;">Consecutive days with updates</small>
-                </div>
-            </div>
-
-            <!-- 2. Reading Pace -->
-            <div class="col-12 anl-animate">
-                <div class="border border-dark bg-white" style="padding: 10px 14px;">
-                    <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Weekly Velocity</small>
-                    <div class="d-flex align-items-center justify-content-between my-1">
-                        <span class="fs-4 fw-black text-dark">{{ updates_this_week }} <small class="fs-6 text-muted fw-normal">Updates</small></span>
-                        <span class="badge bg-dark rounded-0 px-2 py-1 text-uppercase" style="font-size: 0.6rem;">HIGH SPEED</span>
-                    </div>
-                    <small class="text-muted d-block" style="font-size: 0.7rem;">Total activity in last 7 days</small>
-                </div>
-            </div>
-
-            <!-- 4. Stalled / Hiatus Watcher -->
-            <div class="col-12 anl-animate" data-bs-toggle="modal" data-bs-target="#stalledModal" style="cursor: pointer;">
-                <div class="border border-dark bg-white" style="padding: 10px 14px;">
-                    <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.65rem;">Stalled / On-Hold</small>
-                    <div class="d-flex align-items-center justify-content-between my-1">
-                        <span class="fs-4 fw-black text-dark">{{ stalled_items|length }} <small class="fs-6 text-muted fw-normal">Titles</small></span>
-                        <span class="badge bg-secondary rounded-0 px-2 py-1 text-uppercase" style="font-size: 0.6rem;">Inactive</span>
-                    </div>
-                    <small class="text-muted d-block fst-italic" style="font-size: 0.7rem;">Click to review stalled list</small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Elemen Tooltip Khusus -->
+    <!-- Tooltip Grafik -->
     <div id="monthly-cursor-tooltip" class="tech-tooltip-fixed"></div>
 
-    <!-- Style CSS Khusus Tooltip -->
-    <style>
-        .tech-tooltip-fixed {
-            position: fixed; pointer-events: none; display: none; background: #fff;
-            padding: 6px 10px; border-left: 3px solid #000; font-family: monospace;
-            font-size: 11px; text-transform: uppercase; z-index: 9999;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.2); color: #000;
-        }
-        .slash-line { color: #ccc; margin: 0 5px; }
-    </style>
+    <!-- Kategori dan Status -->
+    <div class="anl-distribution anl-section">
+        <div class="row">
 
-    <!-- Script Tooltip -->
-    <script>
-        (function() {
-            const tooltip = document.getElementById('monthly-cursor-tooltip');
-            const points = document.querySelectorAll('.monthly-data-point');
+            <!-- Categories -->
+            <div class="col-12 col-lg-6">
+                <div class="anl-distribution-block h-100">
 
-            function showTooltip(event, name, count) {
-                tooltip.style.display = 'block';
-                tooltip.style.left = (event.clientX + 15) + 'px';
-                tooltip.style.top = (event.clientY + 15) + 'px';
-                tooltip.innerHTML = `<span>Date ${name} <span class="slash-line">/</span></span>
-                                    <span style="font-weight:bold; color:#000;">RESULT: ${count}</span>`;
-            }
+                    <svg class="anl-donut" viewBox="0 0 150 150" aria-label="Category distribution chart">
+                        <circle cx="75" cy="75" r="60" fill="none" stroke="#ededed" stroke-width="24"/>
+                        {% for cat in all_categories %}
+                        <circle
+                            cx="75" cy="75" r="60"
+                            fill="none"
+                            stroke="{{ cat.color }}"
+                            stroke-width="24"
+                            stroke-dasharray="{{ cat.length|default:'0' }} 377"
+                            stroke-dashoffset="-{{ cat.offset|default:'0' }}"
+                            style="cursor:pointer; transition:opacity .2s;"
+                            onmousemove="showTooltip(event, '{{ cat.name|escapejs }}', '{{ cat.item_count|default:'0' }}')"
+                            onmouseout="hideTooltip(); this.style.opacity='1';"
+                            onmouseover="this.style.opacity='.65'"
+                        />
+                        {% endfor %}
+                    </svg>
 
-            function hideTooltip() {
-                tooltip.style.display = 'none';
-            }
-
-            points.forEach(point => {
-                point.addEventListener('mouseenter', function(event) {
-                    const day = this.getAttribute('data-day');
-                    const count = this.getAttribute('data-count');
-                    showTooltip(event, day, count);
-                });
-
-                point.addEventListener('mousemove', function(event) {
-                    tooltip.style.left = (event.clientX + 15) + 'px';
-                    tooltip.style.top = (event.clientY + 15) + 'px';
-                });
-
-                point.addEventListener('mouseleave', function() {
-                    hideTooltip();
-                });
-            });
-        })();
-    </script>
-
-    <div class="container px-0">
-    <div class="row g-4 my-4 pt-2 pb-4 border-top border-bottom border-dark border-1 mx-0 animate-fade-up delay-2">
-        <!-- Categories -->
-        <div class="col-12 col-lg-6 px-2 px-sm-3 ps-lg-0">
-            <div class="d-flex align-items-center justify-content-center justify-content-sm-start h-100">
-                <svg width="150" height="150" style="transform: rotate(-90deg); flex-shrink: 0;">
-                    <circle cx="75" cy="75" r="60" fill="none" stroke="#e9ecef" stroke-width="25"/>
-                    {% for cat in all_categories %}
-                    <circle cx="75" cy="75" r="60" fill="none" stroke="{{ cat.color }}" stroke-width="25" stroke-dasharray="{{ cat.length|default:'0' }} 377" stroke-dashoffset="-{{ cat.offset|default:'0' }}" style="cursor: pointer; transition: opacity 0.2s;" onmousemove="showTooltip(event, '{{ cat.name }}', '{{ cat.item_count|default:"0" }}')" onmouseout="hideTooltip(); this.style.opacity='1';" onmouseover="this.style.opacity='0.6'" />
-                    {% endfor %}
-                </svg>
-                <div class="ms-3 ms-lg-5 flex-grow-1 d-flex flex-column justify-content-center" style="min-width: 0;">
-                    <h6 class="fw-black text-uppercase mb-3">Categories</h6>
-                    <div class="overflow-y-auto" style="max-height: 160px;">
-                        <table class="table table-sm mb-0">
-                            {% for cat in all_categories %}
-                            <tr class="animate-fade-up">
-                                <td class="text-muted ps-0 text-truncate" style="max-width: 120px;"><span style="display:inline-block; width:10px; height:10px; background-color:{{ cat.color }}; margin-right:5px;"></span> {{ cat.name }}</td>
-                                <td class="text-end fw-black">{{ cat.item_count|default:"0" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
+                    <div class="anl-distribution-content">
+                        <h6 class="anl-section-title">Categories</h6>
+                        <div class="anl-distribution-list">
+                            <table class="table table-sm anl-distribution-table">
+                                <tbody>
+                                    {% for cat in all_categories %}
+                                    <tr class="animate-fade-up">
+                                        <td class="text-muted" title="{{ cat.name }}">
+                                            <span class="anl-color-dot" style="background-color:{{ cat.color }};"></span>{{ cat.name }}
+                                        </td>
+                                        <td class="text-end fw-bold">{{ cat.item_count|default:"0" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="2" class="text-muted">No categories.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
                 </div>
             </div>
-        </div>
 
-        <!-- Statuses -->
-        <div class="col-12 col-lg-6 px-2 px-sm-3 pe-lg-0">
-            <div class="d-flex align-items-center justify-content-center justify-content-sm-start h-100">
-                <svg width="150" height="150" style="transform: rotate(-90deg); flex-shrink: 0;">
-                    <circle cx="75" cy="75" r="60" fill="none" stroke="#e9ecef" stroke-width="25"/>
-                    {% for stat in all_statuses %}
-                    <circle cx="75" cy="75" r="60" fill="none" stroke="{{ stat.color }}" stroke-width="25" stroke-dasharray="{{ stat.length|default:'0' }} 377" stroke-dashoffset="-{{ stat.offset|default:'0' }}" style="cursor: pointer; transition: opacity 0.2s;" onmousemove="showTooltip(event, '{{ stat.name }}', '{{ stat.item_count|default:"0" }}')" onmouseout="hideTooltip(); this.style.opacity='1';" onmouseover="this.style.opacity='0.6'" />
-                    {% endfor %}
-                </svg>
-                <div class="ms-3 ms-lg-5 flex-grow-1 d-flex flex-column justify-content-center" style="min-width: 0;">
-                    <h6 class="fw-black text-uppercase mb-3">Statuses</h6>
-                    <div class="overflow-y-auto" style="max-height: 160px;">
-                        <table class="table table-sm mb-0">
-                            {% for stat in all_statuses %}
-                            <tr class="animate-fade-up">
-                                <td class="text-muted ps-0 text-truncate" style="max-width: 120px;"><span style="display:inline-block; width:10px; height:10px; background-color:{{ stat.color }}; margin-right:5px;"></span> {{ stat.name }}</td>
-                                <td class="text-end fw-black">{{ stat.item_count|default:"0" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
+            <!-- Statuses -->
+            <div class="col-12 col-lg-6">
+                <div class="anl-distribution-block h-100">
+
+                    <svg class="anl-donut" viewBox="0 0 150 150" aria-label="Status distribution chart">
+                        <circle cx="75" cy="75" r="60" fill="none" stroke="#ededed" stroke-width="24"/>
+                        {% for stat in all_statuses %}
+                        <circle
+                            cx="75" cy="75" r="60"
+                            fill="none"
+                            stroke="{{ stat.color }}"
+                            stroke-width="24"
+                            stroke-dasharray="{{ stat.length|default:'0' }} 377"
+                            stroke-dashoffset="-{{ stat.offset|default:'0' }}"
+                            style="cursor:pointer; transition:opacity .2s;"
+                            onmousemove="showTooltip(event, '{{ stat.name|escapejs }}', '{{ stat.item_count|default:'0' }}')"
+                            onmouseout="hideTooltip(); this.style.opacity='1';"
+                            onmouseover="this.style.opacity='.65'"
+                        />
+                        {% endfor %}
+                    </svg>
+
+                    <div class="anl-distribution-content">
+                        <h6 class="anl-section-title">Statuses</h6>
+                        <div class="anl-distribution-list">
+                            <table class="table table-sm anl-distribution-table">
+                                <tbody>
+                                    {% for stat in all_statuses %}
+                                    <tr class="animate-fade-up">
+                                        <td class="text-muted" title="{{ stat.name }}">
+                                            <span class="anl-color-dot" style="background-color:{{ stat.color }};"></span>{{ stat.name }}
+                                        </td>
+                                        <td class="text-end fw-bold">{{ stat.item_count|default:"0" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="2" class="text-muted">No statuses.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
                 </div>
             </div>
+
         </div>
     </div>
-</div>
-        
-    <div class="row g-1 mt-2">
-        <div class="col-12">
 
-            <!-- Favorites -->
-            <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#favoritesModal" style="cursor: pointer;">
-                <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-2 mb-3">
-                    <h5 class="fw-black text-uppercase mb-0">Favorites</h5>
-                    <span class="fw-black text-dark text-uppercase small">Total : {{ total_favorites|default:"0" }}</span>
-                </div>
-                <div class="list-group list-group-flush">
-                    {% for item in favorites %}
-                    <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
-                        <span class="fw-bold text-truncate" style="max-width: 70%;">{{ item.title }}</span>
-                        <div class="d-flex align-items-center">
-                            <span class="me-2">{{ item.rating }}</span>
-                            <div style="width: 20px; text-align: right; color: #ffc107; font-size: 0.8rem;">
-                                {% if item.favorit %}★{% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-muted small py-2">No favorites yet.</div>
-                    {% endfor %}
-                </div>
-                {% if favorites %}
-                <div class="text-muted small mt-2 fst-italic">Click to see all favorites</div>
-                {% endif %}
+    <!-- Favorites, Recently Added, Recently Updated -->
+    <div class="anl-section">
+
+        <!-- Favorites -->
+        <div
+            class="anl-card anl-collection-card anl-clickable anl-animate"
+            data-bs-toggle="modal"
+            data-bs-target="#favoritesModal"
+            role="button"
+            tabindex="0"
+        >
+            <div class="anl-collection-heading">
+                <h5>Favorites</h5>
+                <span class="anl-collection-count">TOTAL: {{ total_favorites|default:"0" }}</span>
             </div>
 
-            <!-- Recently Added -->
-            <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#recentlyAddedModal" style="cursor: pointer;">
-                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Recently Added</h5>
-                <div class="list-group list-group-flush">
-                    {% for item in recently_added %}
-                    <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
-                        <span class="fw-bold text-truncate me-2" style="max-width: 70%;">{{ item.title }}</span>
-                        <small class="text-muted text-nowrap">{{ item.created_at|date:"d M Y" }}</small>
-                    </div>
-                    {% empty %}
-                    <div class="text-muted small py-2">No items added.</div>
-                    {% endfor %}
-                </div>
-                {% if recently_added %}
-                <div class="text-muted small mt-2 fst-italic">Click to see all recently added</div>
-                {% endif %}
-            </div>
+            <ul class="anl-list">
+                {% for item in favorites %}
+                <li class="anl-list-item anl-item">
+                    <span class="anl-item-title">{{ item.title }}</span>
+                    <span class="d-flex align-items-center gap-2 flex-shrink-0">
+                        <span class="anl-meta">{{ item.rating }}</span>
+                        <span style="width:12px; text-align:center; color:#b58a00; font-size:12px;">
+                            {% if item.favorit %}★{% endif %}
+                        </span>
+                    </span>
+                </li>
+                {% empty %}
+                <li class="anl-list-item text-muted">No favorites yet.</li>
+                {% endfor %}
+            </ul>
 
-            <!-- Recently Updated -->
-            <div class="p-3 border border-dark mb-4 anl-animate" data-bs-toggle="modal" data-bs-target="#recentlyUpdatedModal" style="cursor: pointer;">
-                <h5 class="fw-black text-uppercase border-bottom border-dark pb-2 mb-3">Recently Updated</h5>
-                <div class="list-group list-group-flush">
-                    {% for item in recently_updated %}
-                    <div class="list-group-item anl-item d-flex justify-content-between align-items-center px-0">
-                        <!-- Sisi Kiri: Judul -->
-                        <span class="fw-bold text-truncate me-2" style="max-width: 50%;">{{ item.title }}</span>
-                        
-                        <!-- Sisi Kanan: Chapter, Tanda Pemisah (|), dan Tanggal -->
-                        <div class="text-end text-nowrap">
-                            <small class="text-muted">Ch. {{ item.chapters }}</small>
-                            <small class="text-muted mx-1">|</small>
-                            <small class="text-muted">{{ item.last_edited_at|date:"d M Y" }}</small>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-muted small py-2">No updates recently.</div>
-                    {% endfor %}
-                </div>
-                {% if recently_updated %}
-                <div class="text-muted small mt-2 fst-italic">Click to see all recently updated</div>
-                {% endif %}
-            </div>
+            {% if favorites %}
+            <div class="anl-link-hint">Click to see all favorites</div>
+            {% endif %}
         </div>
+
+        <!-- Recently Added -->
+        <div
+            class="anl-card anl-collection-card anl-clickable anl-animate"
+            data-bs-toggle="modal"
+            data-bs-target="#recentlyAddedModal"
+            role="button"
+            tabindex="0"
+        >
+            <div class="anl-collection-heading">
+                <h5>Recently Added</h5>
+            </div>
+
+            <ul class="anl-list">
+                {% for item in recently_added %}
+                <li class="anl-list-item anl-item">
+                    <span class="anl-item-title">{{ item.title }}</span>
+                    <span class="anl-meta">{{ item.created_at|date:"d M Y" }}</span>
+                </li>
+                {% empty %}
+                <li class="anl-list-item text-muted">No items added.</li>
+                {% endfor %}
+            </ul>
+
+            {% if recently_added %}
+            <div class="anl-link-hint">Click to see all recently added</div>
+            {% endif %}
+        </div>
+
+        <!-- Recently Updated -->
+        <div
+            class="anl-card anl-collection-card anl-clickable anl-animate"
+            data-bs-toggle="modal"
+            data-bs-target="#recentlyUpdatedModal"
+            role="button"
+            tabindex="0"
+        >
+            <div class="anl-collection-heading">
+                <h5>Recently Updated</h5>
+            </div>
+
+            <ul class="anl-list">
+                {% for item in recently_updated %}
+                <li class="anl-list-item anl-item">
+                    <span class="anl-item-title">{{ item.title }}</span>
+                    <span class="anl-meta">
+                        Ch. {{ item.chapters }}
+                        <span class="mx-1">|</span>
+                        {{ item.last_edited_at|date:"d M Y" }}
+                    </span>
+                </li>
+                {% empty %}
+                <li class="anl-list-item text-muted">No updates recently.</li>
+                {% endfor %}
+            </ul>
+
+            {% if recently_updated %}
+            <div class="anl-link-hint">Click to see all recently updated</div>
+            {% endif %}
+        </div>
+
     </div>
 
 {% else %}
-    <div class="text-center py-5 border border-dark bg-light">
-        <h4 class="fw-bold text-dark">No Data Available</h4>
-        <p class="text-muted">You haven't added any items to your collection yet.</p>
-        <a href="{% url 'reading_add' %}" class="btn btn-outline-dark rounded-0 mt-3 px-4 py-2">Add Your First Item</a>
+
+    <div class="anl-empty">
+        <h4>No Data Available</h4>
+        <p>You haven't added any items to your collection yet.</p>
+        <a href="{% url 'reading_add' %}" class="btn btn-outline-dark mt-1">
+            Add Your First Item
+        </a>
     </div>
+
 {% endif %}
 
+</div>
+
+<!-- Tooltip untuk Grafik dan Distribusi -->
+<div id="cursor-tooltip" class="tech-tooltip-fixed"></div>
+
 <script>
+    /* ========================================
+       TOOLTIP DISTRIBUSI
+    ======================================== */
     function showTooltip(event, name, count) {
         const tooltip = document.getElementById('cursor-tooltip');
+        if (!tooltip) return;
+
         tooltip.style.display = 'block';
-        tooltip.style.left = (event.clientX + 15) + 'px';
-        tooltip.style.top = (event.clientY + 15) + 'px';
-        tooltip.innerHTML = `<span>${name} <span class="slash-line">/</span></span>
-                             <span style="font-weight:bold; color:#000;">RESULT: ${count}</span>`;
+
+        const offset = 12;
+        const tooltipWidth = tooltip.offsetWidth || 180;
+        const tooltipHeight = tooltip.offsetHeight || 45;
+
+        let left = event.clientX + offset;
+        let top = event.clientY + offset;
+
+        if (left + tooltipWidth > window.innerWidth - 8) {
+            left = event.clientX - tooltipWidth - offset;
+        }
+
+        if (top + tooltipHeight > window.innerHeight - 8) {
+            top = event.clientY - tooltipHeight - offset;
+        }
+
+        tooltip.style.left = Math.max(4, left) + 'px';
+        tooltip.style.top = Math.max(4, top) + 'px';
+
+        tooltip.innerHTML =
+            '<span>' + String(name) +
+            ' <span class="slash-line">/</span></span>' +
+            '<span style="font-weight:bold;color:#111;">RESULT: ' +
+            String(count) + '</span>';
     }
-    
+
     function hideTooltip() {
-        document.getElementById('cursor-tooltip').style.display = 'none';
+        const tooltip = document.getElementById('cursor-tooltip');
+        if (tooltip) tooltip.style.display = 'none';
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        // Targetkan semua elemen tr dengan class animate-fade-up
-        const rows = document.querySelectorAll('tr.animate-fade-up');
-        rows.forEach((row, index) => {
-            row.style.animationDelay = (index * 0.05) + 's';
+    /* ========================================
+       MONTHLY CHART TOOLTIP
+    ======================================== */
+    (function () {
+        const tooltip = document.getElementById('monthly-cursor-tooltip');
+        const points = document.querySelectorAll('.monthly-data-point');
+
+        if (!tooltip || !points.length) return;
+
+        function moveTooltip(event) {
+            const offset = 12;
+            const width = tooltip.offsetWidth || 180;
+            const height = tooltip.offsetHeight || 40;
+
+            let left = event.clientX + offset;
+            let top = event.clientY + offset;
+
+            if (left + width > window.innerWidth - 8) {
+                left = event.clientX - width - offset;
+            }
+
+            if (top + height > window.innerHeight - 8) {
+                top = event.clientY - height - offset;
+            }
+
+            tooltip.style.left = Math.max(4, left) + 'px';
+            tooltip.style.top = Math.max(4, top) + 'px';
+        }
+
+        points.forEach(function (point) {
+            point.addEventListener('mouseenter', function (event) {
+                const day = point.getAttribute('data-day');
+                const count = point.getAttribute('data-count');
+
+                tooltip.innerHTML =
+                    '<span>Date ' + day +
+                    ' <span class="slash-line">/</span></span>' +
+                    '<span style="font-weight:bold;color:#111;">RESULT: ' +
+                    count + '</span>';
+
+                tooltip.style.display = 'block';
+                moveTooltip(event);
+            });
+
+            point.addEventListener('mousemove', moveTooltip);
+
+            point.addEventListener('mouseleave', function () {
+                tooltip.style.display = 'none';
+            });
+
+            /* Dukungan sentuhan untuk perangkat mobile */
+            point.addEventListener('touchstart', function (event) {
+                const touch = event.touches[0];
+                if (!touch) return;
+
+                const day = point.getAttribute('data-day');
+                const count = point.getAttribute('data-count');
+
+                tooltip.innerHTML =
+                    '<span>Date ' + day +
+                    ' <span class="slash-line">/</span></span>' +
+                    '<span style="font-weight:bold;color:#111;">RESULT: ' +
+                    count + '</span>';
+
+                tooltip.style.display = 'block';
+
+                moveTooltip({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+            }, { passive: true });
         });
 
-        // Animasi untuk box utama (lebih cepat: 0.05s)
-        const boxes = document.querySelectorAll('.anl-animate');
-        boxes.forEach((box, index) => {
-            box.style.animationDelay = (index * 0.05) + 's';
+        document.addEventListener('touchstart', function (event) {
+            if (!event.target.closest('.monthly-data-point')) {
+                tooltip.style.display = 'none';
+            }
+        }, { passive: true });
+    })();
+
+    /* ========================================
+       ANIMATIONS
+    ======================================== */
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll(
+            '.analytics-page tr.animate-fade-up'
+        );
+
+        rows.forEach(function (row, index) {
+            row.style.animationDelay = (index * 0.025) + 's';
         });
 
-        // Animasi untuk setiap item di dalam list agar muncul berurutan cepat (0.02s)
-        const items = document.querySelectorAll('.anl-item');
-        items.forEach((item, index) => {
+        const boxes = document.querySelectorAll(
+            '.analytics-page .anl-animate'
+        );
+
+        boxes.forEach(function (box, index) {
+            if (
+                !box.classList.contains('anl-delay-1') &&
+                !box.classList.contains('anl-delay-2') &&
+                !box.classList.contains('anl-delay-3') &&
+                !box.classList.contains('anl-delay-4')
+            ) {
+                box.style.animationDelay = (index * 0.025) + 's';
+            }
+        });
+
+        const items = document.querySelectorAll(
+            '.analytics-page .anl-item'
+        );
+
+        items.forEach(function (item, index) {
             item.classList.add('anl-animate');
-            item.style.animationDelay = (index * 0.02) + 's';
+            item.style.animationDelay = (index * 0.015) + 's';
         });
     });
 </script>
 
-<!-- Modal untuk Menampilkan Semua Favorit -->
-<div class="modal fade" id="favoritesModal" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="favoritesModalLabel">My Full Favorites List</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="list-group list-group-flush">
-            {% for item in favorites_list %}
-            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex align-items-center text-decoration-none text-dark">
-                <!-- Bintang di kiri -->
-                <div style="width: 20px; text-align: left; color: #ffc107; font-size: 0.8rem; margin-right: 10px;">
-                    {% if item.favorit %}★{% endif %}
+<!-- Modal: Semua Favorit -->
+<div class="modal fade analytics-modal" id="favoritesModal" tabindex="-1" aria-labelledby="favoritesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="favoritesModalLabel">My Full Favorites List</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group list-group-flush">
+                    {% for item in favorites_list %}
+                    <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex align-items-center text-decoration-none text-dark">
+                        <span style="width:16px; flex-shrink:0; color:#b58a00; font-size:12px;">
+                            {% if item.favorit %}★{% endif %}
+                        </span>
+                        <span class="fw-bold flex-grow-1 text-truncate">{{ item.title }}</span>
+                        <span class="ms-2">{{ item.rating }}</span>
+                    </a>
+                    {% empty %}
+                    <div class="text-muted text-center py-3">No favorites found.</div>
+                    {% endfor %}
                 </div>
-                
-                <!-- Title (flex-grow agar judul mengambil sisa ruang) -->
-                <span class="fw-bold flex-grow-1 text-truncate">{{ item.title }}</span>
-                
-                <!-- Rating di kanan -->
-                <span class="ms-2">{{ item.rating }}</span>
-            </a>
-            {% empty %}
-            <div class="text-muted text-center py-3">No favorites found.</div>
-            {% endfor %}
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
-<!-- Modal untuk Menampilkan Semua Item Terbaru -->
-<div class="modal fade" id="recentlyAddedModal" tabindex="-1" aria-labelledby="recentlyAddedModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="recentlyAddedModalLabel">All Recently Added</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="list-group list-group-flush">
-            {% for item in all_recently_added %}
-            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
-                <span class="fw-bold text-truncate me-2" style="max-width: 70%;">{{ item.title }}</span>
-                <!-- Menggunakan field created_at dari model ReadingItem -->
-                <small class="text-muted text-nowrap">{{ item.created_at|date:"d M Y" }}</small>
-            </a>
-            {% empty %}
-            <div class="text-muted text-center py-3">No items found.</div>
-            {% endfor %}
+<!-- Modal: Semua Item Terbaru -->
+<div class="modal fade analytics-modal" id="recentlyAddedModal" tabindex="-1" aria-labelledby="recentlyAddedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recentlyAddedModalLabel">All Recently Added</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group list-group-flush">
+                    {% for item in all_recently_added %}
+                    <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
+                        <span class="fw-bold text-truncate me-2" style="max-width:70%;">{{ item.title }}</span>
+                        <small class="text-muted text-nowrap">{{ item.created_at|date:"d M Y" }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="text-muted text-center py-3">No items found.</div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
-<!-- Modal untuk Menampilkan Semua Update Terbaru -->
-<div class="modal fade" id="recentlyUpdatedModal" tabindex="-1" aria-labelledby="recentlyUpdatedModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="recentlyUpdatedModalLabel">Recently Updated</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="list-group list-group-flush">
-            {% for item in all_recently_updated %}
-            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
-                <!-- Sisi Kiri: Judul dan Chapter -->
-                <div class="text-truncate me-2" style="max-width: 70%;">
-                    <div class="fw-bold text-truncate">{{ item.title }}</div>
-                    <small class="text-muted">Ch. {{ item.chapters }}</small>
+<!-- Modal: Semua Update Terbaru -->
+<div class="modal fade analytics-modal" id="recentlyUpdatedModal" tabindex="-1" aria-labelledby="recentlyUpdatedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recentlyUpdatedModalLabel">Recently Updated</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group list-group-flush">
+                    {% for item in all_recently_updated %}
+                    <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
+                        <div class="text-truncate me-2" style="max-width:70%;">
+                            <div class="fw-bold text-truncate">{{ item.title }}</div>
+                            <small class="text-muted">Ch. {{ item.chapters }}</small>
+                        </div>
+                        <small class="text-muted text-nowrap">{{ item.last_edited_at|date:"d M Y" }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="text-muted text-center py-3">No updates found.</div>
+                    {% endfor %}
                 </div>
-                <!-- Sisi Kanan: Tanggal Update -->
-                <small class="text-muted text-nowrap">{{ item.last_edited_at|date:"d M Y" }}</small>
-            </a>
-            {% empty %}
-            <div class="text-muted text-center py-3">No updates found.</div>
-            {% endfor %}
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
-<div id="cursor-tooltip" class="tech-tooltip-fixed"></div>
-
-<!-- Modal untuk Menampilkan Item Stalled / On-Hold -->
-<div class="modal fade" id="stalledModal" tabindex="-1" aria-labelledby="stalledModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="stalledModalLabel">Stalled & Inactive Series (>30 Days)</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="list-group list-group-flush">
-            {% for item in stalled_items %}
-            <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
-                <div class="text-truncate me-2" style="max-width: 65%;">
-                    <div class="fw-bold text-truncate">{{ item.title }}</div>
-                    <small class="text-muted">Status: {{ item.status.name }}</small>
+<!-- Modal: Item Stalled / On-Hold -->
+<div class="modal fade analytics-modal" id="stalledModal" tabindex="-1" aria-labelledby="stalledModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stalledModalLabel">Stalled &amp; Inactive Series (&gt;30 Days)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group list-group-flush">
+                    {% for item in stalled_items %}
+                    <a href="{% url 'reading_item_detail' item.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark">
+                        <div class="text-truncate me-2" style="max-width:65%;">
+                            <div class="fw-bold text-truncate">{{ item.title }}</div>
+                            <small class="text-muted">Status: {{ item.status.name }}</small>
+                        </div>
+                        <small class="text-muted text-nowrap">{{ item.last_edited_at|date:"d M Y" }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="text-muted text-center py-3">No stalled items found. Great job keeping your collection active!</div>
+                    {% endfor %}
                 </div>
-                <small class="text-muted text-nowrap">{{ item.last_edited_at|date:"d M Y" }}</small>
-            </a>
-            {% empty %}
-            <div class="text-muted text-center py-3">No stalled items found. Great job keeping your collection active!</div>
-            {% endfor %}
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 {% endblock %}
