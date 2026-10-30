@@ -1058,17 +1058,16 @@ def reading_list(request):
     # ==========================================
     # FILTER TAG / GENRE
     # ==========================================
-    active_tags = []
+    tag_ids = [
+        tag_id for tag_id in request.GET.getlist("tag")
+        if tag_id.isdigit()
+    ]
 
-    for tag_id in request.GET.getlist("tag"):
-        try:
-            active_tags.append(int(tag_id))
-        except (ValueError, TypeError):
-            continue
+    active_tags = [int(tag_id) for tag_id in tag_ids]
 
-    if active_tags:
+    if tag_ids:
         items = items.filter(
-            tags__id__in=active_tags
+            tags__id__in=tag_ids
         ).distinct()
 
     # ==========================================

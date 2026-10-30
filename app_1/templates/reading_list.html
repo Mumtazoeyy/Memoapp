@@ -1828,6 +1828,16 @@ html {
         document.body.style.overflow = shouldOpen ? 'hidden' : '';
     }
 
+    /* =====================================================
+    READING LIST TAG FILTER
+    ===================================================== */
+
+    function handleTagSelection(checkbox) {
+        if (!checkbox || !checkbox.form) return;
+
+        checkbox.form.submit();
+    }
+
     /* Close with Escape */
 
     document.addEventListener('keydown', function(event) {
