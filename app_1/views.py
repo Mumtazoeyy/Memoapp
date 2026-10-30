@@ -92,35 +92,47 @@ def home_master(request):
     }
     return render(request, 'home_master.html', context)
 
+from django.db.models import Q
+
 def search_view(request):
     query = request.GET.get('q')
     search_type = request.GET.get('type')
 
     if search_type == 'history':
         items = ImportHistory.objects.filter(user=request.user)
+
         if query:
             items = items.filter(filename__icontains=query)
-        # TAMBAHKAN search_type ke dalam context
+
         return render(request, 'search_results_partial.html', {
             'histories': items.order_by('-imported_at'),
-            'search_type': 'history' 
+            'search_type': 'history'
         })
+
     else:
         Type_id = request.GET.get('Type')
-        items = ReadingItem.objects.select_related('Type').filter(user=request.user)
+
+        items = ReadingItem.objects.select_related('Type').filter(
+            user=request.user
+        )
+
         if query:
-            items = items.filter(title__icontains=query)
+            items = items.filter(
+                Q(title__icontains=query) |
+                Q(alternative_title__icontains=query)
+            )
+
         if Type_id:
             items = items.filter(Type__id=Type_id)
-        # TAMBAHKAN search_type ke dalam context
+
         return render(request, 'search_results_partial.html', {
             'reading_items': items,
             'search_type': 'reading'
         })
 
+
 def about_view(request):
     return render(request, 'about.html')
-
 
 import os
 import re
@@ -1022,17 +1034,96 @@ def estimate_zip_size(user):
 
 @login_required
 def reading_list(request):
+    # Ambil data ReadingItem milik user
     items = ReadingItem.objects.select_related(
         "Type", "status"
-    ).filter(user=request.user).order_by("title")
+    ).filter(user=request.user)
 
+    # ==========================================
+    # FILTER TYPE / KATEGORI
+    # ==========================================
+    type_id = request.GET.get("Type")
+
+    if type_id:
+        items = items.filter(Type_id=type_id)
+
+    # ==========================================
+    # FILTER STATUS
+    # ==========================================
+    status_name = request.GET.get("status")
+
+    if status_name:
+        items = items.filter(status__name__iexact=status_name)
+
+    # ==========================================
+    # FILTER TAG / GENRE
+    # ==========================================
+    active_tags = []
+
+    for tag_id in request.GET.getlist("tag"):
+        try:
+            active_tags.append(int(tag_id))
+        except (ValueError, TypeError):
+            continue
+
+    if active_tags:
+        items = items.filter(
+            tags__id__in=active_tags
+        ).distinct()
+
+    # ==========================================
+    # SORTING
+    # ==========================================
+    sort = request.GET.get("sort", "az")
+
+    sort_options = [
+        ("relevance", "Relevance"),
+        ("latest", "Latest"),
+        ("az", "A-Z"),
+        ("new", "New"),
+    ]
+
+    if sort == "az":
+        items = items.order_by("title", "id")
+
+    elif sort in ["latest", "new"]:
+        items = items.order_by("-created_at")
+
+    elif sort == "relevance":
+        items = items.order_by("title", "id")
+
+    else:
+        sort = "az"
+        items = items.order_by("title", "id")
+
+    # ==========================================
+    # EXPORT DATA
+    # ==========================================
     txt_content = get_export_txt_content(request.user)
     txt_size = f"{len(txt_content.encode('utf-8')) / 1024:.1f} KB"
 
+    # ==========================================
+    # CONTEXT
+    # ==========================================
     context = {
         "reading_items": items,
+
         "categories": Type.objects.exclude(id=1),
         "statuses": Status.objects.exclude(id=1),
+
+        # Data untuk filter tag
+        "tags": Tag.objects.exclude(id=1),
+        "active_tags": active_tags,
+
+        # Data untuk sorting
+        "sort_options": sort_options,
+
+        # Nilai filter yang sedang aktif
+        "selected_type": type_id,
+        "selected_status": status_name,
+        "selected_sort": sort,
+
+        # Export
         "txt_size": txt_size,
         "zip_size": estimate_zip_size(request.user),
     }
@@ -1045,15 +1136,24 @@ def reading_add(request):
     if request.method == 'POST':
         status_id = request.POST.get('status')
         Type_id = request.POST.get('Type')
-        
+
         synopsis_text = request.POST.get('synopsis')
+
+        # --- ALTERNATIVE TITLES ---
+        alternative_titles = request.POST.getlist('alternative_title')
+
+        alternative_title_text = '\n'.join(
+            title.strip()
+            for title in alternative_titles
+            if title.strip()
+        )
+        # --------------------------
 
         # --- VALIDASI & AMANKAN FIELD CHAPTERS ---
         raw_chapters = request.POST.get('chapters', '0')
         try:
-            # Pastikan hanya mengambil angka dan batasi agar tidak overflow
             chapters_val = int(raw_chapters) if str(raw_chapters).isdigit() else 0
-            # Berikan batas pengaman maksimal misal 9 digit (999.999.999) agar aman dari Overflow
+
             if chapters_val > 999999999:
                 chapters_val = 0
         except (ValueError, TypeError):
@@ -1063,18 +1163,20 @@ def reading_add(request):
         new_item = ReadingItem.objects.create(
             user=request.user,
             title=request.POST.get('title'),
-            chapters=chapters_val,  # <--- Gunakan variabel yang sudah divalidasi aman
+            alternative_title=alternative_title_text,
+            chapters=chapters_val,
             season=request.POST.get('season', '-'),
-            rating=request.POST.get('rating', '-'), 
+            rating=request.POST.get('rating', '-'),
             notes=request.POST.get('notes', '-'),
             synopsis=synopsis_text if synopsis_text else '-',
-            image=request.FILES.get('image'), 
+            image=request.FILES.get('image'),
             status=Status.objects.filter(id=status_id).first(),
             Type=Type.objects.filter(id=Type_id).first()
         )
 
         # Handle Tags secara otomatis
         selected_tags = request.POST.getlist('tags')
+
         if selected_tags:
             new_item.tags.set(selected_tags)
         else:
@@ -1088,6 +1190,7 @@ def reading_add(request):
         'categories': Type.objects.all(),
         'tags': Tag.objects.all()
     }
+
     return render(request, 'reading_add.html', context)
 
 @login_required
@@ -1098,7 +1201,7 @@ def reading_edit(request, pk):
 
     if request.method == 'POST':
         item.title = request.POST.get('title')
-        
+
         # --- VALIDASI & AMANKAN FIELD CHAPTERS ---
         raw_chapters = request.POST.get('chapters', '0')
         try:
@@ -1114,6 +1217,16 @@ def reading_edit(request, pk):
         item.rating = request.POST.get('rating')
         item.notes = request.POST.get('notes')
         item.synopsis = request.POST.get('synopsis')
+
+        # --- ALTERNATIVE TITLES ---
+        alternative_titles = request.POST.getlist('alternative_title')
+        alternative_title_text = '\n'.join(
+            title.strip()
+            for title in alternative_titles
+            if title.strip()
+        )
+        item.alternative_title = alternative_title_text
+        # --------------------------
 
         status_id = request.POST.get('status')
         item.status_id = status_id if status_id else None
@@ -1137,13 +1250,22 @@ def reading_edit(request, pk):
         messages.success(request, 'Perubahan berhasil disimpan!')
         return redirect('reading_item_detail', item_id=item.id)
 
+    # --- AMBIL ALTERNATIVE TITLES UNTUK DITAMPILKAN DI FORM ---
+    alternative_titles = [
+        title.strip()
+        for title in (item.alternative_title or '').splitlines()
+        if title.strip()
+    ]
+
     context = {
         'item': item,
         'statuses': Status.objects.all(),
         'categories': Type.objects.all(),
         'tags': Tag.objects.all(),
-        'next': next_url
+        'next': next_url,
+        'alternative_titles': alternative_titles,
     }
+
     return render(request, 'reading_edit.html', context)
 
 def reading_delete(request, pk):
@@ -1248,7 +1370,20 @@ def reading_edit_bulk(request):
 
 def reading_item_detail(request, item_id):
     item = get_object_or_404(ReadingItem, id=item_id)
-    return render(request, 'reading_item_detail.html', {'item': item})
+
+    # Ambil alternative titles dan pisahkan berdasarkan baris baru
+    alternative_titles = [
+        title.strip()
+        for title in (item.alternative_title or '').splitlines()
+        if title.strip()
+    ]
+
+    context = {
+        'item': item,
+        'alternative_titles': alternative_titles,
+    }
+
+    return render(request, 'reading_item_detail.html', context)
 
 # Tambahkan fungsi ini tepat di bawahnya
 def toggle_favorite(request, pk):

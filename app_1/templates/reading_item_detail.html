@@ -639,6 +639,13 @@
             padding-right: 10px;
             padding-left: 10px;
         }
+
+        .library-country-flag {
+            top: 7px;
+            right: 7px;
+            width: 29px;
+            height: 20px;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -659,6 +666,32 @@
         .detail-anim-7 {
             opacity: 1 !important;
         }
+    }
+
+    /* =====================================
+    COUNTRY FLAG - TOP RIGHT COVER
+    ===================================== */
+
+    .library-country-flag {
+        position: absolute;
+        top: 9px;
+        right: 9px;
+        z-index: 2;
+        display: flex;
+        width: 34px;
+        height: 23px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 3px;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+    }
+
+    .library-country-flag img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 </style>
 
@@ -693,6 +726,34 @@
                         <span class="text-muted small">No Cover Available</span>
                     </div>
                 {% endif %}
+
+                {% with item_type=item.Type.name|lower %}
+                    {% if item_type == "manga" %}
+                        <div class="library-country-flag">
+                            <img
+                                src="https://flagcdn.com/w80/jp.png"
+                                alt="Japan"
+                                title="Japan"
+                            >
+                        </div>
+                    {% elif item_type == "manhua" %}
+                        <div class="library-country-flag">
+                            <img
+                                src="https://flagcdn.com/w80/cn.png"
+                                alt="China"
+                                title="China"
+                            >
+                        </div>
+                    {% elif item_type == "manhwa" %}
+                        <div class="library-country-flag">
+                            <img
+                                src="https://flagcdn.com/w80/kr.png"
+                                alt="South Korea"
+                                title="South Korea"
+                            >
+                        </div>
+                    {% endif %}
+                {% endwith %}
             </div>
 
             <!-- ACTION BUTTONS -->

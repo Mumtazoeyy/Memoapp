@@ -4,7 +4,7 @@
     <div class="d-flex flex-wrap gap-2">
         {% for sort_val, sort_label in sort_options %}
         <button type="submit" name="sort" value="{{ sort_val }}" 
-                class="btn btn-sm rounded-pill {% if request.GET.sort == sort_val or not request.GET.sort and sort_val == 'new' %}btn-danger-custom{% else %}btn-white-custom{% endif %}">
+                class="btn btn-sm rounded-pill {% if request.GET.sort == sort_val or not request.GET.sort and sort_val == 'az' %}btn-danger-custom{% else %}btn-white-custom{% endif %}">
             {{ sort_label }}
         </button>
         {% endfor %}
@@ -67,4 +67,7 @@
     {% endfor %}
 </div>
 
-<a href="{% url 'library' %}" class="btn btn-outline-dark btn-sm rounded-0 w-100">Reset</a>
+<a href="{% if request.resolver_match.url_name == 'reading_list' %}{% url 'reading_list' %}{% else %}{% url 'library' %}{% endif %}"
+   class="btn btn-outline-dark btn-sm rounded-0 w-100">
+    Reset
+</a>

@@ -237,6 +237,53 @@
     }
 
     /* =====================================
+    ALTERNATIVE TITLES
+    ===================================== */
+
+    .edit-reading-epic-wrapper .alternative-title-container {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .edit-reading-epic-wrapper .alternative-title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .edit-reading-epic-wrapper .alternative-title-row .form-control {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .edit-reading-epic-wrapper .alternative-title-row .remove-alternative-title {
+        flex-shrink: 0;
+    }
+
+    .edit-reading-epic-wrapper .add-alternative-title-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: fit-content;
+        min-height: 34px;
+        padding: 6px 11px;
+        border: 1px dashed var(--edit-border) !important;
+        background: #fff;
+        color: #555;
+        font-size: 10px;
+    }
+
+    .edit-reading-epic-wrapper .add-alternative-title-btn:hover {
+        border-style: solid !important;
+        border-color: var(--edit-black) !important;
+        background: var(--edit-black) !important;
+        color: #fff !important;
+    }
+
+    /* =====================================
        CHAPTER CONTROL
     ===================================== */
 
@@ -798,6 +845,71 @@
                     >
                 </div>
 
+                <!-- ALTERNATIVE TITLES -->
+                <div class="edit-field edit-anim-2">
+
+                    <label class="form-label">
+                        <i class="bi bi-translate"></i> Alternative Titles
+                    </label>
+
+                    <div
+                        id="alternative-title-container"
+                        class="alternative-title-container"
+                    >
+
+                        {% if alternative_titles %}
+                            {% for alternative in alternative_titles %}
+                                <div class="alternative-title-row">
+
+                                    <input
+                                        type="text"
+                                        name="alternative_title"
+                                        class="form-control break-long-text"
+                                        value="{{ alternative }}"
+                                        placeholder="Enter alternative title..."
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="btn square-btn remove-alternative-title"
+                                        title="Remove alternative title"
+                                        aria-label="Remove alternative title"
+                                    >
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alternative-title-row">
+
+                                <input
+                                    type="text"
+                                    name="alternative_title"
+                                    class="form-control break-long-text"
+                                    placeholder="Enter alternative title..."
+                                >
+
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="add-alternative-title"
+                        class="btn add-alternative-title-btn mt-2"
+                    >
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Add Alternative Title</span>
+                    </button>
+
+                    <span class="field-help">
+                        Add multiple alternative titles, translations, or other known names for this entry.
+                    </span>
+
+                </div>
+
                 <!-- CHAPTERS -->
                 <div class="edit-field edit-anim-2">
                     <label for="chapters" class="form-label">
@@ -1117,6 +1229,91 @@
                 };
 
                 reader.readAsDataURL(file);
+            });
+        }
+
+        /* =====================================
+        ALTERNATIVE TITLES
+        ===================================== */
+
+        const alternativeContainer = document.getElementById(
+            "alternative-title-container"
+        );
+
+        const addAlternativeButton = document.getElementById(
+            "add-alternative-title"
+        );
+
+        if (alternativeContainer && addAlternativeButton) {
+
+            // Tambah kolom alternative title.
+            addAlternativeButton.addEventListener("click", function () {
+
+                const row = document.createElement("div");
+                row.className = "alternative-title-row";
+
+                const input = document.createElement("input");
+                input.type = "text";
+                input.name = "alternative_title";
+                input.className = "form-control break-long-text";
+                input.placeholder = "Enter another alternative title...";
+
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.className =
+                    "btn square-btn remove-alternative-title";
+                removeButton.title = "Remove alternative title";
+                removeButton.setAttribute(
+                    "aria-label",
+                    "Remove alternative title"
+                );
+
+                const icon = document.createElement("i");
+                icon.className = "bi bi-trash";
+
+                removeButton.appendChild(icon);
+
+                row.appendChild(input);
+                row.appendChild(removeButton);
+
+                alternativeContainer.appendChild(row);
+
+                input.focus();
+            });
+
+            // Hapus kolom alternative title.
+            alternativeContainer.addEventListener("click", function (event) {
+
+                const removeButton = event.target.closest(
+                    ".remove-alternative-title"
+                );
+
+                if (!removeButton) return;
+
+                const row = removeButton.closest(".alternative-title-row");
+
+                if (row) {
+                    row.remove();
+                }
+
+                // Pastikan minimal satu kolom tetap tersedia.
+                if (
+                    alternativeContainer.querySelectorAll(
+                        ".alternative-title-row"
+                    ).length === 0
+                ) {
+                    const row = document.createElement("div");
+                    row.className = "alternative-title-row";
+
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.name = "alternative_title";
+                    input.className = "form-control break-long-text";
+                    input.placeholder = "Enter alternative title...";
+
+                    row.appendChild(input);
+                    alternativeContainer.appendChild(row);
+                }
             });
         }
 

@@ -874,6 +874,39 @@
                     >
                 </div>
 
+                <!-- ALTERNATIVE TITLES -->
+                <div class="add-field">
+                    <label class="form-label">
+                        <i class="bi bi-translate"></i> Alternative Titles
+                    </label>
+
+                    <div id="alternative-title-container">
+
+                        <div class="alternative-title-row">
+                            <input
+                                type="text"
+                                name="alternative_title"
+                                class="form-control"
+                                placeholder="Enter alternative title..."
+                            >
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="add-alternative-title"
+                        class="btn mt-2"
+                    >
+                        <i class="bi bi-plus-lg"></i>
+                        Add Alternative Title
+                    </button>
+
+                    <span class="field-help">
+                        Add multiple alternative titles if available. This field is optional.
+                    </span>
+                </div>
+
                 <!-- COVER IMAGE -->
                 <div class="add-field">
                     <label for="image" class="form-label">
@@ -1384,6 +1417,62 @@ document.addEventListener("DOMContentLoaded", function () {
             chapterInput.dispatchEvent(new Event("change", {
                 bubbles: true
             }));
+        });
+    }
+
+    /* =====================================
+    ALTERNATIVE TITLE DYNAMIC INPUT
+    ===================================== */
+
+    const alternativeContainer = document.getElementById(
+        "alternative-title-container"
+    );
+
+    const addAlternativeButton = document.getElementById(
+        "add-alternative-title"
+    );
+
+    if (alternativeContainer && addAlternativeButton) {
+
+        addAlternativeButton.addEventListener("click", function () {
+
+            const row = document.createElement("div");
+
+            row.className = "alternative-title-row d-flex gap-2 mt-2";
+
+            row.innerHTML = `
+                <input
+                    type="text"
+                    name="alternative_title"
+                    class="form-control"
+                    placeholder="Enter another alternative title..."
+                >
+
+                <button
+                    type="button"
+                    class="btn square-btn remove-alternative-title"
+                    aria-label="Remove alternative title"
+                    title="Remove alternative title"
+                >
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+
+            alternativeContainer.appendChild(row);
+
+            row.querySelector("input").focus();
+        });
+
+        alternativeContainer.addEventListener("click", function (event) {
+
+            const removeButton = event.target.closest(
+                ".remove-alternative-title"
+            );
+
+            if (!removeButton) return;
+
+            removeButton.closest(".alternative-title-row").remove();
+
         });
     }
 

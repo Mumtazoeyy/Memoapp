@@ -6,6 +6,38 @@
 
 {% block content %}
 
+<!-- FILTER OVERLAY -->
+<div
+    class="rl-filter-overlay"
+    id="rlFilterOverlay"
+    onclick="toggleReadingFilter(false)"
+></div>
+
+<!-- FILTER SIDEBAR -->
+<aside
+    class="rl-filter-sidebar"
+    id="rlFilterSidebar"
+    aria-label="Reading list filters"
+    aria-hidden="true"
+>
+    <div class="rl-filter-sidebar-header">
+        <h4>Filter Reading List</h4>
+
+        <button
+            type="button"
+            class="rl-filter-close"
+            onclick="toggleReadingFilter(false)"
+            aria-label="Close filter"
+        >
+            &times;
+        </button>
+    </div>
+
+    <form method="GET" action="{% url 'reading_list' %}">
+        {% include 'filter_form.html' %}
+    </form>
+</aside>
+
 <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
 <link rel="stylesheet" href="{% static 'css/style_reading_list.css' %}">
 
@@ -1118,14 +1150,14 @@ html {
     }
 
     .rl-action-row {
-        justify-content: flex-start;
+        justify-content: flex-end;
     }
 
     .rl-bulk-actions,
     .rl-primary-actions {
-        justify-content: flex-start;
+        justify-content: flex-end;
         flex-wrap: wrap;
-        width: 100%;
+        width: auto;
     }
 
     .rl-action-row .rl-button {
@@ -1145,6 +1177,195 @@ html {
     .reading-list-epic-wrapper *::after {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+/* =====================================================
+   FILTER SIDEBAR
+===================================================== */
+
+.rl-filter-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0 13px;
+    margin-right: auto;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background: #fff;
+    color: #171717;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rl-filter-trigger:hover {
+    border-color: #171717;
+    background: #171717;
+    color: #fff;
+}
+
+.rl-filter-trigger i {
+    font-size: 14px;
+}
+
+/* Overlay */
+
+.rl-filter-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.rl-filter-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar */
+
+.rl-filter-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+
+    width: min(310px, 88vw);
+    padding: 22px 20px;
+
+    overflow-y: auto;
+    border-right: 1px solid #e7e7e7;
+    background: #fff;
+
+    transform: translateX(-102%);
+    visibility: hidden;
+
+    transition:
+        transform 0.28s ease,
+        visibility 0.28s ease;
+}
+
+.rl-filter-sidebar.active {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* Sidebar Header */
+
+.rl-filter-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.rl-filter-sidebar-header h4 {
+    margin: 0;
+    color: #171717;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.rl-filter-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    background: #fff;
+    color: #171717;
+
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.rl-filter-close:hover {
+    background: #171717;
+    color: #fff;
+}
+
+/* Filter form compatibility */
+
+.rl-filter-sidebar form {
+    min-width: 0;
+}
+
+.rl-filter-sidebar input:not([type="checkbox"]):not([type="radio"]),
+.rl-filter-sidebar select,
+.rl-filter-sidebar textarea {
+    max-width: 100%;
+    border-radius: 4px;
+}
+
+.rl-filter-sidebar input:focus,
+.rl-filter-sidebar select:focus,
+.rl-filter-sidebar textarea:focus {
+    border-color: #171717;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+    outline: none;
+}
+
+.rl-filter-sidebar button,
+.rl-filter-sidebar input[type="submit"] {
+    border-radius: 4px;
+}
+
+/* Mobile: icon only */
+
+@media (max-width: 767.98px) {
+    .rl-filter-trigger {
+        width: 38px;
+        min-width: 38px;
+        padding: 0;
+        margin-right: auto;
+    }
+
+    .rl-filter-trigger span {
+        display: none;
+    }
+
+    .rl-filter-trigger i {
+        font-size: 16px;
+    }
+
+    .rl-action-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .rl-bulk-actions,
+    .rl-primary-actions {
+        justify-content: flex-end;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rl-filter-sidebar,
+    .rl-filter-overlay {
+        transition: none !important;
     }
 }
 </style>
@@ -1215,29 +1436,26 @@ html {
         <input type="hidden" name="selected_ids" id="selected_ids">
     </form>
 
-    <!-- ACTIONS: ALL BUTTONS GROUPED ON THE RIGHT -->
+    <!-- ACTIONS: FILTER LEFT, OTHER ACTIONS RIGHT -->
     <div class="rl-action-row">
-        <div class="rl-bulk-actions" id="bulk-actions">
-            <button
-                type="button"
-                id="btn-edit-bulk"
-                class="rl-button"
-                style="display:none;"
-                onclick="prepareBulkEdit()"
-            >Edit Selected</button>
 
-            <button
-                type="button"
-                id="btn-delete-bulk"
-                class="rl-button rl-button-danger"
-                style="display:none;"
-                data-bs-toggle="modal"
-                data-bs-target="#deleteModal"
-                onclick="prepareBulkDelete()"
-            >Delete Selected</button>
-        </div>
+        <!-- FILTER BUTTON: LEFT -->
+        <button
+            type="button"
+            class="rl-filter-trigger"
+            id="rlFilterButton"
+            onclick="toggleReadingFilter(true)"
+            aria-controls="rlFilterSidebar"
+            aria-expanded="false"
+            title="Filter Reading List"
+        >
+            <i class="bi bi-funnel"></i>
+            <span>Filter</span>
+        </button>
 
+        <!-- RIGHT ACTIONS -->
         <div class="rl-primary-actions">
+
             <a href="{% url 'reading_add' %}" class="rl-button">
                 + Add New
             </a>
@@ -1247,8 +1465,38 @@ html {
                 class="rl-button"
                 data-bs-toggle="modal"
                 data-bs-target="#exportModal"
-            >Download List</button>
+            >
+                Download List
+            </button>
+
         </div>
+
+        <div class="rl-bulk-actions" id="bulk-actions">
+
+            <button
+                type="button"
+                id="btn-edit-bulk"
+                class="rl-button"
+                style="display:none;"
+                onclick="prepareBulkEdit()"
+            >
+                Edit Selected
+            </button>
+
+            <button
+                type="button"
+                id="btn-delete-bulk"
+                class="rl-button rl-button-danger"
+                style="display:none;"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                onclick="prepareBulkDelete()"
+            >
+                Delete Selected
+            </button>
+
+        </div>
+
     </div>
 
     <!-- ALPHABET NAVIGATION -->
@@ -1553,6 +1801,41 @@ html {
 </div>
 
 <script>
+    /* =====================================================
+    READING LIST FILTER SIDEBAR
+    ===================================================== */
+
+    function toggleReadingFilter(forceState) {
+        const sidebar = document.getElementById('rlFilterSidebar');
+        const overlay = document.getElementById('rlFilterOverlay');
+        const button = document.getElementById('rlFilterButton');
+
+        if (!sidebar || !overlay) return;
+
+        const shouldOpen = typeof forceState === 'boolean'
+            ? forceState
+            : !sidebar.classList.contains('active');
+
+        sidebar.classList.toggle('active', shouldOpen);
+        overlay.classList.toggle('active', shouldOpen);
+
+        sidebar.setAttribute('aria-hidden', String(!shouldOpen));
+
+        if (button) {
+            button.setAttribute('aria-expanded', String(shouldOpen));
+        }
+
+        document.body.style.overflow = shouldOpen ? 'hidden' : '';
+    }
+
+    /* Close with Escape */
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            toggleReadingFilter(false);
+        }
+    });
+
 /* =====================================================
    EXPORT DETAILS
 ===================================================== */

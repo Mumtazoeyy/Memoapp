@@ -67,57 +67,14 @@
 ========================================= */
 
 .library-layout {
-    display: grid;
-    grid-template-columns: 245px minmax(0, 1fr);
-    gap: 28px;
+    display: block;
     width: 100%;
     max-width: 1600px;
     margin: 0 auto;
-    align-items: start;
-}
-
-.library-sidebar {
-    position: sticky;
-    top: 20px;
-    min-width: 0;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-    padding: 22px 18px;
-    border: 1px solid var(--library-border);
-    border-radius: var(--library-radius);
-    background: #fff;
 }
 
 .library-main {
     min-width: 0;
-}
-
-/* =========================================
-   SIDEBAR HEADING
-========================================= */
-
-.library-sidebar-heading {
-    margin: 0 0 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--library-border);
-}
-
-.library-sidebar-heading span {
-    display: block;
-    margin-bottom: 5px;
-    color: var(--library-muted);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1.3px;
-    text-transform: uppercase;
-}
-
-.library-sidebar-heading h4 {
-    margin: 0;
-    color: #111;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: -0.4px;
 }
 
 /* =========================================
@@ -179,20 +136,21 @@
 }
 
 /* =========================================
-   SEARCH
+   SEARCH + FILTER ACTIONS
 ========================================= */
 
 .library-search-wrapper {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 9px;
-    width: 100%;
-    max-width: 300px;
+    width: auto;
+    max-width: 100%;
 }
 
 .library-search-form {
     display: flex;
-    width: 100%;
+    width: 300px;
+    max-width: 100%;
     min-width: 0;
 }
 
@@ -305,46 +263,168 @@
     outline-offset: 3px;
 }
 
+/* FILTER BUTTON */
+
 .library-filter-button {
-    display: none;
-    width: 100%;
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-width: 105px;
+    min-height: 43px;
+    padding: 10px 15px;
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.library-filter-button:hover {
+    border-color: #444;
+    background: #444;
+    color: #fff;
+}
+
+.library-filter-button i {
+    font-size: 14px;
 }
 
 /* =========================================
-   FILTER FORM COMPATIBILITY
-   Keep existing filter_form.html functional
+   FILTER SIDEBAR
+   DESKTOP + MOBILE
 ========================================= */
 
-.library-sidebar form,
-.library-mobile-sidebar form {
+.library-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(0, 0, 0, 0.42);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+.library-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.library-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+
+    width: 340px;
+    max-width: 88vw;
+    padding: 24px 22px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    border-right: 1px solid var(--library-border);
+    background: #fff;
+
+    transform: translateX(-102%);
+    visibility: hidden;
+
+    transition:
+        transform 0.28s ease,
+        visibility 0.28s ease;
+}
+
+.library-sidebar.active {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* SIDEBAR HEADING */
+
+.library-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-bottom: 22px;
+    padding-bottom: 17px;
+
+    border-bottom: 1px solid var(--library-border);
+}
+
+.library-sidebar-header h4 {
+    margin: 0;
+    color: #111;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+}
+
+.library-sidebar-header span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--library-muted);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.library-sidebar-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 35px;
+
+    width: 35px;
+    height: 35px;
+
+    border: 1px solid var(--library-border);
+    border-radius: var(--library-radius);
+    background: #fff;
+    color: #111;
+
+    font-size: 21px;
+    line-height: 1;
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.library-sidebar-close:hover {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+/* FILTER FORM COMPATIBILITY */
+
+.library-sidebar form {
     min-width: 0;
 }
 
 .library-sidebar input:not([type="checkbox"]):not([type="radio"]),
-.library-mobile-sidebar input:not([type="checkbox"]):not([type="radio"]),
 .library-sidebar select,
-.library-mobile-sidebar select,
-.library-sidebar textarea,
-.library-mobile-sidebar textarea {
+.library-sidebar textarea {
     max-width: 100%;
     border-radius: var(--library-radius);
 }
 
 .library-sidebar input:focus,
 .library-sidebar select:focus,
-.library-sidebar textarea:focus,
-.library-mobile-sidebar input:focus,
-.library-mobile-sidebar select:focus,
-.library-mobile-sidebar textarea:focus {
+.library-sidebar textarea:focus {
     border-color: #111;
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
     outline: none;
 }
 
 .library-sidebar button,
-.library-sidebar input[type="submit"],
-.library-mobile-sidebar button,
-.library-mobile-sidebar input[type="submit"] {
+.library-sidebar input[type="submit"] {
     border-radius: var(--library-radius);
     transition:
         background-color 0.2s ease,
@@ -358,7 +438,7 @@
 
 .library-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 18px 14px;
 }
 
@@ -429,7 +509,7 @@
 }
 
 /* =========================================
-   COUNTRY FLAG — TOP RIGHT OF COVER
+   COUNTRY FLAG
 ========================================= */
 
 .library-cover-wrapper {
@@ -440,7 +520,6 @@
 }
 
 .library-cover-wrapper .card-img-top {
-    /* Mempertahankan desain gambar sebelumnya */
     border-bottom: 1px solid #eee;
 }
 
@@ -469,15 +548,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-@media (max-width: 480px) {
-    .library-country-flag {
-        top: 7px;
-        right: 7px;
-        width: 29px;
-        height: 20px;
-    }
 }
 
 /* =========================================
@@ -519,96 +589,10 @@
 }
 
 /* =========================================
-   MOBILE SIDEBAR & OVERLAY
-========================================= */
-
-.library-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1040;
-    background: rgba(0, 0, 0, 0.35);
-    opacity: 0;
-    visibility: hidden;
-    transition:
-        opacity 0.25s ease,
-        visibility 0.25s ease;
-}
-
-.library-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.library-mobile-sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1050;
-    width: min(310px, 88vw);
-    padding: 22px 20px;
-    overflow-y: auto;
-    border-right: 1px solid var(--library-border);
-    border-radius: 0 var(--library-radius) var(--library-radius) 0;
-    background: #fff;
-    transform: translateX(-102%);
-    visibility: hidden;
-    transition:
-        transform 0.28s ease,
-        visibility 0.28s ease;
-}
-
-.library-mobile-sidebar.active {
-    transform: translateX(0);
-    visibility: visible;
-}
-
-.library-mobile-sidebar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--library-border);
-}
-
-.library-mobile-sidebar-header h4 {
-    margin: 0;
-    color: #111;
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.library-sidebar-close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border: 1px solid var(--library-border);
-    border-radius: var(--library-radius);
-    background: #fff;
-    color: #111;
-    font-size: 19px;
-    cursor: pointer;
-}
-
-.library-sidebar-close:hover {
-    background: #111;
-    color: #fff;
-}
-
-/* =========================================
    TABLET
 ========================================= */
 
 @media (max-width: 1199.98px) {
-    .library-layout {
-        grid-template-columns: 220px minmax(0, 1fr);
-        gap: 22px;
-    }
-
     .library-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 16px 12px;
@@ -622,14 +606,6 @@
 @media (max-width: 767.98px) {
     .library-page {
         padding: 22px 16px 32px;
-    }
-
-    .library-layout {
-        display: block;
-    }
-
-    .library-sidebar-desktop {
-        display: none !important;
     }
 
     .library-header {
@@ -648,11 +624,17 @@
     }
 
     .library-search-wrapper {
-        max-width: none;
+        width: 100%;
+    }
+
+    .library-search-form {
+        flex: 1;
+        width: auto;
     }
 
     .library-filter-button {
-        display: inline-flex;
+        min-width: 95px;
+        padding: 10px 12px;
     }
 
     .library-grid {
@@ -687,6 +669,22 @@
         font-size: 12px;
     }
 
+    .library-search-wrapper {
+        gap: 7px;
+    }
+
+    .library-search-input {
+        padding: 0 10px;
+        font-size: 12px;
+    }
+
+    .library-filter-button {
+        min-width: 83px;
+        min-height: 43px;
+        padding: 9px 10px;
+        font-size: 10px;
+    }
+
     .library-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px 12px;
@@ -703,6 +701,13 @@
     .card-text {
         font-size: 9px;
     }
+
+    .library-country-flag {
+        top: 7px;
+        right: 7px;
+        width: 29px;
+        height: 20px;
+    }
 }
 
 /* =========================================
@@ -713,7 +718,7 @@
     .library-page *,
     .library-page *::before,
     .library-page *::after,
-    .library-mobile-sidebar,
+    .library-sidebar,
     .library-overlay {
         animation: none !important;
         transition: none !important;
@@ -726,17 +731,30 @@
 }
 </style>
 
-<!-- MOBILE OVERLAY -->
-<div class="library-overlay" id="sidebarOverlay"
-     onclick="toggleMobileSidebar(false)"></div>
+<!-- =========================================
+     FILTER OVERLAY
+========================================= -->
 
-<!-- MOBILE FILTER SIDEBAR -->
-<aside class="library-mobile-sidebar" id="mobileSidebar"
+<div class="library-overlay"
+     id="sidebarOverlay"
+     onclick="toggleMobileSidebar(false)">
+</div>
+
+<!-- =========================================
+     FILTER SIDEBAR
+     USED ON DESKTOP AND MOBILE
+========================================= -->
+
+<aside class="library-sidebar"
+       id="mobileSidebar"
        aria-label="Library filters"
        aria-hidden="true">
 
-    <div class="library-mobile-sidebar-header">
-        <h4>Filter Library</h4>
+    <div class="library-sidebar-header">
+        <div>
+            <span>Discover</span>
+            <h4>Filter Library</h4>
+        </div>
 
         <button type="button"
                 class="library-sidebar-close"
@@ -749,53 +767,54 @@
     <form method="GET" action="{% url 'library' %}">
         {% include 'filter_form.html' %}
     </form>
+
 </aside>
+
+<!-- =========================================
+     MAIN LIBRARY PAGE
+========================================= -->
 
 <div class="library-page">
     <div class="library-layout">
 
-        <!-- DESKTOP FILTER SIDEBAR -->
-        <aside class="library-sidebar library-sidebar-desktop animate-fade-up"
-               style="animation-delay: 0.10s;">
-
-            <div class="library-sidebar-heading">
-                <span>Discover</span>
-                <h4>Filter Library</h4>
-            </div>
-
-            <form method="GET" action="{% url 'library' %}">
-                {% include 'filter_form.html' %}
-            </form>
-        </aside>
-
-        <!-- MAIN CONTENT -->
         <main class="library-main">
 
             <!-- HEADER & SEARCH -->
+
             <header class="library-header animate-fade-up"
                     style="animation-delay: 0.16s;">
 
                 <div class="library-heading">
-                    <div class="library-eyebrow">Your Collection</div>
 
-                    <h1 class="library-title">Library</h1>
+                    <div class="library-eyebrow">
+                        Your Collection
+                    </div>
+
+                    <h1 class="library-title">
+                        Library
+                    </h1>
 
                     <p class="library-subtitle">
                         Explore your reading collection.
-                        <span id="items-found-count" class="library-count">
+                        <span id="items-found-count"
+                              class="library-count">
                             ({{ items.count }} found)
                         </span>
                     </p>
+
                 </div>
+
+                <!-- SEARCH + FILTER BUTTON -->
 
                 <div class="library-search-wrapper">
 
-                    <!-- SEARCH FORM -->
                     <form class="library-search-form"
                           id="librarySearchForm"
                           onsubmit="return false;">
 
-                        <input type="hidden" name="type" value="{{ search_type }}">
+                        <input type="hidden"
+                               name="type"
+                               value="{{ search_type }}">
 
                         <input
                             type="text"
@@ -818,9 +837,11 @@
                             hx-include="closest form">
                             ⌕
                         </button>
+
                     </form>
 
-                    <!-- MOBILE FILTER BUTTON -->
+                    <!-- FILTER BUTTON -->
+
                     <button
                         type="button"
                         class="library-button library-filter-button"
@@ -828,15 +849,24 @@
                         onclick="toggleMobileSidebar(true)"
                         aria-controls="mobileSidebar"
                         aria-expanded="false">
-                        Filter Menu
+
+                        <i class="bi bi-funnel"></i>
+                        <span>Filter</span>
+
                     </button>
+
                 </div>
+
             </header>
 
-            <!-- LIBRARY ITEMS -->
+            <!-- =========================================
+                 LIBRARY ITEMS
+            ========================================== -->
+
             <div class="library-grid" id="tabel-body">
 
                 {% for item in items %}
+
                     <div class="library-item animate-fade-up"
                          style="animation-delay: {{ forloop.counter0|multiply:0.04|add:0.22 }}s;">
 
@@ -854,67 +884,109 @@
                                         loading="lazy">
 
                                     {% with item_type=item.Type.name|lower %}
+
                                         {% if item_type == 'manga' %}
-                                            <span class="library-country-flag" title="Jepang" aria-label="Bendera Jepang">
+
+                                            <span class="library-country-flag"
+                                                  title="Jepang"
+                                                  aria-label="Bendera Jepang">
+
                                                 <img
                                                     src="https://flagcdn.com/w80/jp.png"
                                                     alt="Jepang"
                                                     loading="lazy">
+
                                             </span>
 
                                         {% elif item_type == 'manhua' %}
-                                            <span class="library-country-flag" title="Tiongkok" aria-label="Bendera Tiongkok">
+
+                                            <span class="library-country-flag"
+                                                  title="Tiongkok"
+                                                  aria-label="Bendera Tiongkok">
+
                                                 <img
                                                     src="https://flagcdn.com/w80/cn.png"
                                                     alt="Tiongkok"
                                                     loading="lazy">
+
                                             </span>
 
                                         {% elif item_type == 'manhwa' %}
-                                            <span class="library-country-flag" title="Korea Selatan" aria-label="Bendera Korea Selatan">
+
+                                            <span class="library-country-flag"
+                                                  title="Korea Selatan"
+                                                  aria-label="Bendera Korea Selatan">
+
                                                 <img
                                                     src="https://flagcdn.com/w80/kr.png"
                                                     alt="Korea Selatan"
                                                     loading="lazy">
+
                                             </span>
+
                                         {% endif %}
+
                                     {% endwith %}
 
                                 </div>
 
                                 <div class="card-body">
-                                    <h2 class="card-title" title="{{ item.title }}">
+
+                                    <h2 class="card-title"
+                                        title="{{ item.title }}">
                                         {{ item.title }}
                                     </h2>
 
                                     <p class="card-text">
-                                        {{ item.status.name }} | {{ item.Type.name }}
+                                        {{ item.status.name }} |
+                                        {{ item.Type.name }}
                                     </p>
+
                                 </div>
 
                             </article>
+
                         </a>
+
                     </div>
 
                 {% empty %}
+
                     <div class="library-empty animate-fade-up">
-                        <div class="library-empty-mark">⌕</div>
+
+                        <div class="library-empty-mark">
+                            ⌕
+                        </div>
+
                         <h4>No items found</h4>
-                        <p>Try another search or adjust your filters.</p>
+
+                        <p>
+                            Try another search or adjust your filters.
+                        </p>
+
                     </div>
+
                 {% endfor %}
 
             </div>
+
         </main>
+
     </div>
 </div>
 
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
 <script>
+
 /* =========================================
-   MOBILE SIDEBAR
+   FILTER SIDEBAR
 ========================================= */
 
 function toggleMobileSidebar(forceState) {
+
     const sidebar = document.getElementById("mobileSidebar");
     const overlay = document.getElementById("sidebarOverlay");
     const openButton = document.getElementById("openFilterButton");
@@ -937,18 +1009,16 @@ function toggleMobileSidebar(forceState) {
     document.body.style.overflow = shouldOpen ? "hidden" : "";
 }
 
-/* Close sidebar with Escape */
+/* =========================================
+   CLOSE SIDEBAR WITH ESCAPE
+========================================= */
+
 document.addEventListener("keydown", function (event) {
+
     if (event.key === "Escape") {
         toggleMobileSidebar(false);
     }
-});
 
-/* Restore scrolling if viewport changes to desktop */
-window.addEventListener("resize", function () {
-    if (window.innerWidth >= 768) {
-        toggleMobileSidebar(false);
-    }
 });
 
 /* =========================================
@@ -956,6 +1026,7 @@ window.addEventListener("resize", function () {
 ========================================= */
 
 function handleTagSelection(clickedCheckbox) {
+
     const container = document.getElementById("tag-container");
     const noTagCheckbox = document.getElementById("g_1");
 
@@ -964,13 +1035,19 @@ function handleTagSelection(clickedCheckbox) {
     const allCheckboxes = container.querySelectorAll(".tag-checkbox");
 
     if (clickedCheckbox.id === "g_1" && clickedCheckbox.checked) {
+
         allCheckboxes.forEach(function (checkbox) {
+
             if (checkbox.id !== "g_1") {
                 checkbox.checked = false;
             }
+
         });
+
     } else if (clickedCheckbox.id !== "g_1" && clickedCheckbox.checked) {
+
         noTagCheckbox.checked = false;
+
     }
 
     const anyChecked = Array.from(allCheckboxes).some(function (checkbox) {
@@ -984,7 +1061,9 @@ function handleTagSelection(clickedCheckbox) {
     if (clickedCheckbox.form) {
         clickedCheckbox.form.submit();
     }
+
 }
+
 </script>
 
 {% endblock %}
