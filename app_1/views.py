@@ -1473,10 +1473,10 @@ def dashboard(request):
     # =========================================================
     # TAMBAHAN: KALKULASI ANALITIK BARU (STREAK, PACE, STALLED, ONGOING, MONTHLY 1-31 & HISTORY 3 BULAN)
     # =========================================================
-    today = timezone.now().date()
-    
-    # Check jika user meminta melihat bulan tertentu dari query parameter ?month=YYYY-MM
+    today = timezone.localdate()
+
     requested_month_str = request.GET.get('month')
+
     if requested_month_str:
         try:
             parts = requested_month_str.split('-')
@@ -1522,12 +1522,14 @@ def dashboard(request):
     days_in_month = calendar.monthrange(current_year, current_month)[1]
     monthly_activity_data = []
     max_count = 1
-    
+
     for day_num in range(1, days_in_month + 1):
         target_date = date(current_year, current_month, day_num)
         count = items.filter(last_edited_at__date=target_date).count()
+
         if count > max_count:
             max_count = count
+
         monthly_activity_data.append({
             'day': day_num,
             'count': count
@@ -1596,6 +1598,7 @@ def dashboard(request):
         'avg_per_day': avg_per_day,
         'stalled_items': stalled_items,
         'ongoing_items': ongoing_items,
+        'days_in_month': days_in_month,
         # Variabel pendukung Modal 3 Bulan Terakhir
         'current_month_name': current_month_name,
         'last_three_months': last_three_months,

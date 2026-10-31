@@ -1060,7 +1060,7 @@
                                             vector-effect="non-scaling-stroke"
                                             points="
                                                 {% for act in monthly_activity_data %}
-                                                    {% widthratio forloop.counter0|add:forloop.counter0|add:1 62 900 %},{% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %}
+                                                    {% widthratio forloop.counter0|add:forloop.counter0|add:1 days_in_month|add:days_in_month 900 %},{% if act.count <= 5 %}{% widthratio act.count 1 14 %}{% else %}{% widthratio act.count max_scale 100 %}{% endif %}
                                                 {% endfor %}
                                             "
                                         />
@@ -1396,6 +1396,27 @@
 
 <!-- Tooltip untuk Grafik dan Distribusi -->
 <div id="cursor-tooltip" class="tech-tooltip-fixed"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const navigation = performance.getEntriesByType('navigation')[0];
+
+    // Jika halaman dibuka melalui refresh
+    if (navigation && navigation.type === 'reload') {
+        const url = new URL(window.location.href);
+
+        // Jika sebelumnya sedang melihat bulan lain
+        if (url.searchParams.has('month')) {
+            url.searchParams.delete('month');
+
+            // Kembali ke dashboard bulan sekarang
+            window.location.replace(
+                url.pathname + url.search + url.hash
+            );
+        }
+    }
+});
+</script>
 
 <script>
     /* ========================================
