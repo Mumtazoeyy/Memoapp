@@ -10,6 +10,8 @@ from django.contrib import messages
 from .models import Item, Profile, Type, Status, ReadingItem, ImportHistory, Tag
 from django.contrib.auth.models import User, Group
 from django.db import transaction
+from django import forms
+from django.core.exceptions import ValidationError
 
 # Paksa label model bawaan menjadi Inggris
 User._meta.verbose_name = 'User'
@@ -74,120 +76,158 @@ class StatusAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 # 5. TagAdmin dengan Tambahan Fitur Import JSON
+# ==========================================================
+# TAG ADMIN - SINGLE & BULK IMPORT
+# ==========================================================
+
+class TagAdminForm(forms.ModelForm):
+    IMPORT_CHOICES = [
+        ('single', 'Single Tag'),
+        ('bulk', 'Bulk Import'),
+    ]
+
+    name = forms.CharField(
+        required=False,
+        max_length=50,
+        label='Name',
+    )
+
+    import_mode = forms.ChoiceField(
+        choices=IMPORT_CHOICES,
+        initial='single',
+        required=True,
+        label='Import Mode',
+    )
+
+    bulk_tags = forms.CharField(
+        required=False,
+        label='Tags (One per line)',
+        widget=forms.Textarea(attrs={
+            'rows': 12,
+            'placeholder': 'System\nStatus\nCrime\nMafia\nGangs',
+            'style': 'width: 100%; max-width: 600px;',
+        })
+    )
+
+    class Meta:
+        model = Tag
+        fields = ('name',)
+
+    def _get_validation_exclusions(self):
+        exclude = super()._get_validation_exclusions()
+
+        if self.data.get('import_mode') == 'bulk':
+            exclude.add('name')
+
+        return exclude
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        mode = cleaned_data.get('import_mode')
+
+        if mode == 'single':
+            name = (cleaned_data.get('name') or '').strip()
+
+            if not name:
+                self.add_error('name', 'Nama Tag wajib diisi.')
+            else:
+                cleaned_data['name'] = name
+
+        elif mode == 'bulk':
+            bulk_tags = cleaned_data.get('bulk_tags') or ''
+
+            names = [
+                line.strip()
+                for line in bulk_tags.splitlines()
+                if line.strip()
+            ]
+
+            if not names:
+                self.add_error(
+                    'bulk_tags',
+                    'Masukkan minimal satu nama Tag.'
+                )
+
+            too_long = [
+                name for name in names
+                if len(name) > 50
+            ]
+
+            if too_long:
+                self.add_error(
+                    'bulk_tags',
+                    f'{len(too_long)} Tag melebihi batas 50 karakter.'
+                )
+
+        return cleaned_data
+
+
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
+    form = TagAdminForm
+
     list_display = ('id', 'name')
     search_fields = ('name',)
     ordering = ('id',)
 
-    def changelist_view(self, request, extra_context=None):
-        import_url = reverse('admin:app_1_tag_bulk_import')
+    class Media:
+        js = ('admin/js/tag_bulk_import.js',)
 
-        msg = format_html(
-            '<b>Fitur Cepat:</b> Ingin memasukkan banyak tag sekaligus? '
-            '<a href="{}" class="button" style="background: #417690; color: white; '
-            'padding: 3px 10px; border-radius: 4px; text-decoration: none; '
-            'margin-left: 5px; border: 1px solid white;">Bulk Import Tags</a>',
-            import_url
-        )
+    def save_model(self, request, obj, form, change):
+        if form.cleaned_data.get('import_mode') == 'single':
+            super().save_model(request, obj, form, change)
 
-        messages.info(request, msg)
-
-        return super().changelist_view(
-            request,
-            extra_context=extra_context
-        )
-
-    def get_urls(self):
-        urls = super().get_urls()
-
-        custom_urls = [
-            path(
-                'bulk-import/',
-                self.admin_site.admin_view(self.bulk_import_tags),
-                name='app_1_tag_bulk_import'
-            ),
-        ]
-
-        return custom_urls + urls
-
-    def bulk_import_tags(self, request):
+    def add_view(self, request, form_url='', extra_context=None):
         if request.method == 'POST':
-            tags_text = request.POST.get('tags_text', '')
+            form = self.get_form(request)(
+                request.POST,
+                request.FILES
+            )
 
-            if not tags_text.strip():
-                messages.error(
-                    request,
-                    'Harap masukkan minimal satu nama Tag!'
-                )
-                return redirect('admin:app_1_tag_bulk_import')
+            if form.is_valid():
+                if form.cleaned_data.get('import_mode') == 'bulk':
+                    names = [
+                        line.strip()
+                        for line in form.cleaned_data['bulk_tags'].splitlines()
+                        if line.strip()
+                    ]
 
-            tag_names = [
-                line.strip()
-                for line in tags_text.splitlines()
-                if line.strip()
-            ]
+                    created_count = 0
+                    existing_count = 0
 
-            created_count = 0
-            existing_count = 0
-            invalid_count = 0
+                    try:
+                        with transaction.atomic():
+                            for name in names:
+                                _, created = Tag.objects.get_or_create(
+                                    name=name
+                                )
 
-            try:
-                with transaction.atomic():
-                    for name in tag_names:
+                                if created:
+                                    created_count += 1
+                                else:
+                                    existing_count += 1
 
-                        # Validasi panjang nama Tag
-                        if len(name) > 50:
-                            invalid_count += 1
-                            continue
-
-                        # Buat Tag jika belum tersedia
-                        tag, created = Tag.objects.get_or_create(
-                            name=name
+                        messages.success(
+                            request,
+                            f'{created_count} Tag baru berhasil ditambahkan.'
                         )
 
-                        if created:
-                            created_count += 1
-                        else:
-                            existing_count += 1
+                        if existing_count:
+                            messages.warning(
+                                request,
+                                f'{existing_count} Tag sudah tersedia dan dilewati.'
+                            )
 
-                messages.success(
-                    request,
-                    f'Import selesai! {created_count} Tag baru berhasil '
-                    f'ditambahkan.'
-                )
+                        return redirect('admin:app_1_tag_changelist')
 
-                if existing_count:
-                    messages.warning(
-                        request,
-                        f'{existing_count} Tag dilewati karena sudah tersedia.'
-                    )
+                    except Exception as e:
+                        messages.error(request, f'Import gagal: {e}')
 
-                if invalid_count:
-                    messages.warning(
-                        request,
-                        f'{invalid_count} Tag dilewati karena melebihi '
-                        f'batas 50 karakter.'
-                    )
-
-            except Exception as e:
-                messages.error(
-                    request,
-                    f'Gagal mengimpor Tag: {e}'
-                )
-
-            return redirect('admin:app_1_tag_changelist')
-
-        context = {
-            **self.admin_site.each_context(request),
-            'opts': self.model._meta,
-            'title': 'Bulk Import Tags',
-        }
-
-        return render(
+        return super().add_view(
             request,
-            'admin/import_tags_form.html',
-            context
+            form_url,
+            extra_context
         )
 
 @admin.register(ReadingItem)
