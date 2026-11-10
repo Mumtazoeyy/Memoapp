@@ -1437,15 +1437,15 @@
         }
 
         /* =====================================
-           TAG SELECTION
-           ID 1 = NO TAG
+        TAG SELECTION
         ===================================== */
 
         const tagCheckboxes = Array.from(
-            document.querySelectorAll('input[name="tags"]')
+            document.querySelectorAll(
+                '.edit-reading-epic-wrapper input[name="tags"]'
+            )
         );
 
-        const noTagCheckbox = document.getElementById("tag_1");
         const selectedTagsCount = document.getElementById(
             "selected-tags-count"
         );
@@ -1454,51 +1454,20 @@
             if (!selectedTagsCount) return;
 
             const selectedCount = tagCheckboxes.filter(
-                checkbox => checkbox.checked && checkbox.value !== "1"
+                checkbox => checkbox.checked
             ).length;
 
             selectedTagsCount.textContent = "Selected: " + selectedCount;
         }
 
-        if (noTagCheckbox) {
-            tagCheckboxes.forEach(function (checkbox) {
-                checkbox.addEventListener("change", function () {
-
-                    if (this.value === "1" && this.checked) {
-                        tagCheckboxes.forEach(function (otherCheckbox) {
-                            if (otherCheckbox.value !== "1") {
-                                otherCheckbox.checked = false;
-                            }
-                        });
-                    } else if (this.value !== "1" && this.checked) {
-                        noTagCheckbox.checked = false;
-                    }
-
-                    const anyChecked = tagCheckboxes.some(
-                        tag => tag.checked
-                    );
-
-                    if (!anyChecked) {
-                        noTagCheckbox.checked = true;
-                    }
-
-                    updateSelectedTagsCount();
-                });
+        // Dengarkan perubahan setiap checkbox.
+        tagCheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                updateSelectedTagsCount();
             });
+        });
 
-            // Sesuaikan kondisi awal ketika halaman dibuka.
-            const otherTagChecked = tagCheckboxes.some(
-                checkbox =>
-                    checkbox.value !== "1" && checkbox.checked
-            );
-
-            if (otherTagChecked) {
-                noTagCheckbox.checked = false;
-            } else {
-                noTagCheckbox.checked = true;
-            }
-        }
-
+        // Hitung kondisi awal ketika halaman dibuka.
         updateSelectedTagsCount();
 
     });
