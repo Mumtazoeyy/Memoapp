@@ -309,6 +309,40 @@
 }
 
 /* =====================================================
+   ACTION ROW — LEFT & RIGHT GROUP
+===================================================== */
+
+.rl-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 8px;
+    width: 100%;
+    margin: 0 0 2px;
+}
+
+.rl-left-actions,
+.rl-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.rl-left-actions {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+}
+
+.rl-right-actions {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    margin-left: auto;
+}
+
+/* =====================================================
    RESPONSIVE
 ===================================================== */
 
@@ -333,13 +367,53 @@
     .rl-action-row {
         margin-top: 0 !important;
         padding-top: 0 !important;
+        flex-wrap: nowrap;
+        gap: 5px;
     }
 
-    .rl-action-row,
-    .rl-bulk-actions,
-    .rl-primary-actions {
-        justify-content: flex-start;
-        gap: 8px;
+    .rl-left-actions,
+    .rl-right-actions,
+    .rl-primary-actions,
+    .rl-bulk-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 5px;
+    }
+
+    /* UKURAN SERAGAM SEMUA TOMBOL */
+    .rl-action-row .rl-button,
+    .rl-filter-trigger,
+    .rl-view-toggle {
+        height: 34px !important;
+        min-height: 34px !important;
+        box-sizing: border-box;
+    }
+
+    .rl-action-row .rl-button,
+    .rl-filter-trigger {
+        padding: 0 8px !important;
+        font-size: 9px !important;
+        line-height: 1 !important;
+    }
+
+    .rl-view-toggle {
+        padding: 3px !important;
+    }
+
+    .rl-view-toggle button {
+        height: 26px !important;
+        min-height: 26px !important;
+        width: 28px !important;
+        padding: 0 !important;
+    }
+
+    .rl-filter-trigger {
+        width: 34px;
+        min-width: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -356,8 +430,8 @@
     }
 
     .rl-action-row .rl-button {
-        padding: 0 8px !important;
-        font-size: 9px !important;
+        padding: 0 5px !important;
+        font-size: 8px !important;
     }
 }
 
@@ -566,6 +640,19 @@
     font-weight: 650;
 }
 
+/* GRID VIEW — HEADER */
+
+.rl-grid-group .group-header-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 10px 48px 10px 10px;
+    border-bottom: 1px solid #d7d7d7;
+    background: #f7f7f7;
+    font-weight: 650;
+}
+
 .group-header-row .group-info {
     display: flex;
     align-items: center;
@@ -612,6 +699,12 @@
     animation: thinDarkGlow 1.6s ease-in-out;
 }
 
+/* GRID VIEW HIGHLIGHT */
+
+.rl-grid-group .group-header-row.highlight-active {
+    animation: thinDarkGlow 1.6s ease-in-out;
+}
+
 @keyframes thinDarkGlow {
     0%, 100% {
         box-shadow: inset 0 0 0 0 rgba(0, 0, 0, 0);
@@ -625,7 +718,6 @@
 html {
     scroll-behavior: smooth;
 }
-
 /* =====================================================
    EXPORT MODAL — MINIMALIST MONOCHROME
 ===================================================== */
@@ -1368,6 +1460,303 @@ html {
         transition: none !important;
     }
 }
+
+/* =====================================================
+   LIST / GRID VIEW TOGGLE
+===================================================== */
+
+.rl-view-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 36px;
+    padding: 3px;
+    margin-left: 0;
+    margin-right: 0;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.rl-view-toggle button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 9px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: #777;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.rl-view-toggle button.active {
+    background: #171717;
+    color: #fff;
+}
+
+.rl-view-toggle button:hover:not(.active) {
+    background: #f1f1f1;
+    color: #171717;
+}
+
+.rl-view-toggle i {
+    font-size: 13px;
+}
+
+/* =====================================================
+   READING LIST GRID VIEW
+===================================================== */
+/* JARAK HEADER GROUP KE GRID ITEMS */
+.rl-grid-group .rl-library-grid {
+    margin-top: 14px;
+    margin-bottom: 24px;
+}
+
+.rl-library-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 18px 14px;
+}
+
+.rl-library-item {
+    min-width: 0;
+}
+
+.rl-library-card {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    background: #fff;
+    transition: border-color .2s ease, transform .2s ease;
+}
+
+.rl-library-card:hover {
+    border-color: #999;
+    transform: translateY(-3px);
+}
+
+.rl-library-card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+/* COVER IMAGE — UNIFORM SIZE */
+
+.rl-library-cover-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.rl-library-cover-wrapper > a {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.rl-library-cover {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover;
+    object-position: center;
+}
+
+.rl-library-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #999;
+    font-size: 11px;
+}
+
+/* CARD BODY */
+
+.rl-library-card-body {
+    padding: 12px 10px;
+}
+
+.rl-library-card-title {
+    display: -webkit-box;
+    overflow: hidden;
+    min-height: 36px;
+    margin: 0 0 7px;
+    color: #111;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+/* CARD INFORMATION */
+
+.rl-library-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+    margin: 0;
+    color: #737373;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+/* CHAPTER & STATUS — SAME ROW */
+
+.rl-library-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+}
+
+.rl-library-card-meta span {
+    min-width: 0;
+}
+
+.rl-library-card-meta span:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* COUNTRY FLAG */
+
+.rl-library-country-flag {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 23px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,.12);
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,.16);
+}
+
+.rl-library-country-flag img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* FAVORITE */
+
+.rl-library-favorite {
+    display: inline-block;
+    position: relative;
+    top: -1px;
+    margin-left: 3px;
+    color: #d6a800;
+    font-size: 11px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* CHECKBOX */
+.rl-library-checkbox {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    z-index: 4;
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: #171717;
+    cursor: pointer;
+}
+
+/* EMPTY STATE */
+
+.rl-library-empty {
+    grid-column: 1 / -1;
+    padding: 50px 20px;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    color: #777;
+    text-align: center;
+}
+
+/* TABLET */
+
+@media (max-width: 1199.98px) {
+    .rl-library-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px 12px;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 767.98px) {
+    .rl-library-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px 12px;
+    }
+
+    .rl-library-card-body {
+        padding: 10px 9px;
+    }
+
+    .rl-library-card-title {
+        font-size: 11px;
+    }
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 480px) {
+    .rl-library-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 12px;
+    }
+
+    .rl-library-card-body {
+        padding: 11px 9px;
+    }
+
+    .rl-library-card-title {
+        font-size: 11px;
+    }
+
+    .rl-library-card-text {
+        font-size: 9px;
+    }
+
+    .rl-library-country-flag {
+        top: 7px;
+        right: 7px;
+        width: 29px;
+        height: 20px;
+    }
+}
+
 </style>
 
 <div class="py-2 animate-fade-up reading-list-epic-wrapper">
@@ -1436,64 +1825,93 @@ html {
         <input type="hidden" name="selected_ids" id="selected_ids">
     </form>
 
-    <!-- ACTIONS: FILTER LEFT, OTHER ACTIONS RIGHT -->
+    <!-- ACTIONS: FILTER + VIEW LEFT, OTHER ACTIONS RIGHT -->
     <div class="rl-action-row">
 
-        <!-- FILTER BUTTON: LEFT -->
-        <button
-            type="button"
-            class="rl-filter-trigger"
-            id="rlFilterButton"
-            onclick="toggleReadingFilter(true)"
-            aria-controls="rlFilterSidebar"
-            aria-expanded="false"
-            title="Filter Reading List"
-        >
-            <i class="bi bi-funnel"></i>
-            <span>Filter</span>
-        </button>
+        <!-- LEFT ACTIONS -->
+        <div class="rl-left-actions">
 
-        <!-- RIGHT ACTIONS -->
-        <div class="rl-primary-actions">
-
-            <a href="{% url 'reading_add' %}" class="rl-button">
-                + Add New
-            </a>
-
+            <!-- FILTER BUTTON -->
             <button
                 type="button"
-                class="rl-button"
-                data-bs-toggle="modal"
-                data-bs-target="#exportModal"
+                class="rl-filter-trigger"
+                id="rlFilterButton"
+                onclick="toggleReadingFilter(true)"
+                aria-controls="rlFilterSidebar"
+                aria-expanded="false"
+                title="Filter Reading List"
             >
-                Download List
+                <i class="bi bi-funnel"></i>
+                <span>Filter</span>
             </button>
+
+            <!-- LIST / GRID TOGGLE -->
+            <div class="rl-view-toggle">
+                <button
+                    type="button"
+                    id="btn-list-view"
+                    class="active"
+                    onclick="setReadingView('list')"
+                    title="List View"
+                >
+                    <i class="bi bi-list-ul"></i>
+                </button>
+
+                <button
+                    type="button"
+                    id="btn-grid-view"
+                    onclick="setReadingView('grid')"
+                    title="Grid View"
+                >
+                    <i class="bi bi-grid"></i>
+                </button>
+            </div>
 
         </div>
 
-        <div class="rl-bulk-actions" id="bulk-actions">
+        <!-- RIGHT ACTIONS -->
+        <div class="rl-right-actions">
 
-            <button
-                type="button"
-                id="btn-edit-bulk"
-                class="rl-button"
-                style="display:none;"
-                onclick="prepareBulkEdit()"
-            >
-                Edit Selected
-            </button>
+            <div class="rl-primary-actions">
+                <a href="{% url 'reading_add' %}" class="rl-button">
+                    + Add New
+                </a>
 
-            <button
-                type="button"
-                id="btn-delete-bulk"
-                class="rl-button rl-button-danger"
-                style="display:none;"
-                data-bs-toggle="modal"
-                data-bs-target="#deleteModal"
-                onclick="prepareBulkDelete()"
-            >
-                Delete Selected
-            </button>
+                <button
+                    type="button"
+                    class="rl-button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exportModal"
+                >
+                    Download List
+                </button>
+            </div>
+
+            <div class="rl-bulk-actions" id="bulk-actions">
+
+                <button
+                    type="button"
+                    id="btn-edit-bulk"
+                    class="rl-button"
+                    style="display:none;"
+                    onclick="prepareBulkEdit()"
+                >
+                    Edit Selected
+                </button>
+
+                <button
+                    type="button"
+                    id="btn-delete-bulk"
+                    class="rl-button rl-button-danger"
+                    style="display:none;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteModal"
+                    onclick="prepareBulkDelete()"
+                >
+                    Delete Selected
+                </button>
+
+            </div>
 
         </div>
 
@@ -1513,147 +1931,262 @@ html {
     {% endif %}
 
     <!-- READING LIST TABLE -->
-    <div class="table-responsive w-100 d-block animate-fade-up delay-1">
-        <table class="table align-middle custom-table-mono">
-            <thead>
-                <tr>
-                    <th scope="col">No.</th>
-                    <th scope="col" class="text-start">Title</th>
-                    <th scope="col" class="text-end">Chapters</th>
-                    <th scope="col" class="text-end">Season</th>
-                    <th scope="col" class="text-end">Status</th>
-                    <th scope="col" class="text-end">Rating</th>
-                    <th scope="col" class="text-end">Type</th>
-                    <th scope="col" class="text-end">Notes</th>
-                    <th scope="col" class="text-center">
-                        <input
-                            type="checkbox"
-                            id="select-all"
-                            aria-label="Select all items"
-                        >
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody id="tabel-body">
-                {% if reading_items %}
-                    {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
-
-                    {% for group in grouped_list %}
-                    <tr id="group-{{ group.grouper }}" class="group-header-row">
-                        <td colspan="9">
-                            <div class="group-info">
-                                <span class="group-letter">
-                                    {{ group.grouper }} | ••••
-                                </span>
-
-                                <span class="group-total-text">
-                                    Total: {{ group.list|length }}
-                                </span>
-                            </div>
-
-                            <div class="group-checkbox-wrap">
-                                <input
-                                    type="checkbox"
-                                    class="group-checkbox"
-                                    data-group="{{ group.grouper }}"
-                                    aria-label="Select group {{ group.grouper }}"
-                                >
-                            </div>
-                        </td>
-                    </tr>
-
-                    {% for item in group.list %}
+    <div id="rlListView">
+        <!-- READING LIST TABLE -->
+        <div class="table-responsive w-100 d-block animate-fade-up delay-1">
+            <table class="table align-middle custom-table-mono">
+                <thead>
                     <tr>
-                        <td>
-                            <div class="d-flex align-items-center w-100">
-                                <div
-                                    class="fw-medium text-muted"
-                                    style="flex:1; text-align:center;"
-                                >
-                                    {{ forloop.counter }}
-                                </div>
-
-                                <div
-                                    style="width:20px; text-align:right; color:#d6a800; font-size:0.8rem;"
-                                    aria-label="{% if item.favorit %}Favorite{% endif %}"
-                                >
-                                    {% if item.favorit %}★{% endif %}
-                                </div>
-                            </div>
-                        </td>
-
-                        <td
-                            class="fw-bold text-dark text-start col-title"
-                            title="{{ item.title }}"
-                        >
-                            <a href="{% url 'reading_item_detail' item.id %}">
-                                {{ item.title }}
-                            </a>
-                        </td>
-
-                        <td
-                            class="text-end col-chapters"
-                            title="Ch. {{ item.chapters }}"
-                        >
-                            Ch. {{ item.chapters }}
-                        </td>
-
-                        <td
-                            class="text-end col-season"
-                            title="{% if item.season %}{{ item.season }}{% else %}-{% endif %}"
-                        >
-                            {% if item.season %}{{ item.season }}{% else %}-{% endif %}
-                        </td>
-
-                        <td class="text-end">
-                            {% if item.status and item.status.id != 1 %}
-                                {{ item.status.name }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-
-                        <td class="text-dark fw-bold text-end">
-                            {{ item.rating }}
-                        </td>
-
-                        <td class="text-end">
-                            {% if item.Type and item.Type.id != 1 %}
-                                {{ item.Type.name }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-
-                        <td
-                            class="text-end col-notes"
-                            title="{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}"
-                        >
-                            {% if item.notes %}{{ item.notes }}{% else %}-{% endif %}
-                        </td>
-
-                        <td class="text-center">
+                        <th scope="col">No.</th>
+                        <th scope="col" class="text-start">Title</th>
+                        <th scope="col" class="text-end">Chapters</th>
+                        <th scope="col" class="text-end">Season</th>
+                        <th scope="col" class="text-end">Status</th>
+                        <th scope="col" class="text-end">Rating</th>
+                        <th scope="col" class="text-end">Type</th>
+                        <th scope="col" class="text-end">Notes</th>
+                        <th scope="col" class="text-center">
                             <input
                                 type="checkbox"
-                                class="item-checkbox"
-                                value="{{ item.id }}"
-                                aria-label="Select {{ item.title }}"
+                                id="select-all"
+                                aria-label="Select all items"
                             >
-                        </td>
+                        </th>
                     </tr>
-                    {% endfor %}
-                    {% endfor %}
+                </thead>
 
-                {% else %}
-                    <tr>
-                        <td colspan="9" class="text-center py-5 text-muted">
-                            <p class="mb-0">Your reading list is empty.</p>
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                <tbody id="tabel-body">
+                    {% if reading_items %}
+                        {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
+
+                        {% for group in grouped_list %}
+                        <tr id="group-{{ group.grouper }}" class="group-header-row">
+                            <td colspan="9">
+                                <div class="group-info">
+                                    <span class="group-letter">
+                                        {{ group.grouper }} | ••••
+                                    </span>
+
+                                    <span class="group-total-text">
+                                        Total: {{ group.list|length }}
+                                    </span>
+                                </div>
+
+                                <div class="group-checkbox-wrap">
+                                    <input
+                                        type="checkbox"
+                                        class="group-checkbox"
+                                        data-group="{{ group.grouper }}"
+                                        aria-label="Select group {{ group.grouper }}"
+                                    >
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% for item in group.list %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center w-100">
+                                    <div
+                                        class="fw-medium text-muted"
+                                        style="flex:1; text-align:center;"
+                                    >
+                                        {{ forloop.counter }}
+                                    </div>
+
+                                    <div
+                                        style="width:20px; text-align:right; color:#d6a800; font-size:0.8rem;"
+                                        aria-label="{% if item.favorit %}Favorite{% endif %}"
+                                    >
+                                        {% if item.favorit %}★{% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td
+                                class="fw-bold text-dark text-start col-title"
+                                title="{{ item.title }}"
+                            >
+                                <a href="{% url 'reading_item_detail' item.id %}">
+                                    {{ item.title }}
+                                </a>
+                            </td>
+
+                            <td
+                                class="text-end col-chapters"
+                                title="Ch. {{ item.chapters }}"
+                            >
+                                Ch. {{ item.chapters }}
+                            </td>
+
+                            <td
+                                class="text-end col-season"
+                                title="{% if item.season %}{{ item.season }}{% else %}-{% endif %}"
+                            >
+                                {% if item.season %}{{ item.season }}{% else %}-{% endif %}
+                            </td>
+
+                            <td class="text-end">
+                                {% if item.status and item.status.id != 1 %}
+                                    {{ item.status.name }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-dark fw-bold text-end">
+                                {{ item.rating }}
+                            </td>
+
+                            <td class="text-end">
+                                {% if item.Type and item.Type.id != 1 %}
+                                    {{ item.Type.name }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td
+                                class="text-end col-notes"
+                                title="{% if item.notes %}{{ item.notes }}{% else %}-{% endif %}"
+                            >
+                                {% if item.notes %}{{ item.notes }}{% else %}-{% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                <input
+                                    type="checkbox"
+                                    class="item-checkbox"
+                                    value="{{ item.id }}"
+                                    aria-label="Select {{ item.title }}"
+                                >
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endfor %}
+
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <p class="mb-0">Your reading list is empty.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- READING GRID TABLE -->
+    <div id="rlGridView" style="display:none;">
+        {% if reading_items %}
+            {% regroup reading_items by title|slice:":1"|upper as grouped_list %}
+
+            {% for group in grouped_list %}
+                <div class="rl-grid-group" id="group-{{ group.grouper }}">
+                    <!-- GROUP HEADER -->
+                    <div class="group-header-row">
+                        <div class="group-info">
+                            <span class="group-letter">
+                                {{ group.grouper }} | ••••
+                            </span>
+                            <span class="group-total-text">
+                                Total: {{ group.list|length }}
+                            </span>
+                        </div>
+
+                        <div class="group-checkbox-wrap">
+                            <input
+                                type="checkbox"
+                                class="group-checkbox"
+                                data-group="{{ group.grouper }}"
+                                aria-label="Select group {{ group.grouper }}"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- GRID ITEMS -->
+                    <div class="rl-library-grid">
+                        {% for item in group.list %}
+                            <div class="rl-library-item">
+                                <article class="rl-library-card">
+                                    <!-- COVER -->
+                                    <div class="rl-library-cover-wrapper">
+                                        <a href="{% url 'reading_item_detail' item.id %}" class="rl-library-card-link">
+                                            {% if item.image %}
+                                                <img
+                                                    src="{{ item.image.url }}"
+                                                    class="rl-library-cover"
+                                                    alt="{{ item.title }}"
+                                                    loading="lazy"
+                                                >
+                                            {% else %}
+                                                <div class="rl-library-placeholder">No Cover</div>
+                                            {% endif %}
+                                        </a>
+
+                                        <!-- ITEM CHECKBOX -->
+                                        <input
+                                            type="checkbox"
+                                            class="item-checkbox rl-library-checkbox"
+                                            value="{{ item.id }}"
+                                            data-group="{{ group.grouper }}"
+                                            aria-label="Select {{ item.title }}"
+                                        >
+
+                                        <!-- COUNTRY FLAG -->
+                                        {% with item_type=item.Type.name|default:""|lower %}
+                                            {% if item_type == 'manga' %}
+                                                <span class="rl-library-country-flag" title="Jepang">
+                                                    <img src="https://flagcdn.com/w80/jp.png" alt="Jepang" loading="lazy">
+                                                </span>
+                                            {% elif item_type == 'manhua' %}
+                                                <span class="rl-library-country-flag" title="Tiongkok">
+                                                    <img src="https://flagcdn.com/w80/cn.png" alt="Tiongkok" loading="lazy">
+                                                </span>
+                                            {% elif item_type == 'manhwa' %}
+                                                <span class="rl-library-country-flag" title="Korea Selatan">
+                                                    <img src="https://flagcdn.com/w80/kr.png" alt="Korea Selatan" loading="lazy">
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+
+                                    <!-- CARD INFORMATION -->
+                                    <a href="{% url 'reading_item_detail' item.id %}" class="rl-library-card-link">
+                                        <div class="rl-library-card-body">
+                                            <h2 class="rl-library-card-title" title="{{ item.title }}">
+                                                {{ item.title }}
+                                            </h2>
+
+                                            <div class="rl-library-card-text">
+                                                <div class="rl-library-card-meta">
+                                                    <span>
+                                                        Ch. {{ item.chapters }}{% if item.favorit %}<span class="rl-library-favorite" title="Favorite">★</span>{% endif %}
+                                                    </span>
+                                                    <span>
+                                                        {% if item.status and item.status.id != 1 %}
+                                                            {{ item.status.name }}
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </article>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% else %}
+            <div class="rl-library-empty">
+                Your reading list is empty.
+            </div>
+        {% endif %}
     </div>
 </div>
 
@@ -1924,11 +2457,51 @@ document.addEventListener('DOMContentLoaded', function () {
     const getItemCheckboxes = () =>
         Array.from(document.querySelectorAll('.item-checkbox'));
 
+    // Mengambil semua checkbox item berdasarkan alfabet.
+    function getGroupItems(groupCb) {
+        const group = groupCb.dataset.group;
+
+        if (!group) return [];
+
+        // GRID VIEW
+        const gridGroup = groupCb.closest('.rl-grid-group');
+
+        if (gridGroup) {
+            return Array.from(
+                gridGroup.querySelectorAll('.item-checkbox')
+            );
+        }
+
+        // LIST VIEW
+        const groupRow = groupCb.closest('.group-header-row');
+        const groupItems = [];
+
+        let nextRow = groupRow
+            ? groupRow.nextElementSibling
+            : null;
+
+        while (
+            nextRow &&
+            !nextRow.classList.contains('group-header-row')
+        ) {
+            const itemCb = nextRow.querySelector('.item-checkbox');
+
+            if (itemCb) {
+                groupItems.push(itemCb);
+            }
+
+            nextRow = nextRow.nextElementSibling;
+        }
+
+        return groupItems;
+    }
+
     function updateBulkButtons() {
         const itemCheckboxes = getItemCheckboxes();
         const checkedItems = itemCheckboxes.filter(cb => cb.checked);
         const anyChecked = checkedItems.length > 0;
 
+        // Bulk buttons
         if (btnDelete) {
             btnDelete.style.display = anyChecked ? 'inline-flex' : 'none';
         }
@@ -1937,6 +2510,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEdit.style.display = anyChecked ? 'inline-flex' : 'none';
         }
 
+        // Select All
         if (selectAll) {
             selectAll.checked =
                 itemCheckboxes.length > 0 &&
@@ -1947,21 +2521,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 checkedItems.length < itemCheckboxes.length;
         }
 
+        // Update checkbox alfabet pada List dan Grid
         document.querySelectorAll('.group-checkbox').forEach(groupCb => {
-            const groupRow = groupCb.closest('tr');
-            const groupItems = [];
-            let nextRow = groupRow ? groupRow.nextElementSibling : null;
-
-            while (
-                nextRow &&
-                !nextRow.classList.contains('group-header-row')
-            ) {
-                const itemCb = nextRow.querySelector('.item-checkbox');
-
-                if (itemCb) groupItems.push(itemCb);
-
-                nextRow = nextRow.nextElementSibling;
-            }
+            const groupItems = getGroupItems(groupCb);
 
             const selectedCount =
                 groupItems.filter(cb => cb.checked).length;
@@ -1980,12 +2542,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (selectAll) {
         selectAll.addEventListener('change', function () {
             getItemCheckboxes().forEach(cb => {
-                cb.checked = selectAll.checked;
-            });
-
-            document.querySelectorAll('.group-checkbox').forEach(cb => {
-                cb.checked = selectAll.checked;
-                cb.indeterminate = false;
+                cb.checked = this.checked;
             });
 
             updateBulkButtons();
@@ -1995,19 +2552,11 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Select items in one alphabet group */
     document.querySelectorAll('.group-checkbox').forEach(groupCb => {
         groupCb.addEventListener('change', function () {
-            const row = this.closest('tr');
-            let nextRow = row ? row.nextElementSibling : null;
+            const groupItems = getGroupItems(this);
 
-            while (
-                nextRow &&
-                !nextRow.classList.contains('group-header-row')
-            ) {
-                const itemCb = nextRow.querySelector('.item-checkbox');
-
-                if (itemCb) itemCb.checked = this.checked;
-
-                nextRow = nextRow.nextElementSibling;
-            }
+            groupItems.forEach(itemCb => {
+                itemCb.checked = this.checked;
+            });
 
             updateBulkButtons();
         });
@@ -2107,6 +2656,28 @@ document.addEventListener('click', function (event) {
         setTimeout(highlight, 500);
     }
 });
+
+/* =====================================================
+   LIST / GRID VIEW SWITCH
+===================================================== */
+
+function setReadingView(view) {
+    const listView = document.getElementById('rlListView');
+    const gridView = document.getElementById('rlGridView');
+
+    const listButton = document.getElementById('btn-list-view');
+    const gridButton = document.getElementById('btn-grid-view');
+
+    if (!listView || !gridView) return;
+
+    const isGrid = view === 'grid';
+
+    listView.style.display = isGrid ? 'none' : 'block';
+    gridView.style.display = isGrid ? 'block' : 'none';
+
+    listButton?.classList.toggle('active', !isGrid);
+    gridButton?.classList.toggle('active', isGrid);
+}
 </script>
 
 {% endblock %}
