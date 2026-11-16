@@ -2635,7 +2635,28 @@ document.addEventListener('click', function (event) {
 
     if (!targetId || targetId === '#') return;
 
-    const targetElement = document.querySelector(targetId);
+    const listView = document.getElementById('rlListView');
+    const gridView = document.getElementById('rlGridView');
+
+    // Deteksi tampilan yang sedang aktif
+    const isGrid =
+        gridView && window.getComputedStyle(gridView).display !== 'none';
+
+    const activeView = isGrid ? gridView : listView;
+
+    if (!activeView) return;
+
+    // Cari grup alfabet di tampilan yang sedang aktif
+    const groupContainer = Array.from(
+        activeView.querySelectorAll('[id]')
+    ).find(element => element.id === targetId.substring(1));
+
+    if (!groupContainer) return;
+
+    // Grid menggunakan header di dalam container grup
+    const targetElement = isGrid
+        ? groupContainer.querySelector('.group-header-row')
+        : groupContainer;
 
     if (!targetElement) return;
 
